@@ -390,7 +390,16 @@ function getHTML(transaction, id) {
 <div class="progress-label" id="plabel"><strong>${done} of ${total}</strong> items complete &nbsp;·&nbsp; <strong>${pct}%</strong></div>
 
 <div class="info-card">
-  <div style="padding:12px 0 8px;font-size:11px;font-weight:700;text-transform:uppercase;color:#888;letter-spacing:.5px">Transaction Details</div>
+  <div style="padding:12px 0 8px;display:flex;align-items:center;justify-content:space-between">
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#888;letter-spacing:.5px">Transaction Details</div>
+    <div style="display:flex;gap:8px;align-items:center">
+      ${transaction.status === 'closed' ? `<span style="background:#dcfce7;color:#15803d;padding:4px 12px;border-radius:6px;font-size:12px;font-weight:700">✓ Closed</span>` : ''}
+      ${transaction.status === 'cancelled' ? `<span style="background:#fee2e2;color:#dc2626;padding:4px 12px;border-radius:6px;font-size:12px;font-weight:700">✕ Cancelled</span>` : ''}
+      ${transaction.status !== 'closed' ? `<button onclick="setTxnStatus('closed')" style="background:#dcfce7;color:#15803d;border:1px solid #bbf7d0;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer">Mark Closed</button>` : ''}
+      ${transaction.status !== 'cancelled' ? `<button onclick="setTxnStatus('cancelled')" style="background:#fee2e2;color:#dc2626;border:1px solid #fecaca;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer">Mark Cancelled</button>` : ''}
+      ${transaction.status && transaction.status !== 'active' ? `<button onclick="setTxnStatus('active')" style="background:#f0f4ff;color:#1e3a5f;border:1px solid #c7d2fe;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer">Reopen</button>` : ''}
+    </div>
+  </div>
   <div class="info-grid">
     ${[
       ["Contract Execution Date (Day 0)", "contractDate", "date", true],
@@ -506,6 +515,13 @@ async function saveItemField(itemId, field, val) {
     body: JSON.stringify({itemId, field, val})
   });
   showToast();
+}
+async function setTxnStatus(status) {
+  await fetch('/api/transactions/' + TXN_ID + '/status', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({status})
+  });
+  location.reload();
 }
 async function saveField(key, val) {
   await fetch('/api/transactions/' + TXN_ID + '/field', {
