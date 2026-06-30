@@ -536,13 +536,19 @@ function showToast() {
 
 function getDashboardHTML(transactions) {
   const sorted = Object.entries(transactions).sort((a,b) => b[1].createdAt - a[1].createdAt);
-  const rows = sorted.map(([id, t]) => {
+
+  function makeRow(id, t, isArchived) {
     const items = t.type === "buyer" ? BUYER_ITEMS : LISTING_ITEMS;
     const done = items.filter(i => (t.checked || {})[i.id]).length;
     const pct = Math.round((done / items.length) * 100);
     const color = t.type === "buyer" ? "#1565c0" : "#2e7d32";
     const fields = t.fields || {};
-    return `<tr onclick="window.location='/t/${id}'" style="cursor:pointer">
+    const status = t.status || "active";
+    const actionBtns = isArchived
+      ? `<button onclick="event.stopPropagation();setStatus('${id}','active')" style="background:#f0f4ff;color:#1e3a5f;border:none;padding:4px 10px;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer">Reopen</button>`
+      : `<button onclick="event.stopPropagation();setStatus('${id}','closed')" style="background:#dcfce7;color:#15803d;border:none;padding:4px 10px;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;margin-right:4px">Close</button>
+         <button onclick="event.stopPropagation();setStatus('${id}','cancelled')" style="background:#fee2e2;color:#dc2626;border:none;padding:4px 10px;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer">Cancel</button>`;
+    return `<tr onclick="window.location='/t/${id}'" style="cursor:pointer;${isArchived?'opacity:0.7':''}">
       <td><strong>${t.address || '(no address)'}</strong></td>
       <td><span style="background:${color};color:white;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700;text-transform:uppercase">${t.type}</span></td>
       <td>${t.clientName || fields.clientName || '—'}</td>
@@ -558,8 +564,26 @@ function getDashboardHTML(transactions) {
           <span style="font-size:12px;font-weight:600;color:#555;white-space:nowrap">${pct}%</span>
         </div>
       </td>
+      <td onclick="event.stopPropagation()" style="white-space:nowrap">
+        ${actionBtns}
+        <button onclick="event.stopPropagation();deleteTxn('${id}','${(t.address||'this transaction').replace(/'/g,"\\'")}',this)" style="background:#f5f5f5;color:#888;border:none;padding:4px 8px;border-radius:5px;font-size:11px;cursor:pointer;margin-left:4px">✕</button>
+      </td>
     </tr>`;
-  }).join('');
+  }
+
+  const active     = sorted.filter(([,t]) => !t.status || t.status === "active");
+  const closed     = sorted.filter(([,t]) => t.status === "closed");
+  const cancelled  = sorted.filter(([,t]) => t.status === "cancelled");
+
+  function makeTable(list, archived) {
+    if (list.length === 0) return '<div class="empty">None</div>';
+    return `<table><thead><tr>
+      <th>Address</th><th>Type</th><th>Client</th><th>Agent Partner</th>
+      <th>Contract Date</th><th>Close Date</th><th>Lender</th><th>Progress</th><th>Actions</th>
+    </tr></thead><tbody>${list.map(([id,t]) => makeRow(id,t,archived)).join('')}</tbody></table>`;
+  }
+
+  const rows = ''; // unused placeholder
 
   return `<!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
@@ -605,13 +629,21 @@ function getDashboardHTML(transactions) {
   <button class="btn" onclick="document.getElementById('modal').classList.add('open')">+ New Transaction</button>
 </div>
 <div class="container">
-  <div class="card">
-    ${sorted.length === 0
-      ? '<div class="empty">No transactions yet. Click <strong>+ New Transaction</strong> to get started.</div>'
-      : `<table><thead><tr>
-          <th>Address</th><th>Type</th><th>Client</th><th>Agent Partner</th>
-          <th>Contract Date</th><th>Close Date</th><th>Lender</th><th>Progress</th>
-         </tr></thead><tbody>${rows}</tbody></table>`}
+  <div style="font-size:12px;font-weight:700;text-transform:uppercase;color:#1e3a5f;letter-spacing:.5px;margin-bottom:8px">Active Transactions</div>
+  <div class="card" style="margin-bottom:28px">
+    ${active.length === 0
+      ? '<div class="empty">No active transactions. Click <strong>+ New Transaction</strong> to get started.</div>'
+      : makeTable(active, false)}
+  </div>
+
+  <div style="font-size:12px;font-weight:700;text-transform:uppercase;color:#15803d;letter-spacing:.5px;margin-bottom:8px">Closed Transactions</div>
+  <div class="card" style="margin-bottom:28px">
+    ${makeTable(closed, true)}
+  </div>
+
+  <div style="font-size:12px;font-weight:700;text-transform:uppercase;color:#dc2626;letter-spacing:.5px;margin-bottom:8px">Cancelled Transactions</div>
+  <div class="card" style="margin-bottom:28px">
+    ${makeTable(cancelled, true)}
   </div>
 </div>
 
@@ -643,6 +675,18 @@ function getDashboardHTML(transactions) {
   </div>
 </div>
 <script>
+async function setStatus(id, status) {
+  await fetch('/api/transactions/' + id + '/status', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({status})
+  });
+  location.reload();
+}
+async function deleteTxn(id, label, btn) {
+  if (!confirm('Delete "' + label + '"? This cannot be undone.')) return;
+  await fetch('/api/transactions/' + id, { method:'DELETE' });
+  location.reload();
+}
 async function create() {
   const body = {
     type: document.getElementById('f-type').value,
@@ -685,6 +729,31 @@ const server = http.createServer((req, res) => {
       res.writeHead(200, { "Content-Type": "application/json" });
       res.end(JSON.stringify(data.transactions[id]));
     });
+    return;
+  }
+
+  const statusMatch = pathname.match(/^\/api\/transactions\/([^/]+)\/status$/);
+  if (req.method === "POST" && statusMatch) {
+    let body = "";
+    req.on("data", d => body += d);
+    req.on("end", () => {
+      const data = loadData();
+      const txId = statusMatch[1];
+      const { status } = JSON.parse(body);
+      if (data.transactions[txId]) { data.transactions[txId].status = status; saveData(data); }
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ ok: true }));
+    });
+    return;
+  }
+
+  const deleteMatch = pathname.match(/^\/api\/transactions\/([^/]+)$/);
+  if (req.method === "DELETE" && deleteMatch) {
+    const data = loadData();
+    delete data.transactions[deleteMatch[1]];
+    saveData(data);
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ ok: true }));
     return;
   }
 
