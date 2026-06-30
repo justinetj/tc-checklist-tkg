@@ -41,7 +41,8 @@ const BUYER_ITEMS = [
   { id: "b14", section: "Day 1",                       day: "Day 1",  label: "Create SkySlope transaction" },
   { id: "b15", section: "Day 1",                       day: "Day 1",  label: "Notify agent of any missing docs / send missing docs checklist" },
   // Day 3
-  { id: "b16", section: "Day 3",                       day: "Day 3",  label: "SPDS received from seller — send to buyer" },
+  { id: "b16", section: "Day 3",                       day: "Day 3",  label: "SPDS received from seller — send to buyer", hasDue: true },
+  { id: "b16b", section: "Day 3",                      day: "Day 3",  label: "CLUE report received" },
   // Day 5
   { id: "b17", section: "Day 5",                       day: "Day 5",  label: "ICH (Insurance Claims History) received — send to buyer" },
   { id: "b18", section: "Day 5",                       day: "Day 5",  label: "Update client (buyer) if applicable" },
@@ -63,6 +64,7 @@ const BUYER_ITEMS = [
   // Day 15
   { id: "b29", section: "Day 15",                      day: "Day 15", label: "Appraisal ordered" },
   { id: "b30", section: "Day 15",                      day: "Day 15", label: "Follow up with agent regarding BINSR #3 status" },
+  { id: "b30b", section: "Day 15",                     day: "Day 15", label: "Seller response to BINSR due (5 days after BINSR)", hasDue: true },
   // Day 17
   { id: "b31", section: "Day 17",                      day: "Day 17", label: "Request LSU #2 from lender" },
   { id: "b32", section: "Day 17",                      day: "Day 17", label: "BINSR #3 due (5 days after BINSR #2)" },
@@ -122,7 +124,8 @@ const LISTING_ITEMS = [
   { id: "l4",  section: "Day 0 — Listing Setup",       day: "Day 0",  label: "Update Kumler Group Workbook" },
   { id: "l5",  section: "Day 0 — Listing Setup",       day: "Day 0",  label: "Verify commission split (agent partner vs Kumler)" },
   { id: "l6",  section: "Day 0 — Listing Setup",       day: "Day 0",  label: "Create Zillow Payment Form (if applicable)" },
-  { id: "l7",  section: "Day 0 — Listing Setup",       day: "Day 0",  label: "SPDS completed by seller — on file" },
+  { id: "l7",  section: "Day 0 — Listing Setup",       day: "Day 0",  label: "SPDS completed by seller — on file", hasDue: true },
+  { id: "l7b", section: "Day 0 — Listing Setup",       day: "Day 0",  label: "CLUE report received" },
   { id: "l8",  section: "Day 0 — Listing Setup",       day: "Day 0",  label: "Lead-based paint disclosure (pre-1978 homes)" },
   { id: "l9",  section: "Day 0 — Listing Setup",       day: "Day 0",  label: "HOA addendum completed (if applicable)" },
   { id: "l10", section: "Day 0 — Listing Setup",       day: "Day 0",  label: "Professional photos scheduled" },
@@ -157,12 +160,13 @@ const LISTING_ITEMS = [
   { id: "l34", section: "Day 7",                       day: "Day 7",  label: "BINSR received from buyer — send to seller" },
   { id: "l35", section: "Day 7",                       day: "Day 7",  label: "Follow up with agent regarding BINSR response" },
   // Day 10
-  { id: "l36", section: "Day 10",                      day: "Day 10", label: "BINSR response due to buyer — confirm sent" },
+  { id: "l36", section: "Day 10",                      day: "Day 10", label: "BINSR due (10 days from contract acceptance)" },
   { id: "l37", section: "Day 10",                      day: "Day 10", label: "Inspection period complete" },
   { id: "l38", section: "Day 10",                      day: "Day 10", label: "Request title commitment from title company" },
   // Day 15
   { id: "l39", section: "Day 15",                      day: "Day 15", label: "Appraisal appointment confirmed" },
   { id: "l40", section: "Day 15",                      day: "Day 15", label: "Confirm any agreed repairs are scheduled" },
+  { id: "l40b", section: "Day 15",                     day: "Day 15", label: "Seller response to BINSR due (5 days after BINSR)", hasDue: true },
   // Day 22
   { id: "l41", section: "Day 22",                      day: "Day 22", label: "Appraisal received — confirm value" },
   { id: "l42", section: "Day 22",                      day: "Day 22", label: "Buyer loan approval confirmed" },
@@ -272,15 +276,10 @@ function getHTML(transaction, id) {
         </td>
         <td class="label-cell"><label for="${item.id}">${item.label}</label></td>
         <td class="day-cell">${dayBadge(item.day, color)}</td>
-        <td class="date-cell">
+        <td class="date-cell">${item.hasDue ? `
           <input type="date" class="date-input due${dueCls}" data-item="${item.id}" data-auto="${autoISO}"
             value="${dueVal.replace(/"/g, '&quot;')}"
-            onchange="saveDue('${item.id}', this.value)">
-        </td>
-        <td class="date-cell">
-          <input type="date" class="date-input" title="Received"
-            value="${(itemNotes.received || '').replace(/"/g, '&quot;')}"
-            onchange="saveItemField('${item.id}', 'received', this.value)">
+            onchange="saveDue('${item.id}', this.value)">` : `<span style="color:#ccc">—</span>`}
         </td>
         <td class="note-cell">
           <input type="text" class="note-input" placeholder="note…"
@@ -304,7 +303,6 @@ function getHTML(transaction, id) {
             <th style="text-align:left;padding:6px 8px;font-size:11px;color:#888;font-weight:600">Item</th>
             <th style="width:80px;padding:6px 8px;font-size:11px;color:#888;font-weight:600">Day</th>
             <th style="width:130px;padding:6px 8px;font-size:11px;color:#888;font-weight:600">Due Date ✏️</th>
-            <th style="width:130px;padding:6px 8px;font-size:11px;color:#888;font-weight:600">Received</th>
             <th style="width:180px;padding:6px 8px;font-size:11px;color:#888;font-weight:600">Note</th>
           </tr></thead>
           <tbody>${rows}</tbody>
