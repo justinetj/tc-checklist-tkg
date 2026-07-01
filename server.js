@@ -251,64 +251,46 @@ function getHTML(transaction, id) {
   const pct = Math.round((done / total) * 100);
   const color = transaction.type === "buyer" ? "#1565c0" : "#2e7d32";
 
-  const sections = {};
-  for (const item of items) {
-    if (!sections[item.section]) sections[item.section] = [];
-    sections[item.section].push(item);
-  }
-
-  const sectionHTML = Object.entries(sections).map(([section, sItems]) => {
-    const secDone = sItems.filter(i => checked[i.id]).length;
-    const secPct = Math.round((secDone / sItems.length) * 100);
-    const rows = sItems.map(item => {
-      const itemNotes = notes[item.id] || {};
-      const autoISO = calcDueDateISO(item.day, contractDate, closeDate);
-      const dueVal = itemNotes.due || autoISO;
-      const today = new Date().toISOString().slice(0, 10);
-      const isChecked = !!checked[item.id];
-      const overdue = dueVal && !isChecked && dueVal < today;
-      const dueCls = overdue ? " overdue" : (dueVal ? " on-time" : "");
-      return `
-      <tr class="${isChecked ? 'done' : ''}" data-day="${item.day || ''}">
-        <td class="cb-cell">
-          <input type="checkbox" id="${item.id}" ${isChecked ? 'checked' : ''}
-            onchange="toggle('${item.id}', this.checked)">
-        </td>
-        <td class="label-cell"><label for="${item.id}">${item.label}</label></td>
-        <td class="day-cell">${dayBadge(item.day, color)}</td>
-        <td class="date-cell">${item.hasDue ? `
-          <input type="date" class="date-input due${dueCls}" data-item="${item.id}" data-auto="${autoISO}"
-            value="${dueVal.replace(/"/g, '&quot;')}"
-            onchange="saveDue('${item.id}', this.value)">` : `<span style="color:#ccc">—</span>`}
-        </td>
-        <td class="note-cell">
-          <input type="text" class="note-input" placeholder="note…"
-            value="${(itemNotes.note || '').replace(/"/g, '&quot;')}"
-            onblur="saveItemField('${item.id}', 'note', this.value)">
-        </td>
-      </tr>`;
-    }).join('');
+  const flatRows = items.map(item => {
+    const itemNotes = notes[item.id] || {};
+    const autoISO = calcDueDateISO(item.day, contractDate, closeDate);
+    const dueVal = itemNotes.due || autoISO;
+    const today = new Date().toISOString().slice(0, 10);
+    const isChecked = !!checked[item.id];
+    const overdue = dueVal && !isChecked && dueVal < today;
+    const dueCls = overdue ? " overdue" : (dueVal ? " on-time" : "");
     return `
-      <div class="section">
-        <div class="section-header">
-          <span class="section-title">${section}</span>
-          <span class="section-progress">
-            <span class="sec-bar"><span class="sec-fill" style="width:${secPct}%;background:${color}"></span></span>
-            ${secDone}/${sItems.length}
-          </span>
-        </div>
-        <table>
-          <thead><tr>
-            <th style="width:40px"></th>
-            <th style="text-align:left;padding:6px 8px;font-size:11px;color:#888;font-weight:600">Item</th>
-            <th style="width:80px;padding:6px 8px;font-size:11px;color:#888;font-weight:600">Day</th>
-            <th style="width:130px;padding:6px 8px;font-size:11px;color:#888;font-weight:600">Due Date ✏️</th>
-            <th style="width:180px;padding:6px 8px;font-size:11px;color:#888;font-weight:600">Note</th>
-          </tr></thead>
-          <tbody>${rows}</tbody>
-        </table>
-      </div>`;
+    <tr class="${isChecked ? 'done' : ''}" data-day="${item.day || ''}">
+      <td class="cb-cell">
+        <input type="checkbox" id="${item.id}" ${isChecked ? 'checked' : ''}
+          onchange="toggle('${item.id}', this.checked)">
+      </td>
+      <td class="label-cell"><label for="${item.id}">${item.label}</label></td>
+      <td class="date-cell">${item.hasDue ? `
+        <input type="date" class="date-input due${dueCls}" data-item="${item.id}" data-auto="${autoISO}"
+          value="${dueVal.replace(/"/g, '&quot;')}"
+          onchange="saveDue('${item.id}', this.value)">` : `<span style="color:#ccc">—</span>`}
+      </td>
+      <td class="note-cell">
+        <input type="text" class="note-input" placeholder="note…"
+          value="${(itemNotes.note || '').replace(/"/g, '&quot;')}"
+          onblur="saveItemField('${item.id}', 'note', this.value)">
+      </td>
+    </tr>`;
   }).join('');
+
+  const sectionHTML = `
+    <div class="section">
+      <table>
+        <thead><tr>
+          <th style="width:40px"></th>
+          <th style="text-align:left;padding:6px 8px;font-size:11px;color:#888;font-weight:600">Item</th>
+          <th style="width:130px;padding:6px 8px;font-size:11px;color:#888;font-weight:600">Due Date ✏️</th>
+          <th style="width:180px;padding:6px 8px;font-size:11px;color:#888;font-weight:600">Note</th>
+        </tr></thead>
+        <tbody>${flatRows}</tbody>
+      </table>
+    </div>`;
 
   return `<!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
