@@ -40,8 +40,8 @@ const BUYER_ITEMS = [
   { id: "b14", section: "Day 1", day: "Day 1", label: "Create SkySlope transaction" },
   { id: "b15", section: "Day 1", day: "Day 1", label: "Notify agent of any missing docs / send missing docs checklist" },
   // Day 3
-  { id: "b16",  section: "Day 3", day: "Day 3", label: "SPDS received from seller — send to buyer", hasDue: true },
-  { id: "b16b", section: "Day 3", day: "Day 3", label: "CLUE report received" },
+  { id: "b16",  section: "Day 5", day: "Day 5", label: "SPDS received from seller — send to buyer", hasDue: true },
+  { id: "b16b", section: "Day 5", day: "Day 5", label: "CLUE report received" },
   // Day 5
   { id: "b17", section: "Day 5", day: "Day 5", label: "ICH (Insurance Claims History) received — send to buyer" },
   { id: "b18", section: "Day 5", day: "Day 5", label: "Update client (buyer) if applicable" },
