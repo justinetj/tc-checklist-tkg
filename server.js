@@ -345,6 +345,12 @@ function getHTML(transaction, id) {
         style="color:#b45309;font-weight:600;background:transparent"
         value="${fields.contractDate ? (() => { const d = new Date(fields.contractDate + "T12:00:00"); d.setDate(d.getDate() + 10); return d.toISOString().slice(0,10); })() : ''}">
     </div>
+    <div class="info-field" style="background:#fff7ed">
+      <div class="info-label">BINSR Due (Day 10)</div>
+      <input id="binsrDue" class="info-input" type="date" placeholder="—" readonly
+        style="color:#b45309;font-weight:600;background:transparent"
+        value="${fields.contractDate ? (() => { const d = new Date(fields.contractDate + "T12:00:00"); d.setDate(d.getDate() + 10); return d.toISOString().slice(0,10); })() : ''}">
+    </div>
   </div>
 </div>
 
@@ -427,7 +433,10 @@ document.querySelectorAll('.info-input').forEach((inp, i) => {
       if (!this.value) { el.textContent = '—'; return; }
       const d = new Date(this.value + 'T12:00:00');
       d.setDate(d.getDate() + 10);
-      el.value = d.toISOString().slice(0, 10);
+      const iso = d.toISOString().slice(0, 10);
+      el.value = iso;
+      const binsr = document.getElementById('binsrDue');
+      if (binsr) binsr.value = iso;
     });
   }
 });
