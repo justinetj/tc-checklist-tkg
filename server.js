@@ -330,9 +330,6 @@ function getHTML(transaction, id) {
       ["Contract Execution Date (Day 0)", "contractDate", "date", true],
       ["Close of Escrow Date (COE)", "closeDate", "date", true],
       ["Client Name", "clientName", "text", false],
-      ["Agent Partner 1", "agentPartner1", "text", false],
-      ["Agent Partner 2", "agentPartner2", "text", false],
-      ["TC Name", "tcName", "text", false],
     ].map(([label, key, type, hi]) => `
       <div class="info-field${hi ? ' highlight' : ''}">
         <div class="info-label">${label}</div>
@@ -340,6 +337,25 @@ function getHTML(transaction, id) {
           value="${(fields[key] || '').replace(/"/g, '&quot;')}"
           onchange="saveField('${key}', this.value)">
       </div>`).join('')}
+    ${['agentPartner1','agentPartner2'].map((key, i) => {
+      const agentNames = ['Akanksha Tomar','Alexandra Allen','Alexis Wilson','Angela Massey','Angie Rodriguez','Annie Clark','Arielle Jaime','Ashleigh DiFilippantonio','Ashton Kaufman','Benjamin Veader','Brandi Romero','Carla Balk','Chelsea Higgs','Cierra Farrow-Boyle','Darlena Barley','Dennis Sadberry','Donica Sadberry','Gabriela Crosser','Hector Torres','India Blackshear','Jenny Cohen','Jessenia Zinner','Joyce Mireault','Justine Johnston','Kahila White','Keith Glass','Kira Warrens','Kye Mingus','Kyle Olson','Lake Porter','Michael Tarver','Prakash Agrawal','Ravi Sharma','Richie Corrie','Roberta Harris','Thomas Doheny','Time Isufi','Youseff Daboul','Yuxuan Xia'];
+      const val = fields[key] || '';
+      const opts = agentNames.map(n => `<option value="${n}"${n===val?' selected':''}>${n}</option>`).join('');
+      return `<div class="info-field">
+        <div class="info-label">Agent Partner ${i+1}</div>
+        <select class="info-input" onchange="saveField('${key}', this.value)">
+          <option value="">—</option>${opts}
+        </select>
+      </div>`;
+    }).join('')}
+    <div class="info-field">
+      <div class="info-label">TC Name</div>
+      <select class="info-input" onchange="saveField('tcName', this.value)">
+        <option value="">—</option>
+        <option value="Joana Guzman"${(fields.tcName||'')==='Joana Guzman'?' selected':''}>Joana Guzman</option>
+        <option value="Ashley Belliveau"${(fields.tcName||'')==='Ashley Belliveau'?' selected':''}>Ashley Belliveau</option>
+      </select>
+    </div>
     <div class="info-field" style="background:#fff7ed">
       <div class="info-label">Inspection Due Date (Day 10)</div>
       <input id="inspectionDue" class="info-input" type="date" placeholder="—"
@@ -424,7 +440,7 @@ document.querySelectorAll('.date-input.due').forEach(inp => {
 
 // tag info-inputs with data-key for easy lookup
 document.querySelectorAll('.info-input').forEach((inp, i) => {
-  const keys = ['contractDate','closeDate','clientName','agentPartner1','agentPartner2','tcName','inspectionDue','binsrDue'];
+  const keys = ['contractDate','closeDate','clientName','inspectionDue','binsrDue'];
   inp.setAttribute('data-key', keys[i] || '');
   if (keys[i] === 'contractDate' || keys[i] === 'closeDate') {
     inp.addEventListener('change', refreshDueDates);
