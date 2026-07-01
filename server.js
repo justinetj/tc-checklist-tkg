@@ -341,9 +341,9 @@ function getHTML(transaction, id) {
       </div>`).join('')}
     <div class="info-field" style="background:#fff7ed">
       <div class="info-label">Inspection Due Date (Day 10)</div>
-      <div id="inspectionDue" class="info-input" style="color:#b45309;font-weight:600">
-        ${fields.contractDate ? (() => { const d = new Date(fields.contractDate + "T12:00:00"); d.setDate(d.getDate() + 10); return d.toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'}); })() : '—'}
-      </div>
+      <input id="inspectionDue" class="info-input" type="date" placeholder="—" readonly
+        style="color:#b45309;font-weight:600;background:transparent"
+        value="${fields.contractDate ? (() => { const d = new Date(fields.contractDate + "T12:00:00"); d.setDate(d.getDate() + 10); return d.toISOString().slice(0,10); })() : ''}">
     </div>
   </div>
 </div>
@@ -427,7 +427,7 @@ document.querySelectorAll('.info-input').forEach((inp, i) => {
       if (!this.value) { el.textContent = '—'; return; }
       const d = new Date(this.value + 'T12:00:00');
       d.setDate(d.getDate() + 10);
-      el.textContent = d.toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'});
+      el.value = d.toISOString().slice(0, 10);
     });
   }
 });
