@@ -223,8 +223,8 @@ function getHTML(transaction, id) {
         <thead><tr>
           <th style="width:40px"></th>
           <th style="text-align:left;padding:6px 8px;font-size:11px;color:#888;font-weight:600">Item</th>
-          <th style="width:130px;padding:6px 8px;font-size:11px;color:#888;font-weight:600">Due Date ✏️</th>
-          <th style="width:180px;padding:6px 8px;font-size:11px;color:#888;font-weight:600">Note</th>
+          <th style="width:150px;padding:6px 8px;font-size:11px;color:#888;font-weight:600">Due Date ✏️</th>
+          <th style="width:300px;padding:6px 8px;font-size:11px;color:#888;font-weight:600">Note</th>
         </tr></thead>
         <tbody>${flatRows}</tbody>
       </table>
@@ -284,11 +284,11 @@ function getHTML(transaction, id) {
   .date-input.due.overdue { border-color:#fecaca; color:#dc2626; background:#fff5f5; }
   .date-input.due:focus { border-color:#16a34a; }
   .date-input.due.overdue:focus { border-color:#dc2626; }
-  .date-cell { padding:6px 4px; width:130px; }
+  .date-cell { padding:6px 4px; width:150px; }
   .date-input { width:100%; border:1px solid #e0e4f0; border-radius:5px; padding:4px 6px;
                 font-size:12px; color:#555; outline:none; background:#fafbff; font-family:inherit; }
   .date-input:focus { border-color:${color}; background:white; }
-  .note-cell { padding:6px 16px 6px 0; width:180px; }
+  .note-cell { padding:6px 16px 6px 0; width:300px; }
   .note-input { width:100%; border:1px solid #e0e4f0; border-radius:5px; padding:4px 8px;
                 font-size:12px; color:#555; outline:none; background:#fafbff; }
   .note-input:focus { border-color:${color}; background:white; }
