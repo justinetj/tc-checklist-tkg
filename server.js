@@ -75,6 +75,7 @@ const BUYER_ITEMS = [
   { id: "b46", section: "COE — Close of Escrow", day: "COE", label: "Update FUB status → Closed" },
   { id: "b48", section: "COE — Close of Escrow", day: "COE", label: "Update Zillow status → Sold" },
   { id: "b49", section: "COE — Close of Escrow", day: "COE", label: "Move file to close" },
+  { id: "b50", section: "COE — Close of Escrow", day: "COE", label: "Check SkySlope — final documents" },
 ];
 
 const LISTING_ITEMS = [
