@@ -390,13 +390,6 @@ function getHTML(transaction, id) {
       ["Agent Partner 1", "agentPartner1", "text", false],
       ["Agent Partner 2", "agentPartner2", "text", false],
       ["TC Name", "tcName", "text", false],
-      ["Title Company", "titleCompany", "text", false],
-      ["Lender", "lender", "text", false],
-      ["Agent Partner Commission", "agentCommission", "text", false],
-      ["Kumler Commission", "kumlerCommission", "text", false],
-      ["Zillow Payment", "zillowPayment", "text", false],
-      ["Home Warranty", "homeWarranty", "text", false],
-      ["Escrow Number", "escrowNumber", "text", false],
     ].map(([label, key, type, hi]) => `
       <div class="info-field${hi ? ' highlight' : ''}">
         <div class="info-label">${label}</div>
@@ -474,7 +467,7 @@ document.querySelectorAll('.date-input.due').forEach(inp => {
 
 // tag info-inputs with data-key for easy lookup
 document.querySelectorAll('.info-input').forEach((inp, i) => {
-  const keys = ['contractDate','closeDate','clientName','agentPartner1','agentPartner2','tcName','titleCompany','lender','agentCommission','kumlerCommission','zillowPayment','homeWarranty','escrowNumber'];
+  const keys = ['contractDate','closeDate','clientName','agentPartner1','agentPartner2','tcName'];
   inp.setAttribute('data-key', keys[i] || '');
   if (keys[i] === 'contractDate' || keys[i] === 'closeDate') {
     inp.addEventListener('change', refreshDueDates);
