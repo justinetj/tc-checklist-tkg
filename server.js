@@ -339,6 +339,12 @@ function getHTML(transaction, id) {
           value="${(fields[key] || '').replace(/"/g, '&quot;')}"
           onchange="saveField('${key}', this.value)">
       </div>`).join('')}
+    <div class="info-field" style="background:#fff7ed">
+      <div class="info-label">Inspection Due Date (Day 10)</div>
+      <div id="inspectionDue" class="info-input" style="color:#b45309;font-weight:600">
+        ${fields.contractDate ? (() => { const d = new Date(fields.contractDate + "T12:00:00"); d.setDate(d.getDate() + 10); return d.toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'}); })() : '—'}
+      </div>
+    </div>
   </div>
 </div>
 
@@ -413,6 +419,16 @@ document.querySelectorAll('.info-input').forEach((inp, i) => {
   inp.setAttribute('data-key', keys[i] || '');
   if (keys[i] === 'contractDate' || keys[i] === 'closeDate') {
     inp.addEventListener('change', refreshDueDates);
+  }
+  if (keys[i] === 'contractDate') {
+    inp.addEventListener('change', function() {
+      const el = document.getElementById('inspectionDue');
+      if (!el) return;
+      if (!this.value) { el.textContent = '—'; return; }
+      const d = new Date(this.value + 'T12:00:00');
+      d.setDate(d.getDate() + 10);
+      el.textContent = d.toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'});
+    });
   }
 });
 
