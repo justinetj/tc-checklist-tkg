@@ -342,15 +342,17 @@ function getHTML(transaction, id) {
       </div>`).join('')}
     <div class="info-field" style="background:#fff7ed">
       <div class="info-label">Inspection Due Date (Day 10)</div>
-      <input id="inspectionDue" class="info-input" type="date" placeholder="—" readonly
-        style="color:#b45309;font-weight:600;background:transparent"
-        value="${fields.contractDate ? (() => { const d = new Date(fields.contractDate + "T12:00:00"); d.setDate(d.getDate() + 10); return d.toISOString().slice(0,10); })() : ''}">
+      <input id="inspectionDue" class="info-input" type="date" placeholder="—"
+        style="color:#b45309;font-weight:600"
+        value="${fields.inspectionDue || (fields.contractDate ? (() => { const d = new Date(fields.contractDate + "T12:00:00"); d.setDate(d.getDate() + 10); return d.toISOString().slice(0,10); })() : '')}"
+        onchange="saveField('inspectionDue', this.value)">
     </div>
     <div class="info-field" style="background:#fff7ed">
       <div class="info-label">BINSR Due (Day 10)</div>
-      <input id="binsrDue" class="info-input" type="date" placeholder="—" readonly
-        style="color:#b45309;font-weight:600;background:transparent"
-        value="${fields.contractDate ? (() => { const d = new Date(fields.contractDate + "T12:00:00"); d.setDate(d.getDate() + 10); return d.toISOString().slice(0,10); })() : ''}">
+      <input id="binsrDue" class="info-input" type="date" placeholder="—"
+        style="color:#b45309;font-weight:600"
+        value="${fields.binsrDue || (fields.contractDate ? (() => { const d = new Date(fields.contractDate + "T12:00:00"); d.setDate(d.getDate() + 10); return d.toISOString().slice(0,10); })() : '')}"
+        onchange="saveField('binsrDue', this.value)">
     </div>
   </div>
 </div>
@@ -422,10 +424,13 @@ document.querySelectorAll('.date-input.due').forEach(inp => {
 
 // tag info-inputs with data-key for easy lookup
 document.querySelectorAll('.info-input').forEach((inp, i) => {
-  const keys = ['contractDate','closeDate','clientName','agentPartner1','agentPartner2','tcName'];
+  const keys = ['contractDate','closeDate','clientName','agentPartner1','agentPartner2','tcName','inspectionDue','binsrDue'];
   inp.setAttribute('data-key', keys[i] || '');
   if (keys[i] === 'contractDate' || keys[i] === 'closeDate') {
     inp.addEventListener('change', refreshDueDates);
+  }
+  if (keys[i] === 'inspectionDue' || keys[i] === 'binsrDue') {
+    inp.addEventListener('change', function() { this.dataset.manual = this.value ? '1' : ''; });
   }
   if (keys[i] === 'contractDate') {
     inp.addEventListener('change', function() {
@@ -435,9 +440,10 @@ document.querySelectorAll('.info-input').forEach((inp, i) => {
       const d = new Date(this.value + 'T12:00:00');
       d.setDate(d.getDate() + 10);
       const iso = d.toISOString().slice(0, 10);
-      el.value = iso;
+      const insp = document.getElementById('inspectionDue');
+      if (insp && !insp.dataset.manual) insp.value = iso;
       const binsr = document.getElementById('binsrDue');
-      if (binsr) binsr.value = iso;
+      if (binsr && !binsr.dataset.manual) binsr.value = iso;
     });
   }
 });
