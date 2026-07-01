@@ -24,7 +24,9 @@ function saveData(data) {
 
 const BUYER_ITEMS = [
   // Day 0 — Contract Execution
-  { id: "b2",  section: "Day 0", day: "Day 0", label: "Create Deal in FUB / update task due dates" },
+  { id: "b2",  section: "Day 0", day: "Day 0", label: "Manually input lead into FUB" },
+  { id: "b2a", section: "Day 0", day: "Day 0", label: "Make sure stage and source are accurate", indent: true },
+  { id: "b2b", section: "Day 0", day: "Day 0", label: "Create Deal in FUB / update task due dates" },
   { id: "b3",  section: "Day 0", day: "Day 0", label: "Create Zillow Payment Form (if applicable)" },
   { id: "b4",  section: "Day 0", day: "Day 0", label: "Update Kumler Group Workbook" },
   { id: "b5",  section: "Day 0", day: "Day 0", label: "Send intro email to all parties (TC, title, lender, agents)" },
@@ -198,12 +200,12 @@ function getHTML(transaction, id) {
     const overdue = dueVal && !isChecked && dueVal < today;
     const dueCls = overdue ? " overdue" : (dueVal ? " on-time" : "");
     return `
-    <tr class="${isChecked ? 'done' : ''}" data-day="${item.day || ''}">
-      <td class="cb-cell">
+    <tr class="${isChecked ? 'done' : ''}${item.indent ? ' sub-item' : ''}" data-day="${item.day || ''}">
+      <td class="cb-cell" style="${item.indent ? 'padding-left:32px' : ''}">
         <input type="checkbox" id="${item.id}" ${isChecked ? 'checked' : ''}
           onchange="toggle('${item.id}', this.checked)">
       </td>
-      <td class="label-cell"><label for="${item.id}">${item.label}</label></td>
+      <td class="label-cell" style="${item.indent ? 'color:#64748b;font-size:13px' : ''}"><label for="${item.id}">${item.indent ? '↳ ' : ''}${item.label}</label></td>
       <td class="date-cell">${item.hasDue ? `
         <input type="date" class="date-input due${dueCls}" data-item="${item.id}" data-auto="${autoISO}"
           value="${dueVal.replace(/"/g, '&quot;')}"
