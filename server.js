@@ -24,18 +24,13 @@ function saveData(data) {
 
 const BUYER_ITEMS = [
   // Day 0 — Contract Execution
-  { id: "b1",  section: "Day 0", day: "Day 0", label: "Review Formstack — download & review all documents" },
   { id: "b2",  section: "Day 0", day: "Day 0", label: "Create Deal in FUB / update task due dates" },
   { id: "b3",  section: "Day 0", day: "Day 0", label: "Create Zillow Payment Form (if applicable)" },
   { id: "b4",  section: "Day 0", day: "Day 0", label: "Update Kumler Group Workbook" },
   { id: "b5",  section: "Day 0", day: "Day 0", label: "Send intro email to all parties (TC, title, lender, agents)" },
   { id: "b6",  section: "Day 0", day: "Day 0", label: "Send buyer intro email (if applicable)" },
   { id: "b7",  section: "Day 0", day: "Day 0", label: "Order home / termite inspection (if applicable)" },
-  { id: "b8",  section: "Day 0", day: "Day 0", label: "Verify commission split (agent partner vs Kumler)" },
-  { id: "b9",  section: "Day 0", day: "Day 0", label: "Verify lender (approved/preferred lender confirmed)" },
-  { id: "b11", section: "Day 0", day: "Day 0", label: "Confirm title company" },
   // Day 1
-  { id: "b12", section: "Day 1", day: "Day 1", label: "Confirm inspection has been scheduled" },
   { id: "b13", section: "Day 1", day: "Day 1", label: "Earnest deposit received by title" },
   { id: "b14", section: "Day 1", day: "Day 1", label: "Create SkySlope transaction" },
   { id: "b15", section: "Day 1", day: "Day 1", label: "Notify agent of any missing docs / send missing docs checklist" },
@@ -45,7 +40,7 @@ const BUYER_ITEMS = [
   // Day 5
   { id: "b17", section: "Day 5", day: "Day 5", label: "ICH (Insurance Claims History) received — send to buyer" },
   { id: "b18", section: "Day 5", day: "Day 5", label: "Update client (buyer) if applicable" },
-  { id: "b19", section: "Day 5", day: "Day 5", label: "Send seller ABD (As-Built Drawing / applicable docs)" },
+  { id: "b19", section: "Day 5", day: "Day 5", label: "Send seller ABD" },
   // Day 8
   { id: "b20", section: "Day 8", day: "Day 8", label: "BINSR (reminder / status)" },
   // Day 10
