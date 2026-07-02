@@ -29,12 +29,12 @@ const BUYER_ITEMS = [
   { id: "b2b", section: "Day 0", day: "Day 0", label: "Make sure source is accurate", indent: true },
   { id: "b3",  section: "Day 0", day: "Day 0", label: "Create Zillow Payment Form (if applicable)" },
   { id: "b4",  section: "Day 0", day: "Day 0", label: "Update Kumler Group Workbook" },
+  { id: "b14", section: "Day 0", day: "Day 0", label: "Create SkySlope transaction" },
   { id: "b5",  section: "Day 0", day: "Day 0", label: "Send intro email to all parties (TC, title, lender, agents)" },
   { id: "b6",  section: "Day 0", day: "Day 0", label: "Send buyer intro email (if applicable)" },
   { id: "b7",  section: "Day 0", day: "Day 0", label: "Order home / termite inspection (if applicable)" },
   // Day 1
   { id: "b13", section: "Day 1", day: "Day 1", label: "Earnest deposit received by title" },
-  { id: "b14", section: "Day 1", day: "Day 1", label: "Create SkySlope transaction" },
   { id: "b15", section: "Day 1", day: "Day 1", label: "Notify agent of any missing docs / send missing docs checklist" },
   // Day 3
   { id: "b16",  section: "Day 5", day: "Day 5", label: "SPDS received from seller — send to buyer", hasDue: true },
