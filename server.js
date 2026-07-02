@@ -326,6 +326,7 @@ function getHTML(transaction, id) {
   </div>
   <div class="info-grid">
     ${[
+      ["Property Address", "address", "text", false],
       ["Contract Execution Date (Day 0)", "contractDate", "date", true],
       ["Close of Escrow Date (COE)", "closeDate", "date", true],
       ["Client Name", "clientName", "text", false],
@@ -333,7 +334,7 @@ function getHTML(transaction, id) {
       <div class="info-field${hi ? ' highlight' : ''}">
         <div class="info-label">${label}</div>
         <input class="info-input" type="${type}" placeholder="—"
-          value="${(fields[key] || '').replace(/"/g, '&quot;')}"
+          value="${(key === 'address' ? (fields.address || transaction.address || '') : (fields[key] || '')).replace(/"/g, '&quot;')}"
           onchange="saveField('${key}', this.value)">
       </div>`).join('')}
     ${['agentPartner1','agentPartner2'].map((key, i) => {
@@ -439,7 +440,7 @@ document.querySelectorAll('.date-input.due').forEach(inp => {
 
 // tag info-inputs with data-key for easy lookup
 document.querySelectorAll('.info-input').forEach((inp, i) => {
-  const keys = ['contractDate','closeDate','clientName','inspectionDue','binsrDue'];
+  const keys = ['address','contractDate','closeDate','clientName','inspectionDue','binsrDue'];
   inp.setAttribute('data-key', keys[i] || '');
   if (keys[i] === 'contractDate' || keys[i] === 'closeDate') {
     inp.addEventListener('change', refreshDueDates);
@@ -784,6 +785,7 @@ const server = http.createServer((req, res) => {
       if (data.transactions[txId]) {
         if (!data.transactions[txId].fields) data.transactions[txId].fields = {};
         data.transactions[txId].fields[key] = val;
+        if (key === 'address') data.transactions[txId].address = val;
         saveData(data);
       }
       res.writeHead(200, { "Content-Type": "application/json" });
