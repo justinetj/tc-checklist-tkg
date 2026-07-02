@@ -531,7 +531,7 @@ function getDashboardHTML(transactions) {
     return `<tr onclick="window.location='/t/${id}'" style="cursor:pointer;${isArchived?'opacity:0.7':''}">
       <td><strong>${t.address || '(no address)'}</strong></td>
       <td><span style="background:${color};color:white;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700;text-transform:uppercase">${t.type}</span></td>
-      <td>${t.clientName || fields.clientName || '—'}</td>
+      <td>${fields.clientName || t.clientName || '—'}</td>
       <td>${fields.agentPartner1 || '—'}</td>
       <td>${fields.contractDate || '—'}</td>
       <td>${fields.closeDate || '—'}</td>
@@ -673,9 +673,9 @@ async function create() {
   const body = {
     type: document.getElementById('f-type').value,
     address: document.getElementById('f-address').value,
-    clientName: document.getElementById('f-client').value,
-    agentName: document.getElementById('f-agent').value,
     fields: {
+      clientName: document.getElementById('f-client').value,
+      agentPartner1: document.getElementById('f-agent').value,
       contractDate: document.getElementById('f-contract').value,
       closeDate: document.getElementById('f-close').value,
     }
