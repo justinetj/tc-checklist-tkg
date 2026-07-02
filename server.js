@@ -327,7 +327,7 @@ function getHTML(transaction, id) {
   <div class="info-grid">
     ${[
       ["Property Address", "address", "text", false],
-      ["Contract Execution Date (Day 0)", "contractDate", "date", true],
+      ["Contract Date — Day 0", "contractDate", "date", true],
       ["Close of Escrow Date (COE)", "closeDate", "date", true],
       ["Client Name", "clientName", "text", false],
     ].map(([label, key, type, hi]) => `
