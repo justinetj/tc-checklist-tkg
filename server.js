@@ -46,8 +46,10 @@ const BUYER_ITEMS = [
   // Day 8
   { id: "b20", section: "Day 8", day: "Day 8", label: "BINSR (reminder / status)" },
   // Day 10
-  { id: "b23", section: "Day 10", day: "Day 10", label: "Inspection period complete" },
-  { id: "b24", section: "Day 10", day: "Day 10", label: "BINSR #1 due (follow up if not received)" },
+  { id: "b23",  section: "Day 10", day: "Day 10", label: "Inspection period complete" },
+  { id: "b23a", section: "Day 10", day: "Day 10", label: "Inspection due date confirmed", hasDue: true },
+  { id: "b24",  section: "Day 10", day: "Day 10", label: "BINSR #1 due (follow up if not received)" },
+  { id: "b24a", section: "Day 10", day: "Day 10", label: "BINSR sent to seller", hasDue: true },
   { id: "b25", section: "Day 10", day: "Day 10", label: "Request LSU (Loan Status Update) #1 from lender" },
   { id: "b26", section: "Day 10", day: "Day 10", label: "Request title commitment from title company" },
   // Day 15
