@@ -671,10 +671,12 @@ async function deleteTxn(id, label, btn) {
   location.reload();
 }
 async function create() {
+  const addr = document.getElementById('f-address').value;
   const body = {
     type: document.getElementById('f-type').value,
-    address: document.getElementById('f-address').value,
+    address: addr,
     fields: {
+      address: addr,
       clientName: document.getElementById('f-client').value,
       agentPartner1: document.getElementById('f-agent').value,
       contractDate: document.getElementById('f-contract').value,
@@ -707,7 +709,9 @@ const server = http.createServer((req, res) => {
       const data = loadData();
       const parsed = JSON.parse(body);
       const id = crypto.randomBytes(6).toString("hex");
-      data.transactions[id] = { id, ...parsed, checked: {}, notes: {}, fields: parsed.fields || {}, createdAt: Date.now() };
+      const fields = parsed.fields || {};
+      if (parsed.address) fields.address = parsed.address;
+      data.transactions[id] = { id, ...parsed, checked: {}, notes: {}, fields, createdAt: Date.now() };
       saveData(data);
       res.writeHead(200, { "Content-Type": "application/json" });
       res.end(JSON.stringify(data.transactions[id]));
