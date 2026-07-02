@@ -640,7 +640,10 @@ function getDashboardHTML(transactions) {
       <input id="f-client" placeholder="John & Jane Smith">
     </div>
     <div class="field"><label>Agent Partner</label>
-      <input id="f-agent" placeholder="Agent name">
+      <select id="f-agent">
+        <option value="">—</option>
+        ${['Akanksha Tomar','Alexandra Allen','Alexis Wilson','Angela Massey','Angie Rodriguez','Annie Clark','Arielle Jaime','Ashleigh DiFilippantonio','Ashton Kaufman','Benjamin Veader','Brandi Romero','Carla Balk','Chelsea Higgs','Cierra Farrow-Boyle','Darlena Barley','Dennis Sadberry','Donica Sadberry','Gabriela Crosser','Hector Torres','India Blackshear','Jenny Cohen','Jessenia Zinner','Joyce Mireault','Justine Johnston','Kahila White','Keith Glass','Kira Warrens','Kye Mingus','Kyle Olson','Lake Porter','Michael Tarver','Prakash Agrawal','Ravi Sharma','Richie Corrie','Roberta Harris','Thomas Doheny','Time Isufi','Youseff Daboul','Yuxuan Xia'].map(n => `<option value="${n}">${n}</option>`).join('')}
+      </select>
     </div>
     <div class="field"><label>Contract Execution Date (Day 0)</label>
       <input id="f-contract" type="date">
