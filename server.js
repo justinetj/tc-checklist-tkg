@@ -24,9 +24,9 @@ function saveData(data) {
 
 const BUYER_ITEMS = [
   // Day 0 — Contract Execution
-  { id: "b2",  section: "Day 0", day: "Day 0", label: "Manually input lead into FUB" },
-  { id: "b2a", section: "Day 0", day: "Day 0", label: "Make sure stage and source are accurate", indent: true },
-  { id: "b2b", section: "Day 0", day: "Day 0", label: "Create Deal in FUB / update task due dates" },
+  { id: "b2",  section: "Day 0", day: "Day 0", label: "Create Deal in FUB / update task due dates" },
+  { id: "b2a", section: "Day 0", day: "Day 0", label: "Make sure stage is accurate", indent: true },
+  { id: "b2b", section: "Day 0", day: "Day 0", label: "Make sure source is accurate", indent: true },
   { id: "b3",  section: "Day 0", day: "Day 0", label: "Create Zillow Payment Form (if applicable)" },
   { id: "b4",  section: "Day 0", day: "Day 0", label: "Update Kumler Group Workbook" },
   { id: "b5",  section: "Day 0", day: "Day 0", label: "Send intro email to all parties (TC, title, lender, agents)" },
