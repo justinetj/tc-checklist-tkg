@@ -535,7 +535,6 @@ function getDashboardHTML(transactions) {
       <td>${fields.agentPartner1 || '—'}</td>
       <td>${fields.contractDate || '—'}</td>
       <td>${fields.closeDate || '—'}</td>
-      <td>${fields.lender || '—'}</td>
       <td>
         <div style="display:flex;align-items:center;gap:8px">
           <div style="flex:1;height:7px;background:#e0e4f0;border-radius:4px;min-width:80px">
@@ -559,7 +558,7 @@ function getDashboardHTML(transactions) {
     if (list.length === 0) return '<div class="empty">None</div>';
     return `<table><thead><tr>
       <th>Address</th><th>Type</th><th>Client</th><th>Agent Partner</th>
-      <th>Contract Date</th><th>Close Date</th><th>Lender</th><th>Progress</th><th>Actions</th>
+      <th>Contract Date</th><th>Close Date</th><th>Progress</th><th>Actions</th>
     </tr></thead><tbody>${list.map(([id,t]) => makeRow(id,t,archived)).join('')}</tbody></table>`;
   }
 
