@@ -2,7 +2,7 @@ services:
   - type: web
     name: kumler-tc-checklist
     env: node
-    buildCommand: echo "ready"
+    buildCommand: npm install
     startCommand: node server.js
     envVars:
       - key: PORT
