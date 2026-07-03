@@ -1,20 +1,25 @@
 import http from "http";
-import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import crypto from "crypto";
+import pg from "pg";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const DATA_FILE = path.join(__dirname, "data.json");
+const { Pool } = pg;
+const pool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } });
 const PORT = process.env.PORT || 3002;
 
-function loadData() {
-  if (!fs.existsSync(DATA_FILE)) return { transactions: {} };
-  try { return JSON.parse(fs.readFileSync(DATA_FILE, "utf8")); }
-  catch { return { transactions: {} }; }
+async function initDB() {
+  await pool.query(`CREATE TABLE IF NOT EXISTS store (key TEXT PRIMARY KEY, value JSONB NOT NULL)`);
+  await pool.query(`INSERT INTO store (key, value) VALUES ('data', '{"transactions":{}}') ON CONFLICT (key) DO NOTHING`);
 }
-function saveData(data) {
-  fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
+
+async function loadData() {
+  const r = await pool.query(`SELECT value FROM store WHERE key = 'data'`);
+  return r.rows[0]?.value || { transactions: {} };
+}
+
+async function saveData(data) {
+  await pool.query(`UPDATE store SET value = $1 WHERE key = 'data'`, [JSON.stringify(data)]);
 }
 
 // ─── CHECKLIST ITEMS ────────────────────────────────────────────────────────
@@ -689,21 +694,21 @@ document.getElementById('modal').addEventListener('click', function(e) {
 
 // ─── SERVER ──────────────────────────────────────────────────────────────────
 
-const server = http.createServer((req, res) => {
+const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, `http://localhost`);
   const pathname = url.pathname;
 
   if (req.method === "POST" && pathname === "/api/transactions") {
     let body = "";
     req.on("data", d => body += d);
-    req.on("end", () => {
-      const data = loadData();
+    req.on("end", async () => {
+      const data = await loadData();
       const parsed = JSON.parse(body);
       const id = crypto.randomBytes(6).toString("hex");
       const fields = parsed.fields || {};
       if (parsed.address) fields.address = parsed.address;
       data.transactions[id] = { id, ...parsed, checked: {}, notes: {}, fields, createdAt: Date.now() };
-      saveData(data);
+      await saveData(data);
       res.writeHead(200, { "Content-Type": "application/json" });
       res.end(JSON.stringify(data.transactions[id]));
     });
@@ -714,11 +719,11 @@ const server = http.createServer((req, res) => {
   if (req.method === "POST" && statusMatch) {
     let body = "";
     req.on("data", d => body += d);
-    req.on("end", () => {
-      const data = loadData();
+    req.on("end", async () => {
+      const data = await loadData();
       const txId = statusMatch[1];
       const { status } = JSON.parse(body);
-      if (data.transactions[txId]) { data.transactions[txId].status = status; saveData(data); }
+      if (data.transactions[txId]) { data.transactions[txId].status = status; await saveData(data); }
       res.writeHead(200, { "Content-Type": "application/json" });
       res.end(JSON.stringify({ ok: true }));
     });
@@ -727,9 +732,9 @@ const server = http.createServer((req, res) => {
 
   const deleteMatch = pathname.match(/^\/api\/transactions\/([^/]+)$/);
   if (req.method === "DELETE" && deleteMatch) {
-    const data = loadData();
+    const data = await loadData();
     delete data.transactions[deleteMatch[1]];
-    saveData(data);
+    await saveData(data);
     res.writeHead(200, { "Content-Type": "application/json" });
     res.end(JSON.stringify({ ok: true }));
     return;
@@ -739,11 +744,11 @@ const server = http.createServer((req, res) => {
   if (req.method === "POST" && checkMatch) {
     let body = "";
     req.on("data", d => body += d);
-    req.on("end", () => {
-      const data = loadData();
+    req.on("end", async () => {
+      const data = await loadData();
       const txId = checkMatch[1];
       const { itemId, checked } = JSON.parse(body);
-      if (data.transactions[txId]) { data.transactions[txId].checked[itemId] = checked; saveData(data); }
+      if (data.transactions[txId]) { data.transactions[txId].checked[itemId] = checked; await saveData(data); }
       res.writeHead(200, { "Content-Type": "application/json" });
       res.end(JSON.stringify({ ok: true }));
     });
@@ -754,14 +759,14 @@ const server = http.createServer((req, res) => {
   if (req.method === "POST" && noteMatch) {
     let body = "";
     req.on("data", d => body += d);
-    req.on("end", () => {
-      const data = loadData();
+    req.on("end", async () => {
+      const data = await loadData();
       const txId = noteMatch[1];
       const { itemId, field, val } = JSON.parse(body);
       if (data.transactions[txId]) {
         if (!data.transactions[txId].notes[itemId]) data.transactions[txId].notes[itemId] = {};
         data.transactions[txId].notes[itemId][field] = val;
-        saveData(data);
+        await saveData(data);
       }
       res.writeHead(200, { "Content-Type": "application/json" });
       res.end(JSON.stringify({ ok: true }));
@@ -773,15 +778,15 @@ const server = http.createServer((req, res) => {
   if (req.method === "POST" && fieldMatch) {
     let body = "";
     req.on("data", d => body += d);
-    req.on("end", () => {
-      const data = loadData();
+    req.on("end", async () => {
+      const data = await loadData();
       const txId = fieldMatch[1];
       const { key, val } = JSON.parse(body);
       if (data.transactions[txId]) {
         if (!data.transactions[txId].fields) data.transactions[txId].fields = {};
         data.transactions[txId].fields[key] = val;
         if (key === 'address') data.transactions[txId].address = val;
-        saveData(data);
+        await saveData(data);
       }
       res.writeHead(200, { "Content-Type": "application/json" });
       res.end(JSON.stringify({ ok: true }));
@@ -791,7 +796,7 @@ const server = http.createServer((req, res) => {
 
   const txMatch = pathname.match(/^\/t\/([^/]+)$/);
   if (txMatch) {
-    const data = loadData();
+    const data = await loadData();
     const tx = data.transactions[txMatch[1]];
     if (!tx) { res.writeHead(404); res.end("Not found"); return; }
     res.writeHead(200, { "Content-Type": "text/html" });
@@ -800,7 +805,7 @@ const server = http.createServer((req, res) => {
   }
 
   if (pathname === "/" || pathname === "") {
-    const data = loadData();
+    const data = await loadData();
     res.writeHead(200, { "Content-Type": "text/html" });
     res.end(getDashboardHTML(data.transactions));
     return;
@@ -810,4 +815,6 @@ const server = http.createServer((req, res) => {
   res.end("Not found");
 });
 
-server.listen(PORT, () => console.log(`TC Checklist running on port ${PORT}`));
+initDB().then(() => {
+  server.listen(PORT, () => console.log(`TC Checklist running on port ${PORT}`));
+}).catch(err => { console.error("DB init failed:", err); process.exit(1); });
