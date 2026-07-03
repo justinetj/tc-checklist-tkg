@@ -530,8 +530,8 @@ function getDashboardHTML(transactions) {
       <td><span style="background:${color};color:white;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700;text-transform:uppercase">${t.type}</span></td>
       <td>${fields.clientName || t.clientName || '—'}</td>
       <td>${fields.agentPartner1 || '—'}</td>
-      <td>${fields.contractDate ? fields.contractDate.split('-').reverse().join('-') : '—'}</td>
-      <td>${fields.closeDate ? fields.closeDate.split('-').reverse().join('-') : '—'}</td>
+      <td>${fields.contractDate ? (() => { const [y,m,d] = fields.contractDate.split('-'); return `${m}/${d}/${y}`; })() : '—'}</td>
+      <td>${fields.closeDate ? (() => { const [y,m,d] = fields.closeDate.split('-'); return `${m}/${d}/${y}`; })() : '—'}</td>
       <td>
         <div style="display:flex;align-items:center;gap:8px">
           <div style="flex:1;height:7px;background:#e0e4f0;border-radius:4px;min-width:80px">
