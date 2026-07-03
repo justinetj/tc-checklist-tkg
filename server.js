@@ -632,6 +632,44 @@ function getDashboardHTML(transactions) {
   <button class="btn" onclick="document.getElementById('modal').classList.add('open')">+ New Transaction</button>
 </div>
 <div class="container">
+  ${(() => {
+    const today = new Date().toISOString().slice(0, 10);
+    const taskRows = [];
+    for (const [id, t] of active) {
+      const items = t.type === 'buyer' ? BUYER_ITEMS : LISTING_ITEMS;
+      const fields = t.fields || {};
+      const contractDate = fields.contractDate || '';
+      const closeDate = fields.closeDate || '';
+      const checked = t.checked || {};
+      const notes = t.notes || {};
+      for (const item of items) {
+        if (item.indent) continue;
+        if (checked[item.id]) continue;
+        const auto = calcDueDateISO(item.day, contractDate, closeDate);
+        const due = notes[item.id]?.due || auto;
+        if (!due) continue;
+        if (due > today) continue;
+        const overdue = due < today;
+        const [y,m,d] = due.split('-');
+        const dueFmt = `${m}/${d}/${y}`;
+        const color = t.type === 'buyer' ? '#1565c0' : '#2e7d32';
+        taskRows.push(`<tr onclick="window.location='/t/${id}'" style="cursor:pointer">
+          <td><span style="background:${color};color:white;padding:2px 7px;border-radius:10px;font-size:11px;font-weight:700;text-transform:uppercase">${t.type}</span></td>
+          <td><strong>${t.address || '(no address)'}</strong></td>
+          <td>${item.label}</td>
+          <td><span style="color:${overdue?'#dc2626':'#0369a1'};font-weight:700;font-size:13px">${overdue?'⚠ Overdue — ':''}${dueFmt}</span></td>
+        </tr>`);
+      }
+    }
+    if (taskRows.length === 0) return '';
+    return `
+  <div style="font-size:12px;font-weight:700;text-transform:uppercase;color:#b45309;letter-spacing:.5px;margin-bottom:8px">📋 Tasks Due Today</div>
+  <div class="card" style="margin-bottom:28px;border-left:4px solid #f59e0b">
+    <table><thead><tr>
+      <th>Type</th><th>Transaction</th><th>Task</th><th>Due</th>
+    </tr></thead><tbody>${taskRows.join('')}</tbody></table>
+  </div>`;
+  })()}
   <div style="font-size:12px;font-weight:700;text-transform:uppercase;color:#1e3a5f;letter-spacing:.5px;margin-bottom:8px">Active Transactions</div>
   <div class="card" style="margin-bottom:28px">
     ${active.length === 0
