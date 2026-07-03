@@ -68,7 +68,7 @@ const BUYER_ITEMS = [
   { id: "b45b", label: "Reconfirm lender", indent: true },
   { id: "b45c", label: "Reconfirm home warranty", indent: true },
   { id: "b45d", label: "Reconfirm sales price", indent: true },
-  { id: "b38",  label: "Send questionnaire", indent: true, hasDue: true },
+  { id: "b38",  label: "Send questionnaire", day: "COE -10", hasDue: true },
   { id: "b46",  label: "Update FUB status → Closed" },
   { id: "b46b", label: "Closed", indent: true },
   { id: "b46c", label: "Sales price check", indent: true },
