@@ -23,58 +23,49 @@ function saveData(data) {
 //      "COE"   = day of close of escrow
 
 const BUYER_ITEMS = [
-  // Day 0 — Contract Execution
-  { id: "b2",  section: "Day 0", day: "Day 0", label: "Create Deal in FUB / update task due dates" },
-  { id: "b2a", section: "Day 0", day: "Day 0", label: "Make sure stage is accurate", indent: true },
-  { id: "b2b", section: "Day 0", day: "Day 0", label: "Make sure source is accurate", indent: true },
-  { id: "b3",  section: "Day 0", day: "Day 0", label: "Create Zillow Payment Form (if applicable)" },
-  { id: "b4",  section: "Day 0", day: "Day 0", label: "Update Kumler Group Workbook" },
-  { id: "b14", section: "Day 0", day: "Day 0", label: "Create SkySlope transaction" },
-  { id: "b5",  section: "Day 0", day: "Day 0", label: "Send intro email to all parties (TC, title, lender, agents)" },
-  { id: "b6",  section: "Day 0", day: "Day 0", label: "Send buyer intro email (if applicable)" },
-  { id: "b7",  section: "Day 0", day: "Day 0", label: "Order home / termite inspection (if applicable)" },
-  // Day 1
-  { id: "b13", section: "Day 1", day: "Day 1", label: "Earnest deposit received by title" },
-  { id: "b15", section: "Day 1", day: "Day 1", label: "Notify agent of any missing docs / send missing docs checklist" },
-  // Day 3
-  { id: "b16",  section: "Day 5", day: "Day 5", label: "SPDS received from seller — send to buyer", hasDue: true },
-  { id: "b16b", section: "Day 5", day: "Day 5", label: "CLUE report received" },
-  // Day 5
-  { id: "b17", section: "Day 5", day: "Day 5", label: "ICH (Insurance Claims History) received — send to buyer" },
-  { id: "b18", section: "Day 5", day: "Day 5", label: "Update client (buyer) if applicable" },
-  { id: "b19", section: "Day 5", day: "Day 5", label: "Send seller ABD" },
-  // Day 8
-  { id: "b20", section: "Day 8", day: "Day 8", label: "BINSR (reminder / status)" },
-  // Day 10
-  { id: "b23",  section: "Day 10", day: "Day 10", label: "Inspection period complete" },
-  { id: "b23a", section: "Day 10", day: "Day 10", label: "Inspection due date confirmed", hasDue: true },
-  { id: "b24",  section: "Day 10", day: "Day 10", label: "BINSR #1 due (follow up if not received)" },
-  { id: "b24a", section: "Day 10", day: "Day 10", label: "BINSR sent to seller", hasDue: true },
-  { id: "b25", section: "Day 10", day: "Day 10", label: "Request LSU (Loan Status Update) #1 from lender" },
-  { id: "b26", section: "Day 10", day: "Day 10", label: "Request title commitment from title company" },
-  // Day 15
-  { id: "b29",  section: "Day 15", day: "Day 15", label: "Appraisal ordered" },
-  { id: "b30b", section: "Day 15", day: "Day 15", label: "Seller response to BINSR due (5 days after BINSR)", hasDue: true },
-  // Day 22
-  { id: "b34", section: "Day 22", day: "Day 22", label: "Appraisal received — confirm value" },
-  // Day 24
-  { id: "b35", section: "Day 24", day: "Day 24", label: "Request LSU #3 from lender" },
-  // COE -10
-  { id: "b37", section: "COE -10 Days", day: "COE -10", label: "Order home warranty" },
-  { id: "b38", section: "COE -10 Days", day: "COE -10", label: "Send questionnaire to listing agent" },
-  // COE -5
-  { id: "b39", section: "COE -5 Days", day: "COE -5", label: "CDA (Commission Disbursement Authorization) sent to title" },
-  { id: "b40", section: "COE -5 Days", day: "COE -5", label: "Loan approval received / confirmed" },
-  { id: "b40b", section: "COE -5 Days", day: "COE -5", label: "Est. Settlement statement" },
-  // COE -4
-  { id: "b41", section: "COE -4 Days", day: "COE -4", label: "Final walkthrough reminder sent to buyer & agent" },
-  // COE — Close of Escrow
-  { id: "b44", section: "COE — Close of Escrow", day: "COE", label: "Final SS / copy of check" },
-  { id: "b45", section: "COE — Close of Escrow", day: "COE", label: "Update Workbook" },
-  { id: "b46", section: "COE — Close of Escrow", day: "COE", label: "Update FUB status → Closed" },
-  { id: "b48", section: "COE — Close of Escrow", day: "COE", label: "Update Zillow status → Sold" },
-  { id: "b49", section: "COE — Close of Escrow", day: "COE", label: "Move file to close" },
-  { id: "b50", section: "COE — Close of Escrow", day: "COE", label: "Check SkySlope — final documents" },
+  { id: "b5",   label: "Send intro email to all parties (TC, title, lender, agents)" },
+  { id: "b6",   label: "Send buyer intro email (if applicable)" },
+  { id: "b13",  label: "Earnest deposit received by title" },
+  { id: "b7",   label: "Order home / termite inspection (if applicable)" },
+  { id: "b14",  label: "Create SkySlope transaction" },
+  { id: "b2",   label: "Create Deal in FUB / update task due dates" },
+  { id: "b2a",  label: "Make sure stage is accurate", indent: true },
+  { id: "b2b",  label: "Make sure source is accurate", indent: true },
+  { id: "b3",   label: "Create Zillow Payment Form (if applicable)" },
+  { id: "b4",   label: "Update Kumler Group Workbook" },
+  { id: "b16",  label: "SPDS received", hasDue: true },
+  { id: "b16b", label: "CLUE received" },
+  { id: "b19",  label: "Send ABD (to other agent, if applicable)" },
+  { id: "b15",  label: "Notify agent of any missing docs / send missing docs checklist" },
+  { id: "b26",  label: "Request title commitment", hasDue: true },
+  { id: "b25",  label: "LSU #1 (Loan Status Update) Request", hasDue: true },
+  { id: "b18",  label: "Update client if applicable" },
+  { id: "b20",  label: "BINSR (reminder / status)", hasDue: true },
+  { id: "b24",  label: "BINSR #1 due (follow up if not received)", hasDue: true },
+  { id: "b25b", label: "LSU #2 Request", hasDue: true },
+  { id: "b18b", label: "Update client if applicable" },
+  { id: "b30b", label: "BINSR #2 Response (5 days after)", hasDue: true },
+  { id: "b35",  label: "LSU #3 Request", hasDue: true },
+  { id: "b18c", label: "Update client if applicable" },
+  { id: "b29",  label: "Appraisal ordered", hasDue: true },
+  { id: "b30c", label: "BINSR #3 (5 days after response)", hasDue: true },
+  { id: "b30d", label: "LSU #4 Request", hasDue: true },
+  { id: "b34",  label: "Appraisal received — confirm value" },
+  { id: "b18d", label: "Update client if applicable" },
+  { id: "b37",  label: "Order home warranty", hasDue: true },
+  { id: "b50",  label: "Check SkySlope for final documents", hasDue: true },
+  { id: "b38",  label: "Send questionnaire to listing agent", hasDue: true },
+  { id: "b39",  label: "CDA (Commission Disbursement Authorization) sent to title", hasDue: true },
+  { id: "b40",  label: "Loan approval received / confirmed" },
+  { id: "b40b", label: "Est. Settlement statement" },
+  { id: "b41",  label: "Final walkthrough" },
+  { id: "b44",  label: "Final SS / copy of check" },
+  { id: "b45",  label: "Update Workbook" },
+  { id: "b46",  label: "Update FUB status → Closed" },
+  { id: "b46a", label: "Check closing date is accurate", indent: true },
+  { id: "b48",  label: "Update Zillow status → Sold" },
+  { id: "b49",  label: "Move file to close" },
+  { id: "b51",  label: "Commission Settled" },
 ];
 
 const LISTING_ITEMS = [
