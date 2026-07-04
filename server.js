@@ -241,7 +241,7 @@ function getHTML(transaction, id) {
     let dateDisplay = '';
     if (autoDateForGroup) {
       const [y,m,d] = autoDateForGroup.split('-');
-      dateDisplay = ` — <span style="font-size:11px;font-weight:400;color:#94a3b8">${m}/${d}/${y}</span>`;
+      dateDisplay = ` — <span style="font-size:12px;font-weight:700;color:#1e3a5f">${m}/${d}/${y}</span>`;
     }
     const isCOE = g.day && g.day.startsWith('COE');
     const headerBg = isCOE ? '#7e22ce' : '#0f4c9e';
