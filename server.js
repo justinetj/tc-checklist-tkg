@@ -253,7 +253,7 @@ function getHTML(transaction, id) {
       const overdue = dueVal && !isChecked && dueVal < today;
       const dueCls = overdue ? " overdue" : (dueVal ? " on-time" : "");
       return `
-      <tr class="${isChecked ? 'done' : ''}${item.indent ? ' sub-item' : ''}" data-day="${item.day || ''}">
+      <tr class="${isChecked ? 'done' : ''}${item.indent ? ' sub-item' : ''}${overdue ? ' row-overdue' : ''}" data-day="${item.day || ''}">
         <td class="cb-cell" style="${item.indent ? 'padding-left:32px' : ''}">
           <input type="checkbox" id="${item.id}" ${isChecked ? 'checked' : ''}
             onchange="toggle('${item.id}', this.checked)">
@@ -340,6 +340,8 @@ function getHTML(transaction, id) {
                font-weight:700; color:white; white-space:nowrap; }
   .date-input.due { border-color:#d1fae5; color:#15803d; font-weight:600; background:#f0fdf4; }
   .date-input.due.overdue { border-color:#fecaca; color:#dc2626; background:#fff5f5; }
+  tr.row-overdue { background:#fff5f5; }
+  tr.row-overdue .label-cell label { color:#dc2626; font-weight:600; }
   .date-input.due:focus { border-color:#16a34a; }
   .date-input.due.overdue:focus { border-color:#dc2626; }
   .date-cell { padding:6px 4px; width:150px; }
