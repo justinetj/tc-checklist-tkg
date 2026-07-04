@@ -226,32 +226,53 @@ function getHTML(transaction, id) {
   const pct = Math.round((done / total) * 100);
   const color = transaction.type === "buyer" ? "#1565c0" : "#2e7d32";
 
-  const flatRows = items.map(item => {
-    const itemNotes = notes[item.id] || {};
-    const autoISO = calcDueDateISO(item.day, contractDate, closeDate);
-    const dueVal = itemNotes.due || autoISO;
-    const today = new Date().toISOString().slice(0, 10);
-    const isChecked = !!checked[item.id];
-    const overdue = dueVal && !isChecked && dueVal < today;
-    const dueCls = overdue ? " overdue" : (dueVal ? " on-time" : "");
-    return `
-    <tr class="${isChecked ? 'done' : ''}${item.indent ? ' sub-item' : ''}" data-day="${item.day || ''}">
-      <td class="cb-cell" style="${item.indent ? 'padding-left:32px' : ''}">
-        <input type="checkbox" id="${item.id}" ${isChecked ? 'checked' : ''}
-          onchange="toggle('${item.id}', this.checked)">
-      </td>
-      <td class="label-cell" style="${item.indent ? 'color:#64748b;font-size:13px' : ''}"><label for="${item.id}">${item.indent ? '↳ ' : ''}${item.label}</label></td>
-      <td class="date-cell">${item.hasDue ? `
-        <input type="date" class="date-input due${dueCls}" data-item="${item.id}" data-auto="${autoISO}"
-          value="${dueVal.replace(/"/g, '&quot;')}"
-          onchange="saveDue('${item.id}', this.value)">` : `<span style="color:#ccc">—</span>`}
-      </td>
-      <td class="note-cell">
-        <input type="text" class="note-input" placeholder="note…"
-          value="${(itemNotes.note || '').replace(/"/g, '&quot;')}"
-          onblur="saveItemField('${item.id}', 'note', this.value)">
-      </td>
-    </tr>`;
+  // Group items by day label
+  const today = new Date().toISOString().slice(0, 10);
+  const groups = [];
+  let lastDay = null;
+  for (const item of items) {
+    const dayKey = item.day || item.section || '';
+    if (dayKey !== lastDay) { groups.push({ day: dayKey, items: [] }); lastDay = dayKey; }
+    groups[groups.length - 1].items.push(item);
+  }
+
+  const flatRows = groups.map(g => {
+    const autoDateForGroup = calcDueDateISO(g.day, contractDate, closeDate);
+    let dateDisplay = '';
+    if (autoDateForGroup) {
+      const [y,m,d] = autoDateForGroup.split('-');
+      dateDisplay = ` — <span style="font-size:11px;font-weight:400;color:#94a3b8">${m}/${d}/${y}</span>`;
+    }
+    const isCOE = g.day && g.day.startsWith('COE');
+    const headerBg = isCOE ? '#7e22ce' : '#0f4c9e';
+    const rows = g.items.map(item => {
+      const itemNotes = notes[item.id] || {};
+      const autoISO = calcDueDateISO(item.day, contractDate, closeDate);
+      const dueVal = itemNotes.due || autoISO;
+      const isChecked = !!checked[item.id];
+      const overdue = dueVal && !isChecked && dueVal < today;
+      const dueCls = overdue ? " overdue" : (dueVal ? " on-time" : "");
+      return `
+      <tr class="${isChecked ? 'done' : ''}${item.indent ? ' sub-item' : ''}" data-day="${item.day || ''}">
+        <td class="cb-cell" style="${item.indent ? 'padding-left:32px' : ''}">
+          <input type="checkbox" id="${item.id}" ${isChecked ? 'checked' : ''}
+            onchange="toggle('${item.id}', this.checked)">
+        </td>
+        <td class="label-cell" style="${item.indent ? 'color:#64748b;font-size:13px' : ''}"><label for="${item.id}">${item.indent ? '↳ ' : ''}${item.label}</label></td>
+        <td class="date-cell">${item.hasDue ? `
+          <input type="date" class="date-input due${dueCls}" data-item="${item.id}" data-auto="${autoISO}"
+            value="${dueVal.replace(/"/g, '&quot;')}"
+            onchange="saveDue('${item.id}', this.value)">` : `<span style="color:#ccc">—</span>`}
+        </td>
+        <td class="note-cell">
+          <input type="text" class="note-input" placeholder="note…"
+            value="${(itemNotes.note || '').replace(/"/g, '&quot;')}"
+            onblur="saveItemField('${item.id}', 'note', this.value)">
+        </td>
+      </tr>`;
+    }).join('');
+    const header = g.day ? `<tr style="background:#f8fafc"><td colspan="4" style="padding:8px 12px;font-size:12px;font-weight:700;letter-spacing:.5px;border-bottom:1px solid #e2e8f0"><span style="background:${headerBg};color:white;padding:2px 9px;border-radius:10px;font-size:11px">${g.day}</span>${dateDisplay}</td></tr>` : '';
+    return header + rows;
   }).join('');
 
   const sectionHTML = `
