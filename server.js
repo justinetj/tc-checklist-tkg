@@ -624,7 +624,20 @@ function getDashboardHTML(transactions) {
   .btn { background:#2563eb; color:white; border:none; padding:10px 20px; border-radius:7px;
          font-size:13px; font-weight:600; cursor:pointer; }
   .btn:hover { background:#1d4ed8; }
-  .container { max-width:1200px; margin:28px auto; padding:0 16px; }
+  .container { max-width:1400px; margin:28px auto; padding:0 16px; }
+  .dashboard-layout { display:flex; gap:20px; align-items:flex-start; }
+  .dashboard-main { flex:1; min-width:0; }
+  .task-panel { width:300px; flex-shrink:0; position:sticky; top:16px; }
+  .task-panel .card { padding:0; }
+  .task-group { border-bottom:1px solid #f0f2f8; padding:10px 14px; }
+  .task-group:last-child { border-bottom:none; }
+  .task-group-name { font-size:11px; font-weight:700; color:#1e3a5f; margin-bottom:6px; text-transform:uppercase; letter-spacing:.3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .task-item { display:flex; align-items:flex-start; gap:7px; padding:3px 0; }
+  .task-item input[type=checkbox] { margin-top:2px; flex-shrink:0; cursor:pointer; }
+  .task-item label { font-size:12px; color:#333; line-height:1.4; cursor:pointer; }
+  .task-item label.overdue { color:#dc2626; font-weight:600; }
+  .task-panel-empty { padding:24px 14px; text-align:center; color:#888; font-size:12px; }
+  @media(max-width:900px) { .dashboard-layout { flex-direction:column; } .task-panel { width:100%; position:static; } }
   .card { background:white; border-radius:10px; box-shadow:0 1px 4px rgba(0,0,0,.07); overflow:hidden; }
   table { width:100%; border-collapse:collapse; }
   th { text-align:left; padding:11px 16px; background:#f0f4ff; font-size:11px; color:#555;
@@ -655,60 +668,61 @@ function getDashboardHTML(transactions) {
   <button class="btn" onclick="document.getElementById('modal').classList.add('open')">+ New Transaction</button>
 </div>
 <div class="container">
-  ${(() => {
-    const today = new Date().toISOString().slice(0, 10);
-    const taskRows = [];
-    for (const [id, t] of active) {
-      const items = t.type === 'buyer' ? BUYER_ITEMS : LISTING_ITEMS;
-      const fields = t.fields || {};
-      const contractDate = fields.contractDate || '';
-      const closeDate = fields.closeDate || '';
-      const checked = t.checked || {};
-      const notes = t.notes || {};
-      for (const item of items) {
-        if (item.indent) continue;
-        if (checked[item.id]) continue;
-        const auto = calcDueDateISO(item.day, contractDate, closeDate);
-        const due = notes[item.id]?.due || auto;
-        if (!due) continue;
-        if (due > today) continue;
-        const overdue = due < today;
-        const [y,m,d] = due.split('-');
-        const dueFmt = `${m}/${d}/${y}`;
-        const color = t.type === 'buyer' ? '#1565c0' : '#2e7d32';
-        taskRows.push(`<tr onclick="window.location='/t/${id}'" style="cursor:pointer">
-          <td><span style="background:${color};color:white;padding:2px 7px;border-radius:10px;font-size:11px;font-weight:700;text-transform:uppercase">${t.type}</span></td>
-          <td><strong>${t.address || '(no address)'}</strong></td>
-          <td>${item.label}</td>
-          <td><span style="color:${overdue?'#dc2626':'#0369a1'};font-weight:700;font-size:13px">${overdue?'⚠ Overdue — ':''}${dueFmt}</span></td>
-        </tr>`);
-      }
-    }
-    if (taskRows.length === 0) return '';
-    return `
-  <div style="font-size:12px;font-weight:700;text-transform:uppercase;color:#b45309;letter-spacing:.5px;margin-bottom:8px">📋 Tasks Due Today</div>
-  <div class="card" style="margin-bottom:28px;border-left:4px solid #f59e0b">
-    <table><thead><tr>
-      <th>Type</th><th>Transaction</th><th>Task</th><th>Due</th>
-    </tr></thead><tbody>${taskRows.join('')}</tbody></table>
-  </div>`;
-  })()}
-  <div style="font-size:12px;font-weight:700;text-transform:uppercase;color:#1e3a5f;letter-spacing:.5px;margin-bottom:8px">Active Transactions</div>
-  <div class="card" style="margin-bottom:28px">
-    ${active.length === 0
-      ? '<div class="empty">No active transactions. Click <strong>+ New Transaction</strong> to get started.</div>'
-      : makeTable(active, false)}
+<div class="dashboard-layout">
+  <div class="dashboard-main">
+    <div style="font-size:12px;font-weight:700;text-transform:uppercase;color:#1e3a5f;letter-spacing:.5px;margin-bottom:8px">Active Transactions</div>
+    <div class="card" style="margin-bottom:28px">
+      ${active.length === 0
+        ? '<div class="empty">No active transactions. Click <strong>+ New Transaction</strong> to get started.</div>'
+        : makeTable(active, false)}
+    </div>
+    <div style="font-size:12px;font-weight:700;text-transform:uppercase;color:#15803d;letter-spacing:.5px;margin-bottom:8px">Closed Transactions</div>
+    <div class="card" style="margin-bottom:28px">${makeTable(closed, true)}</div>
+    <div style="font-size:12px;font-weight:700;text-transform:uppercase;color:#dc2626;letter-spacing:.5px;margin-bottom:8px">Cancelled Transactions</div>
+    <div class="card" style="margin-bottom:28px">${makeTable(cancelled, true)}</div>
   </div>
 
-  <div style="font-size:12px;font-weight:700;text-transform:uppercase;color:#15803d;letter-spacing:.5px;margin-bottom:8px">Closed Transactions</div>
-  <div class="card" style="margin-bottom:28px">
-    ${makeTable(closed, true)}
+  <div class="task-panel">
+    <div style="font-size:12px;font-weight:700;text-transform:uppercase;color:#b45309;letter-spacing:.5px;margin-bottom:8px">📋 Tasks Due Today</div>
+    <div class="card" style="border-left:4px solid #f59e0b">
+      ${(() => {
+        const today = new Date().toISOString().slice(0, 10);
+        const groups = [];
+        for (const [id, t] of active) {
+          const items = t.type === 'buyer' ? BUYER_ITEMS : LISTING_ITEMS;
+          const fields = t.fields || {};
+          const contractDate = fields.contractDate || '';
+          const closeDate = fields.closeDate || '';
+          const checked = t.checked || {};
+          const notes = t.notes || {};
+          const dueTasks = [];
+          for (const item of items) {
+            if (item.indent) continue;
+            if (checked[item.id]) continue;
+            const auto = calcDueDateISO(item.day, contractDate, closeDate);
+            const due = notes[item.id]?.due || auto;
+            if (!due || due > today) continue;
+            dueTasks.push({ item, overdue: due < today });
+          }
+          if (dueTasks.length > 0) {
+            const shortAddr = (t.address || '(no address)').replace(/,.*$/, '');
+            const taskItems = dueTasks.map(({ item, overdue }) =>
+              `<div class="task-item">
+                <input type="checkbox" id="dt-${id}-${item.id}" onchange="dashCheck('${id}','${item.id}',this.checked)">
+                <label for="dt-${id}-${item.id}" class="${overdue ? 'overdue' : ''}">${overdue ? '⚠ ' : ''}${item.label}</label>
+              </div>`
+            ).join('');
+            groups.push(`<div class="task-group">
+              <div class="task-group-name" title="${t.address || ''}">${shortAddr}</div>
+              ${taskItems}
+            </div>`);
+          }
+        }
+        return groups.length ? groups.join('') : '<div class="task-panel-empty">No tasks due today</div>';
+      })()}
+    </div>
   </div>
-
-  <div style="font-size:12px;font-weight:700;text-transform:uppercase;color:#dc2626;letter-spacing:.5px;margin-bottom:8px">Cancelled Transactions</div>
-  <div class="card" style="margin-bottom:28px">
-    ${makeTable(cancelled, true)}
-  </div>
+</div>
 </div>
 
 <div class="modal-bg" id="modal">
@@ -742,6 +756,16 @@ function getDashboardHTML(transactions) {
   </div>
 </div>
 <script>
+async function dashCheck(txnId, itemId, checked) {
+  await fetch('/api/transactions/' + txnId + '/check', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ itemId, checked })
+  });
+  if (checked) {
+    const row = document.getElementById('dt-' + txnId + '-' + itemId);
+    if (row) row.closest('.task-item').style.opacity = '0.4';
+  }
+}
 async function setStatus(id, status) {
   await fetch('/api/transactions/' + id + '/status', {
     method:'POST', headers:{'Content-Type':'application/json'},
