@@ -750,6 +750,9 @@ async function setStatus(id, status) {
   location.reload();
 }
 async function deleteTxn(id, label, btn) {
+  const code = prompt('Enter passcode to delete "' + label + '":');
+  if (code === null) return;
+  if (code !== '3315') { alert('Incorrect passcode.'); return; }
   if (!confirm('Delete "' + label + '"? This cannot be undone.')) return;
   await fetch('/api/transactions/' + id, { method:'DELETE' });
   location.reload();
