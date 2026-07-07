@@ -385,6 +385,8 @@ function getHTML(transaction, id) {
     ${(isListing ? [
       ["Property Address", "address", "text", false],
       ["Employment Agreement Date", "contractDate", "date", true],
+      ["Listing Start Date", "listingStartDate", "date", true],
+      ["Listing Expiration Date", "listingExpDate", "date", true],
       ["Client Name", "clientName", "text", false],
     ] : [
       ["Property Address", "address", "text", false],
