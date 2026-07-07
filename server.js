@@ -366,7 +366,7 @@ function getHTML(transaction, id) {
            transition:opacity .3s; pointer-events:none; z-index:99; }
   .toast.show { opacity:1; }
   @media(max-width:600px) { .note-cell,.day-cell { display:none; } .header { padding:14px 16px; } }
-  .detail-layout { display:flex; gap:20px; align-items:flex-start; max-width:1400px; margin:0 auto; padding:0 16px 40px; }
+  .detail-layout { display:flex; gap:20px; align-items:flex-start; padding:0 0 40px; }
   .detail-main { flex:1; min-width:0; }
   .detail-sidebar { width:280px; flex-shrink:0; position:sticky; top:16px; background:white; border-radius:10px; box-shadow:0 1px 4px rgba(0,0,0,.07); overflow:hidden; }
   .detail-sidebar-hdr { background:#1e3a5f; color:white; padding:11px 14px; font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:.5px; }
@@ -455,8 +455,9 @@ function getHTML(transaction, id) {
   </div>
 </div>
 
+<div class="container" style="padding-top:0;padding-bottom:0">
 <div class="detail-layout">
-  <div class="detail-main container">${sectionHTML}</div>
+  <div class="detail-main">${sectionHTML}</div>
   <div class="detail-sidebar">
     <div class="detail-sidebar-hdr">📋 Tasks Due Today</div>
     ${(() => {
@@ -474,6 +475,7 @@ function getHTML(transaction, id) {
       }).join('') + '</div>';
     })()}
   </div>
+</div>
 </div>
 <div class="toast" id="toast">Saved</div>
 
@@ -749,10 +751,10 @@ function getDashboardHTML(transactions, tc) {
     <div class="card" style="margin-bottom:24px;border-top:3px solid #1565c0">
       ${listingUC.length === 0 ? '<div class="empty">No listings under contract.</div>' : makeTable(listingUC, false, 'buyer')}
     </div>
-    <div style="background:#15803d;color:white;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;padding:9px 16px;border-radius:8px;margin-bottom:8px">✓ Closed Transactions</div>
-    <div class="card" style="margin-bottom:24px;border-top:3px solid #15803d">${makeTable(closed, true, 'buyer')}</div>
-    <div style="background:#dc2626;color:white;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;padding:9px 16px;border-radius:8px;margin-bottom:8px">✕ Cancelled Transactions</div>
-    <div class="card" style="margin-bottom:24px;border-top:3px solid #dc2626">${makeTable(cancelled, true, 'buyer')}</div>
+    <div style="background:#6b7280;color:white;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;padding:9px 16px;border-radius:8px;margin-bottom:8px">✓ Closed Transactions</div>
+    <div class="card" style="margin-bottom:24px;border-top:3px solid #6b7280">${makeTable(closed, true, 'buyer')}</div>
+    <div style="background:#6b7280;color:white;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;padding:9px 16px;border-radius:8px;margin-bottom:8px">✕ Cancelled Transactions</div>
+    <div class="card" style="margin-bottom:24px;border-top:3px solid #6b7280">${makeTable(cancelled, true, 'buyer')}</div>
   </div>
 
   <div class="task-panel">
