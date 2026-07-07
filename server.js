@@ -278,9 +278,10 @@ function getHTML(transaction, id) {
       </tr>`;
     }).join('');
     const lockedBanner = locked ? `<tr style="background:#fef9c3"><td colspan="4" style="padding:6px 12px;font-size:11px;color:#92400e;font-weight:600">🔒 Enter Under Contract Date above to unlock this section</td></tr>` : '';
-    const header = g.day ? `<tr style="background:#f8fafc;${locked?'opacity:0.4':''}"><td colspan="4" style="padding:8px 12px;font-size:12px;font-weight:700;letter-spacing:.5px;border-bottom:1px solid #e2e8f0"><span style="background:${headerBg};color:white;padding:2px 9px;border-radius:10px;font-size:11px">${g.day}</span>${dateDisplay}</td></tr>` : '';
+    const tbodyId = 'day-' + g.day.replace(/[^a-z0-9]/gi, '-');
+    const header = g.day ? `<tr class="day-header" style="background:#f8fafc;${locked?'opacity:0.4':''}cursor:pointer;" onclick="toggleDay('${tbodyId}',this)"><td colspan="4" style="padding:8px 12px;font-size:12px;font-weight:700;letter-spacing:.5px;border-bottom:1px solid #e2e8f0"><span style="background:${headerBg};color:white;padding:2px 9px;border-radius:10px;font-size:11px">${g.day}</span>${dateDisplay} <span class="collapse-arrow" style="float:right;font-size:10px;color:#94a3b8">▲</span></td></tr>` : '';
     const rowsOut = locked ? rows.replace(/<input type="checkbox"/g, '<input type="checkbox" disabled').replace(/<input type="date"/g, '<input type="date" disabled').replace(/<input type="text"/g, '<input type="text" disabled') : rows;
-    return lockedBanner + header + `<tbody style="${locked?'opacity:0.4;pointer-events:none':''}">${rowsOut}</tbody>`;
+    return lockedBanner + header + `<tbody id="${tbodyId}" style="${locked?'opacity:0.4;pointer-events:none':''}">${rowsOut}</tbody>`;
   }).join('');
 
   const sectionHTML = `
@@ -561,6 +562,15 @@ document.querySelectorAll('.info-input').forEach((inp, i) => {
   }
 });
 
+function toggleDay(tbodyId, headerRow) {
+  const tbody = document.getElementById(tbodyId);
+  if (!tbody) return;
+  const collapsed = tbody.style.display === 'none';
+  tbody.style.display = collapsed ? '' : 'none';
+  const arrow = headerRow.querySelector('.collapse-arrow');
+  if (arrow) arrow.textContent = collapsed ? '▲' : '▼';
+}
+
 async function toggle(itemId, val) {
   await fetch('/api/transactions/' + TXN_ID + '/check', {
     method:'POST', headers:{'Content-Type':'application/json'},
@@ -612,8 +622,10 @@ function showToast() {
 </body></html>`;
 }
 
-function getDashboardHTML(transactions) {
-  const sorted = Object.entries(transactions).sort((a,b) => b[1].createdAt - a[1].createdAt);
+function getDashboardHTML(transactions, tc) {
+  const isAdmin = !tc || tc === 'admin';
+  const allEntries = Object.entries(transactions).sort((a,b) => b[1].createdAt - a[1].createdAt);
+  const sorted = isAdmin ? allEntries : allEntries.filter(([,t]) => (t.fields?.tcName || '') === tc);
 
   function fmt(dateStr) { if (!dateStr) return '—'; const [y,m,d] = dateStr.split('-'); return `${m}/${d}/${y}`; }
   function makeRow(id, t, isArchived, mode) {
@@ -711,8 +723,11 @@ function getDashboardHTML(transactions) {
 <body>
 <div class="header">
   <div>
-    <h1>TC Checklist — Kumler Group</h1>
-    <p>Transaction coordinator checklists for buyers &amp; listings</p>
+    <div style="display:flex;align-items:center;gap:10px">
+      <a href="/" style="color:rgba(255,255,255,.7);text-decoration:none;font-size:12px;font-weight:600;border:1px solid rgba(255,255,255,.3);border-radius:5px;padding:3px 8px">← Back</a>
+      <h1>TC Checklist — Kumler Group</h1>
+    </div>
+    <p>${isAdmin ? 'Viewing all transactions (Admin)' : `Viewing transactions for <strong>${tc}</strong>`}</p>
   </div>
   <button class="btn" onclick="document.getElementById('modal').classList.add('open')">+ New Transaction</button>
 </div>
@@ -888,6 +903,58 @@ document.getElementById('modal').addEventListener('click', function(e) {
 </body></html>`;
 }
 
+const TC_NAMES = ["Joana Guzman", "Ashley Belliveau"];
+const TC_COLORS = ["#1565c0", "#0d5c2e"];
+
+function getTCSelectHTML() {
+  return `<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TC Checklist — Kumler Group</title>
+<style>
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:-apple-system,Helvetica,sans-serif; background:#f5f6fa; color:#1a1a2e; min-height:100vh; display:flex; flex-direction:column; }
+  .header { background:#1e3a5f; color:white; padding:24px 32px; text-align:center; }
+  .header h1 { font-size:24px; font-weight:800; }
+  .header p { font-size:14px; color:#a8c4e0; margin-top:4px; }
+  .select-wrap { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:40px 20px; }
+  .select-label { font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:#64748b; margin-bottom:24px; }
+  .tc-grid { display:flex; flex-wrap:wrap; gap:16px; justify-content:center; max-width:700px; }
+  .tc-card { background:white; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,.08); padding:28px 36px; cursor:pointer; text-align:center; min-width:180px; border:2px solid transparent; transition:all .15s; text-decoration:none; color:inherit; }
+  .tc-card:hover { transform:translateY(-2px); box-shadow:0 6px 20px rgba(0,0,0,.12); }
+  .tc-avatar { width:56px; height:56px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:22px; font-weight:800; color:white; margin:0 auto 12px; }
+  .tc-name { font-size:15px; font-weight:700; color:#1e3a5f; }
+  .tc-role { font-size:12px; color:#94a3b8; margin-top:3px; }
+  .admin-card { background:#1e3a5f; color:white; }
+  .admin-card .tc-name { color:white; }
+  .admin-card .tc-role { color:#a8c4e0; }
+</style></head>
+<body>
+<div class="header">
+  <h1>TC Checklist — Kumler Group</h1>
+  <p>Select your name to view your transactions</p>
+</div>
+<div class="select-wrap">
+  <div class="select-label">Who are you?</div>
+  <div class="tc-grid">
+    ${TC_NAMES.map((name, i) => {
+      const initials = name.split(' ').map(w=>w[0]).join('');
+      return `<a class="tc-card" href="/?tc=${encodeURIComponent(name)}">
+        <div class="tc-avatar" style="background:${TC_COLORS[i]}">${initials}</div>
+        <div class="tc-name">${name}</div>
+        <div class="tc-role">Transaction Coordinator</div>
+      </a>`;
+    }).join('')}
+    <a class="tc-card admin-card" href="/?tc=admin">
+      <div class="tc-avatar" style="background:#7e22ce">JJ</div>
+      <div class="tc-name">Justine Johnston</div>
+      <div class="tc-role">Director of Operations</div>
+    </a>
+  </div>
+</div>
+</body></html>`;
+}
+
 // ─── SERVER ──────────────────────────────────────────────────────────────────
 
 const server = http.createServer(async (req, res) => {
@@ -1001,9 +1068,15 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (pathname === "/" || pathname === "") {
+    const tc = url.searchParams.get('tc');
+    if (!tc) {
+      res.writeHead(200, { "Content-Type": "text/html" });
+      res.end(getTCSelectHTML());
+      return;
+    }
     const data = await loadData();
     res.writeHead(200, { "Content-Type": "text/html" });
-    res.end(getDashboardHTML(data.transactions));
+    res.end(getDashboardHTML(data.transactions, tc));
     return;
   }
 
