@@ -365,6 +365,17 @@ function getHTML(transaction, id) {
            transition:opacity .3s; pointer-events:none; z-index:99; }
   .toast.show { opacity:1; }
   @media(max-width:600px) { .note-cell,.day-cell { display:none; } .header { padding:14px 16px; } }
+  .detail-layout { display:flex; gap:20px; align-items:flex-start; max-width:1400px; margin:0 auto; padding:0 16px 40px; }
+  .detail-main { flex:1; min-width:0; }
+  .detail-sidebar { width:280px; flex-shrink:0; position:sticky; top:16px; background:white; border-radius:10px; box-shadow:0 1px 4px rgba(0,0,0,.07); overflow:hidden; }
+  .detail-sidebar-hdr { background:#1e3a5f; color:white; padding:11px 14px; font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:.5px; }
+  .task-due-group { border-bottom:1px solid #f0f2f8; padding:10px 14px; }
+  .task-due-group:last-child { border-bottom:none; }
+  .task-due-label { font-size:11px; font-weight:700; color:#1e3a5f; margin-bottom:6px; text-transform:uppercase; }
+  .task-due-item { display:flex; align-items:flex-start; gap:7px; padding:3px 0; font-size:12px; color:#333; }
+  .task-due-item input { margin-top:2px; flex-shrink:0; }
+  .task-due-item label.overdue { color:#dc2626; font-weight:600; }
+  .task-due-empty { padding:18px 14px; font-size:12px; color:#94a3b8; text-align:center; }
 </style></head>
 <body>
 <div class="header">
@@ -397,6 +408,7 @@ function getHTML(transaction, id) {
       ["Client Name", "clientName", "text", false],
       ["Under Contract Date", "ucDate", "date", true],
       ["Close of Escrow (COE)", "closeDate", "date", true],
+      ["BINSR Due (Day 10)", "binsrDue", "date", true],
     ] : [
       ["Property Address", "address", "text", false],
       ["Contract Date — Day 0", "contractDate", "date", true],
@@ -442,7 +454,26 @@ function getHTML(transaction, id) {
   </div>
 </div>
 
-<div class="container">${sectionHTML}</div>
+<div class="detail-layout">
+  <div class="detail-main container">${sectionHTML}</div>
+  <div class="detail-sidebar">
+    <div class="detail-sidebar-hdr">📋 Tasks Due Today</div>
+    ${(() => {
+      const today = new Date().toISOString().slice(0,10);
+      const dueTasks = items.filter(item => {
+        if (checked[item.id]) return false;
+        const autoISO = calcDueDateISO(item.day, contractDate, closeDate);
+        const dueISO = (notes[item.id]?.due) || autoISO;
+        return dueISO === today;
+      });
+      if (!dueTasks.length) return '<div class="task-due-empty">No tasks due today</div>';
+      return '<div class="task-due-group">' + dueTasks.map(item => {
+        const overdue = false;
+        return `<div class="task-due-item"><input type="checkbox" onchange="toggle('${item.id}', this.checked)" id="s-${item.id}"><label for="s-${item.id}">${item.label}</label></div>`;
+      }).join('') + '</div>';
+    })()}
+  </div>
+</div>
 <div class="toast" id="toast">Saved</div>
 
 <script>
@@ -610,9 +641,9 @@ function getDashboardHTML(transactions) {
   }
 
   const todayISO   = new Date().toISOString().slice(0,10);
-  const active     = sorted.filter(([,t]) => (!t.status || t.status === "active") && t.type === "buyer");
-  const listings   = sorted.filter(([,t]) => (!t.status || t.status === "active") && t.type === "listing");
-  const listingUC  = sorted.filter(([,t]) => (!t.status || t.status === "active") && t.type === "listing-uc");
+  const active      = sorted.filter(([,t]) => (!t.status || t.status === "active") && t.type === "buyer");
+  const listings    = sorted.filter(([,t]) => (!t.status || t.status === "active") && t.type === "listing" && !t.fields?.ucDate);
+  const listingUC   = sorted.filter(([,t]) => (!t.status || t.status === "active") && (t.type === "listing-uc" || (t.type === "listing" && t.fields?.ucDate)));
   const closingToday = sorted.filter(([,t]) => (!t.status || t.status === "active") && t.type !== "listing" && (t.fields?.closeDate === todayISO));
   const closed     = sorted.filter(([,t]) => t.status === "closed");
   const cancelled  = sorted.filter(([,t]) => t.status === "cancelled");
