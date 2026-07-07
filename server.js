@@ -934,7 +934,7 @@ function getTCSelectHTML() {
 <script>
 function adminLogin() {
   const code = prompt('Enter passcode:');
-  if (code === '2268') { window.location.href = '/?tc=admin'; }
+  if (code === '3315') { window.location.href = '/?tc=admin'; }
   else if (code !== null) { alert('Incorrect passcode.'); }
 }
 </script>
