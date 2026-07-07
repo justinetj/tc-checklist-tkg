@@ -381,12 +381,16 @@ function getHTML(transaction, id) {
     </div>
   </div>
   <div class="info-grid">
-    ${[
+    ${(transaction.type === 'listing' ? [
+      ["Property Address", "address", "text", false],
+      ["Employment Agreement Date", "contractDate", "date", true],
+      ["Client Name", "clientName", "text", false],
+    ] : [
       ["Property Address", "address", "text", false],
       ["Contract Date — Day 0", "contractDate", "date", true],
       ["Close of Escrow Date (COE)", "closeDate", "date", true],
       ["Client Name", "clientName", "text", false],
-    ].map(([label, key, type, hi]) => `
+    ]).map(([label, key, type, hi]) => `
       <div class="info-field${hi ? ' highlight' : ''}">
         <div class="info-label">${label}</div>
         <input class="info-input" type="${type}" placeholder="—"
@@ -412,13 +416,13 @@ function getHTML(transaction, id) {
         <option value="Ashley Belliveau"${(fields.tcName||'')==='Ashley Belliveau'?' selected':''}>Ashley Belliveau</option>
       </select>
     </div>
-    <div class="info-field" style="background:#fff7ed">
+    ${transaction.type !== 'listing' ? `<div class="info-field" style="background:#fff7ed">
       <div class="info-label">BINSR Due (Day 10)</div>
       <input id="binsrDue" class="info-input" type="date" placeholder="—"
         style="color:#b45309;font-weight:600"
         value="${fields.binsrDue || (fields.contractDate ? (() => { const d = new Date(fields.contractDate + "T12:00:00"); d.setDate(d.getDate() + 10); return d.toISOString().slice(0,10); })() : '')}"
         onchange="saveField('binsrDue', this.value)">
-    </div>
+    </div>` : ''}
   </div>
 </div>
 
