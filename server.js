@@ -1078,19 +1078,52 @@ const server = http.createServer(async (req, res) => {
     req.on("data", d => body += d);
     req.on("end", async () => {
       try {
-        const params = new URLSearchParams(body);
-        const get = (...keys) => { for (const k of keys) { const v = params.get(k); if (v && v.trim()) return v.trim(); } return ''; };
-        const client1 = get('Client 1 Name', 'Client1Name', 'client_1_name');
-        const client2 = get('Client 2 Name', 'Client2Name', 'client_2_name');
-        const clientName = [client1, client2].filter(Boolean).join(' & ');
-        const address = get('Subject Property Address', 'SubjectPropertyAddress', 'subject_property_address');
-        const agentName = get('Agent Partner Name', 'AgentPartnerName', 'agent_partner_name');
-        const agentEmail = get('Agent Partner Email', 'AgentPartnerEmail', 'agent_partner_email');
-        const agentPhone = get('Agent Partner Cell Number', 'AgentPartnerCellNumber', 'agent_partner_cell_number');
-        const rawType = get('Transaction Type', 'Type', 'type', 'Listing or Buyer', 'listing_or_buyer').toLowerCase();
-        const type = rawType.includes('listing') ? 'listing' : 'buyer';
-        const contractDate = get('Contract Execution Date', 'ContractDate', 'contract_date', 'Employment Agreement Date');
-        const closeDate = get('Close of Escrow', 'CloseDate', 'close_date', 'COE Date');
+        // Parse URL-encoded or JSON
+        let p = {};
+        try { p = JSON.parse(body); } catch(_) {
+          const params = new URLSearchParams(body);
+          for (const [k,v] of params.entries()) p[k] = v;
+        }
+        const get = (...keys) => { for (const k of keys) { const v = p[k]; if (v && String(v).trim()) return String(v).trim(); } return ''; };
+        const join = (...keys) => keys.map(k => get(k)).filter(Boolean).join(' ').trim();
+
+        // Agent
+        const agentFirst = get('Agent Partner Name First', 'agent_partner_name_first');
+        const agentLast  = get('Agent Partner Name Last',  'agent_partner_name_last');
+        const agentName  = join('Agent Partner Name') || [agentFirst, agentLast].filter(Boolean).join(' ');
+        const agentEmail = get('Agent Partner Email');
+        const agentPhone = get('Agent Partner Cell Number');
+
+        // Address (assembled from parts)
+        const addr1  = get('Subject Property Address Address Line 1', 'Subject Property Address_1');
+        const city   = get('Subject Property Address City', 'Subject Property Address_3');
+        const state  = get('Subject Property Address State', 'Subject Property Address_4');
+        const zip    = get('Subject Property Address ZIP Code', 'Subject Property Address_5');
+        const address = addr1 ? [addr1, city, state, zip].filter(Boolean).join(', ') : get('Subject Property Address');
+
+        // Detect form type: listing form has "Seller 1 Name", escrow has "Client 1 Name"
+        const hasSeller = !!(p['Seller 1 Name First'] || p['Seller 1 Name Last'] || p['Seller/Client Email']);
+        const type = hasSeller ? 'listing' : 'buyer';
+
+        // Client/Seller names
+        let clientName = '';
+        if (hasSeller) {
+          const s1 = [get('Seller 1 Name First'), get('Seller 1 Name Last')].filter(Boolean).join(' ');
+          const s2 = [get('Seller 2 Name First'), get('Seller 2 Name Last')].filter(Boolean).join(' ');
+          const s3 = [get('Seller 3 Name First'), get('Seller 3 Name Last')].filter(Boolean).join(' ');
+          clientName = [s1, s2, s3].filter(Boolean).join(' & ');
+        } else {
+          const c1 = [get('Client 1 Name First'), get('Client 1 Name Last')].filter(Boolean).join(' ');
+          const c2 = [get('Client 2 Name First'), get('Client 2 Name Last')].filter(Boolean).join(' ');
+          const c3 = [get('Client 3 Name First'), get('Client 3 Name Last')].filter(Boolean).join(' ');
+          clientName = [c1, c2, c3].filter(Boolean).join(' & ');
+        }
+
+        // Dates
+        const closeDate = get('Estimated closing date (Month and Year OK)?', 'Estimated closing date');
+        const listingStartDate = get('What Date Do You and Your Client Want The Listing Active on the MLS?');
+        const notes = get('Any other important information or notes you want/need your transaction coordinator to know?', 'Additional info (optional)', 'Long Answer');
+
         const data = await loadData();
         const id = 'txn_' + Date.now();
         data.transactions[id] = {
@@ -1103,15 +1136,16 @@ const server = http.createServer(async (req, res) => {
             agentPartner1: agentName,
             agentPartner1Email: agentEmail,
             agentPartner1Phone: agentPhone,
-            contractDate,
             closeDate,
+            listingStartDate,
+            notes,
           },
           checked: {},
-          notes: {},
+          itemNotes: {},
         };
         await saveData(data);
         res.writeHead(200, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ ok: true, id }));
+        res.end(JSON.stringify({ ok: true, id, type, address, clientName }));
       } catch(e) {
         res.writeHead(500); res.end(e.message);
       }
