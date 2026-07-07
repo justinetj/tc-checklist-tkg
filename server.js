@@ -237,8 +237,13 @@ function getHTML(transaction, id) {
     groups[groups.length - 1].items.push(item);
   }
 
+  const ucDate = fields.ucDate || "";
+  const isUnderContract = !isListing || !!ucDate;
+
   const flatRows = groups.map(g => {
-    const autoDateForGroup = calcDueDateISO(g.day, contractDate, closeDate);
+    const isUCSection = isListing && (g.items[0]?.section === "Under Contract" || g.items.some(i => i.section === "Under Contract" || i.section?.startsWith("COE")));
+    const locked = isUCSection && !isUnderContract;
+    const autoDateForGroup = calcDueDateISO(g.day, ucDate || contractDate, closeDate);
     let dateDisplay = '';
     if (autoDateForGroup) {
       const [y,m,d] = autoDateForGroup.split('-');
@@ -272,8 +277,10 @@ function getHTML(transaction, id) {
         </td>
       </tr>`;
     }).join('');
-    const header = g.day ? `<tr style="background:#f8fafc"><td colspan="4" style="padding:8px 12px;font-size:12px;font-weight:700;letter-spacing:.5px;border-bottom:1px solid #e2e8f0"><span style="background:${headerBg};color:white;padding:2px 9px;border-radius:10px;font-size:11px">${g.day}</span>${dateDisplay}</td></tr>` : '';
-    return header + rows;
+    const lockedBanner = locked ? `<tr style="background:#fef9c3"><td colspan="4" style="padding:6px 12px;font-size:11px;color:#92400e;font-weight:600">🔒 Enter Under Contract Date above to unlock this section</td></tr>` : '';
+    const header = g.day ? `<tr style="background:#f8fafc;${locked?'opacity:0.4':''}"><td colspan="4" style="padding:8px 12px;font-size:12px;font-weight:700;letter-spacing:.5px;border-bottom:1px solid #e2e8f0"><span style="background:${headerBg};color:white;padding:2px 9px;border-radius:10px;font-size:11px">${g.day}</span>${dateDisplay}</td></tr>` : '';
+    const rowsOut = locked ? rows.replace(/<input type="checkbox"/g, '<input type="checkbox" disabled').replace(/<input type="date"/g, '<input type="date" disabled').replace(/<input type="text"/g, '<input type="text" disabled') : rows;
+    return lockedBanner + header + `<tbody style="${locked?'opacity:0.4;pointer-events:none':''}">${rowsOut}</tbody>`;
   }).join('');
 
   const sectionHTML = `
@@ -285,7 +292,7 @@ function getHTML(transaction, id) {
           <th style="width:150px;padding:6px 8px;font-size:11px;color:#888;font-weight:600">Due Date ✏️</th>
           <th style="width:300px;padding:6px 8px;font-size:11px;color:#888;font-weight:600">Note</th>
         </tr></thead>
-        <tbody>${flatRows}</tbody>
+        ${flatRows}
       </table>
     </div>`;
 
@@ -388,6 +395,8 @@ function getHTML(transaction, id) {
       ["Listing Start Date", "listingStartDate", "date", true],
       ["Listing Expiration Date", "listingExpDate", "date", true],
       ["Client Name", "clientName", "text", false],
+      ["Under Contract Date", "ucDate", "date", true],
+      ["Close of Escrow (COE)", "closeDate", "date", true],
     ] : [
       ["Property Address", "address", "text", false],
       ["Contract Date — Day 0", "contractDate", "date", true],
