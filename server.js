@@ -930,7 +930,15 @@ function getTCSelectHTML() {
   .admin-card { background:#1e3a5f; color:white; }
   .admin-card .tc-name { color:white; }
   .admin-card .tc-role { color:#a8c4e0; }
-</style></head>
+</style>
+<script>
+function adminLogin() {
+  const code = prompt('Enter passcode:');
+  if (code === '2268') { window.location.href = '/?tc=admin'; }
+  else if (code !== null) { alert('Incorrect passcode.'); }
+}
+</script>
+</head>
 <body>
 <div class="header">
   <h1>TC Checklist — Kumler Group</h1>
@@ -947,7 +955,7 @@ function getTCSelectHTML() {
         <div class="tc-role">Transaction Coordinator</div>
       </a>`;
     }).join('')}
-    <a class="tc-card admin-card" href="/?tc=admin">
+    <a class="tc-card admin-card" href="javascript:void(0)" onclick="adminLogin()">
       <div class="tc-avatar" style="background:#7e22ce">JJ</div>
       <div class="tc-name">Justine Johnston</div>
       <div class="tc-role">Director of Operations</div>
