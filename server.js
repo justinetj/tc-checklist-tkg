@@ -880,7 +880,8 @@ async function deleteTxn(id, label, btn) {
   if (code === null) return;
   if (code !== '3315') { alert('Incorrect passcode.'); return; }
   if (!confirm('Delete "' + label + '"? This cannot be undone.')) return;
-  await fetch('/api/transactions/' + id, { method:'DELETE' });
+  const r = await fetch('/api/transactions/' + id, { method:'DELETE' });
+  if (!r.ok) { const j = await r.json(); alert(j.error || 'Could not delete.'); return; }
   location.reload();
 }
 async function create() {
@@ -1012,7 +1013,14 @@ const server = http.createServer(async (req, res) => {
   const deleteMatch = pathname.match(/^\/api\/transactions\/([^/]+)$/);
   if (req.method === "DELETE" && deleteMatch) {
     const data = await loadData();
-    delete data.transactions[deleteMatch[1]];
+    const delId = deleteMatch[1];
+    const linked = Object.values(data.transactions).find(t => t.linkedListingId === delId);
+    if (linked) {
+      res.writeHead(409, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ ok: false, error: 'This transaction has a linked Listing UC and cannot be deleted.' }));
+      return;
+    }
+    delete data.transactions[delId];
     await saveData(data);
     res.writeHead(200, { "Content-Type": "application/json" });
     res.end(JSON.stringify({ ok: true }));
