@@ -575,7 +575,8 @@ function showToast() {
 function getDashboardHTML(transactions) {
   const sorted = Object.entries(transactions).sort((a,b) => b[1].createdAt - a[1].createdAt);
 
-  function makeRow(id, t, isArchived) {
+  function fmt(dateStr) { if (!dateStr) return '—'; const [y,m,d] = dateStr.split('-'); return `${m}/${d}/${y}`; }
+  function makeRow(id, t, isArchived, mode) {
     const items = t.type === "buyer" ? BUYER_ITEMS : LISTING_ITEMS;
     const done = items.filter(i => (t.checked || {})[i.id]).length;
     const pct = Math.round((done / items.length) * 100);
@@ -585,42 +586,36 @@ function getDashboardHTML(transactions) {
       ? `<button onclick="event.stopPropagation();setStatus('${id}','active')" style="background:#f0f4ff;color:#1e3a5f;border:none;padding:4px 10px;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer">Reopen</button>`
       : `<button onclick="event.stopPropagation();setStatus('${id}','closed')" style="background:#dcfce7;color:#15803d;border:none;padding:4px 10px;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;margin-right:4px">Close</button>
          <button onclick="event.stopPropagation();setStatus('${id}','cancelled')" style="background:#fee2e2;color:#dc2626;border:none;padding:4px 10px;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer">Cancel</button>`;
-    return `<tr onclick="window.location='/t/${id}'" style="cursor:pointer;${isArchived?'opacity:0.7':''}">
-      <td><strong>${t.address || '(no address)'}</strong></td>
-      <td>${fields.clientName || t.clientName || '—'}</td>
-      <td>${fields.agentPartner1 || '—'}</td>
-      <td>${fields.contractDate ? (() => { const [y,m,d] = fields.contractDate.split('-'); return `${m}/${d}/${y}`; })() : '—'}</td>
-      <td>${fields.closeDate ? (() => { const [y,m,d] = fields.closeDate.split('-'); return `${m}/${d}/${y}`; })() : '—'}</td>
-      <td>
-        <div style="display:flex;align-items:center;gap:8px">
-          <div style="flex:1;height:7px;background:#e0e4f0;border-radius:4px;min-width:80px">
-            <div style="width:${pct}%;height:7px;background:${pct===100?'#2e7d32':color};border-radius:4px"></div>
-          </div>
-          <span style="font-size:12px;font-weight:600;color:#555;white-space:nowrap">${pct}%</span>
-        </div>
-      </td>
-      <td onclick="event.stopPropagation()" style="white-space:nowrap">
-        ${actionBtns}
-        <button onclick="event.stopPropagation();deleteTxn('${id}','${(t.address||'this transaction').replace(/'/g,"\\'")}',this)" style="background:#f5f5f5;color:#888;border:none;padding:4px 8px;border-radius:5px;font-size:11px;cursor:pointer;margin-left:4px">✕</button>
-      </td>
-    </tr>`;
+    const progress = `<td><div style="display:flex;align-items:center;gap:8px"><div style="flex:1;height:7px;background:#e0e4f0;border-radius:4px;min-width:80px"><div style="width:${pct}%;height:7px;background:${pct===100?'#2e7d32':color};border-radius:4px"></div></div><span style="font-size:12px;font-weight:600;color:#555;white-space:nowrap">${pct}%</span></div></td>`;
+    const actions = `<td onclick="event.stopPropagation()" style="white-space:nowrap">${actionBtns}<button onclick="event.stopPropagation();deleteTxn('${id}','${(t.address||'this transaction').replace(/'/g,"\\'")}',this)" style="background:#f5f5f5;color:#888;border:none;padding:4px 8px;border-radius:5px;font-size:11px;cursor:pointer;margin-left:4px">✕</button></td>`;
+    const base = `<td><strong>${t.address || '(no address)'}</strong></td><td>${fields.clientName || t.clientName || '—'}</td><td>${fields.agentPartner1 || '—'}</td>`;
+    let dateCols = '';
+    if (mode === 'buyer') {
+      dateCols = `<td>${fmt(fields.contractDate)}</td><td>${fmt(fields.binsrDue)}</td><td>${fmt(fields.closeDate)}</td>`;
+    } else if (mode === 'listing') {
+      dateCols = `<td>${fmt(fields.contractDate)}</td><td>${fmt(fields.listingStartDate)}</td><td>${fmt(fields.listingExpDate)}</td>`;
+    } else {
+      dateCols = `<td>${fmt(fields.contractDate)}</td><td>${fmt(fields.closeDate)}</td>`;
+    }
+    return `<tr onclick="window.location='/t/${id}'" style="cursor:pointer;${isArchived?'opacity:0.7':''}">${base}${dateCols}${progress}${actions}</tr>`;
   }
 
   const todayISO   = new Date().toISOString().slice(0,10);
   const active     = sorted.filter(([,t]) => (!t.status || t.status === "active") && t.type === "buyer");
   const listings   = sorted.filter(([,t]) => (!t.status || t.status === "active") && t.type === "listing");
   const listingUC  = sorted.filter(([,t]) => (!t.status || t.status === "active") && t.type === "listing-uc");
-  const closingToday = sorted.filter(([,t]) => (!t.status || t.status === "active") && (t.fields?.closeDate === todayISO));
+  const closingToday = sorted.filter(([,t]) => (!t.status || t.status === "active") && t.type !== "listing" && (t.fields?.closeDate === todayISO));
   const closed     = sorted.filter(([,t]) => t.status === "closed");
   const cancelled  = sorted.filter(([,t]) => t.status === "cancelled");
 
-  function makeTable(list, archived) {
+  function makeTable(list, archived, mode) {
     if (list.length === 0) return '<div class="empty">None</div>';
-    return `<table><thead><tr>
-      <th>Address</th><th>Client</th><th>Agent Partner</th>
-      <th>Contract Date</th><th>Close Date</th>
-      <th>Progress</th><th>Actions</th>
-    </tr></thead><tbody>${list.map(([id,t]) => makeRow(id,t,archived)).join('')}</tbody></table>`;
+    const headers = mode === 'buyer'
+      ? `<th>Address</th><th>Client</th><th>Agent</th><th>Under Contract</th><th>BINSR Due</th><th>Closing Date</th><th>Progress</th><th>Actions</th>`
+      : mode === 'listing'
+      ? `<th>Address</th><th>Client</th><th>Agent</th><th>Agreement Date</th><th>Start Date</th><th>Expiration</th><th>Progress</th><th>Actions</th>`
+      : `<th>Address</th><th>Client</th><th>Agent</th><th>Contract Date</th><th>Close Date</th><th>Progress</th><th>Actions</th>`;
+    return `<table><thead><tr>${headers}</tr></thead><tbody>${list.map(([id,t]) => makeRow(id,t,archived,mode)).join('')}</tbody></table>`;
   }
 
   const rows = ''; // unused placeholder
@@ -686,23 +681,23 @@ function getDashboardHTML(transactions) {
   <div class="dashboard-main">
     ${closingToday.length > 0 ? `
     <div style="font-size:12px;font-weight:700;text-transform:uppercase;color:white;letter-spacing:.5px;margin-bottom:8px;background:#dc2626;padding:8px 14px;border-radius:8px;display:flex;align-items:center;gap:8px">🔴 CLOSINGS TODAY — ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}</div>
-    <div class="card" style="margin-bottom:28px;border:2px solid #dc2626">${makeTable(closingToday, false)}</div>` : ''}
+    <div class="card" style="margin-bottom:28px;border:2px solid #dc2626">${makeTable(closingToday, false, 'buyer')}</div>` : ''}
     <div style="background:#1565c0;color:white;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;padding:9px 16px;border-radius:8px;margin-bottom:8px">🏠 Active Transactions</div>
     <div class="card" style="margin-bottom:24px;border-top:3px solid #1565c0">
-      ${active.length === 0 ? '<div class="empty">No active transactions.</div>' : makeTable(active, false)}
+      ${active.length === 0 ? '<div class="empty">No active transactions.</div>' : makeTable(active, false, 'buyer')}
     </div>
     <div style="background:#2e7d32;color:white;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;padding:9px 16px;border-radius:8px;margin-bottom:8px">📋 Active Listings</div>
     <div class="card" style="margin-bottom:24px;border-top:3px solid #2e7d32">
-      ${listings.length === 0 ? '<div class="empty">No active listings.</div>' : makeTable(listings, false)}
+      ${listings.length === 0 ? '<div class="empty">No active listings.</div>' : makeTable(listings, false, 'listing')}
     </div>
     <div style="background:#b45309;color:white;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;padding:9px 16px;border-radius:8px;margin-bottom:8px">📝 Listings Under Contract</div>
     <div class="card" style="margin-bottom:24px;border-top:3px solid #b45309">
-      ${listingUC.length === 0 ? '<div class="empty">No listings under contract.</div>' : makeTable(listingUC, false)}
+      ${listingUC.length === 0 ? '<div class="empty">No listings under contract.</div>' : makeTable(listingUC, false, 'buyer')}
     </div>
     <div style="background:#15803d;color:white;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;padding:9px 16px;border-radius:8px;margin-bottom:8px">✓ Closed Transactions</div>
-    <div class="card" style="margin-bottom:24px;border-top:3px solid #15803d">${makeTable(closed, true)}</div>
+    <div class="card" style="margin-bottom:24px;border-top:3px solid #15803d">${makeTable(closed, true, 'buyer')}</div>
     <div style="background:#dc2626;color:white;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;padding:9px 16px;border-radius:8px;margin-bottom:8px">✕ Cancelled Transactions</div>
-    <div class="card" style="margin-bottom:24px;border-top:3px solid #dc2626">${makeTable(cancelled, true)}</div>
+    <div class="card" style="margin-bottom:24px;border-top:3px solid #dc2626">${makeTable(cancelled, true, 'buyer')}</div>
   </div>
 
   <div class="task-panel">
