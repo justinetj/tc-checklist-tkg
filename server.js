@@ -416,6 +416,13 @@ function getHTML(transaction, id) {
         <option value="Ashley Belliveau"${(fields.tcName||'')==='Ashley Belliveau'?' selected':''}>Ashley Belliveau</option>
       </select>
     </div>
+    ${transaction.type === 'listing' ? `<div class="info-field" style="background:#fff7ed">
+      <div class="info-label">Status</div>
+      <select class="info-input" onchange="saveField('underContract', this.value === 'contract')">
+        <option value="listing" ${!fields.underContract ? 'selected' : ''}>Active Listing</option>
+        <option value="contract" ${fields.underContract ? 'selected' : ''}>Under Contract</option>
+      </select>
+    </div>` : ''}
     ${transaction.type !== 'listing' ? `<div class="info-field" style="background:#fff7ed">
       <div class="info-label">BINSR Due (Day 10)</div>
       <input id="binsrDue" class="info-input" type="date" placeholder="—"
@@ -568,24 +575,22 @@ function showToast() {
 function getDashboardHTML(transactions) {
   const sorted = Object.entries(transactions).sort((a,b) => b[1].createdAt - a[1].createdAt);
 
-  function makeRow(id, t, isArchived) {
+  function makeRow(id, t, isArchived, hideCOE) {
     const items = t.type === "buyer" ? BUYER_ITEMS : LISTING_ITEMS;
     const done = items.filter(i => (t.checked || {})[i.id]).length;
     const pct = Math.round((done / items.length) * 100);
     const color = t.type === "buyer" ? "#1565c0" : "#2e7d32";
     const fields = t.fields || {};
-    const status = t.status || "active";
     const actionBtns = isArchived
       ? `<button onclick="event.stopPropagation();setStatus('${id}','active')" style="background:#f0f4ff;color:#1e3a5f;border:none;padding:4px 10px;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer">Reopen</button>`
       : `<button onclick="event.stopPropagation();setStatus('${id}','closed')" style="background:#dcfce7;color:#15803d;border:none;padding:4px 10px;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;margin-right:4px">Close</button>
          <button onclick="event.stopPropagation();setStatus('${id}','cancelled')" style="background:#fee2e2;color:#dc2626;border:none;padding:4px 10px;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer">Cancel</button>`;
     return `<tr onclick="window.location='/t/${id}'" style="cursor:pointer;${isArchived?'opacity:0.7':''}">
       <td><strong>${t.address || '(no address)'}</strong></td>
-      <td><span style="background:${color};color:white;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700;text-transform:uppercase">${t.type}</span></td>
       <td>${fields.clientName || t.clientName || '—'}</td>
       <td>${fields.agentPartner1 || '—'}</td>
       <td>${fields.contractDate ? (() => { const [y,m,d] = fields.contractDate.split('-'); return `${m}/${d}/${y}`; })() : '—'}</td>
-      <td>${fields.closeDate ? (() => { const [y,m,d] = fields.closeDate.split('-'); return `${m}/${d}/${y}`; })() : '—'}</td>
+      ${hideCOE ? '' : `<td>${fields.closeDate ? (() => { const [y,m,d] = fields.closeDate.split('-'); return `${m}/${d}/${y}`; })() : '—'}</td>`}
       <td>
         <div style="display:flex;align-items:center;gap:8px">
           <div style="flex:1;height:7px;background:#e0e4f0;border-radius:4px;min-width:80px">
@@ -601,16 +606,20 @@ function getDashboardHTML(transactions) {
     </tr>`;
   }
 
-  const active     = sorted.filter(([,t]) => !t.status || t.status === "active");
+  const allActive  = sorted.filter(([,t]) => !t.status || t.status === "active");
+  const buyerActive = allActive.filter(([,t]) => t.type === "buyer");
+  const listingOnly = allActive.filter(([,t]) => t.type === "listing" && !t.fields?.underContract);
+  const listingContract = allActive.filter(([,t]) => t.type === "listing" && t.fields?.underContract);
   const closed     = sorted.filter(([,t]) => t.status === "closed");
   const cancelled  = sorted.filter(([,t]) => t.status === "cancelled");
 
-  function makeTable(list, archived) {
+  function makeTable(list, archived, hideCOE) {
     if (list.length === 0) return '<div class="empty">None</div>';
     return `<table><thead><tr>
-      <th>Address</th><th>Type</th><th>Client</th><th>Agent Partner</th>
-      <th>Contract Date</th><th>Close Date</th><th>Progress</th><th>Actions</th>
-    </tr></thead><tbody>${list.map(([id,t]) => makeRow(id,t,archived)).join('')}</tbody></table>`;
+      <th>Address</th><th>Client</th><th>Agent Partner</th>
+      <th>${hideCOE ? 'Agreement Date' : 'Contract Date'}</th>${hideCOE ? '' : '<th>Close Date</th>'}
+      <th>Progress</th><th>Actions</th>
+    </tr></thead><tbody>${list.map(([id,t]) => makeRow(id,t,archived,hideCOE)).join('')}</tbody></table>`;
   }
 
   const rows = ''; // unused placeholder
@@ -674,11 +683,23 @@ function getDashboardHTML(transactions) {
 <div class="container">
 <div class="dashboard-layout">
   <div class="dashboard-main">
-    <div style="font-size:12px;font-weight:700;text-transform:uppercase;color:#1e3a5f;letter-spacing:.5px;margin-bottom:8px">Active Transactions</div>
+    <div style="font-size:12px;font-weight:700;text-transform:uppercase;color:#1565c0;letter-spacing:.5px;margin-bottom:8px">🏠 Buyer Transactions — Under Contract</div>
     <div class="card" style="margin-bottom:28px">
-      ${active.length === 0
-        ? '<div class="empty">No active transactions. Click <strong>+ New Transaction</strong> to get started.</div>'
-        : makeTable(active, false)}
+      ${buyerActive.length === 0
+        ? '<div class="empty">No active buyer transactions.</div>'
+        : makeTable(buyerActive, false, false)}
+    </div>
+    <div style="font-size:12px;font-weight:700;text-transform:uppercase;color:#2e7d32;letter-spacing:.5px;margin-bottom:8px">📋 Listings</div>
+    <div class="card" style="margin-bottom:28px">
+      ${listingOnly.length === 0
+        ? '<div class="empty">No active listings.</div>'
+        : makeTable(listingOnly, false, true)}
+    </div>
+    <div style="font-size:12px;font-weight:700;text-transform:uppercase;color:#b45309;letter-spacing:.5px;margin-bottom:8px">📝 Listing Transactions — Under Contract</div>
+    <div class="card" style="margin-bottom:28px">
+      ${listingContract.length === 0
+        ? '<div class="empty">No listing transactions under contract.</div>'
+        : makeTable(listingContract, false, false)}
     </div>
     <div style="font-size:12px;font-weight:700;text-transform:uppercase;color:#15803d;letter-spacing:.5px;margin-bottom:8px">Closed Transactions</div>
     <div class="card" style="margin-bottom:28px">${makeTable(closed, true)}</div>
