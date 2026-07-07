@@ -216,6 +216,7 @@ function dayBadge(dayLabel, color) {
 
 function getHTML(transaction, id) {
   const items = transaction.type === "buyer" ? BUYER_ITEMS : LISTING_ITEMS;
+  const isListing = transaction.type === "listing" || transaction.type === "listing-uc";
   const checked = transaction.checked || {};
   const notes = transaction.notes || {};
   const fields = transaction.fields || {};
@@ -224,7 +225,7 @@ function getHTML(transaction, id) {
   const total = items.length;
   const done = items.filter(i => checked[i.id]).length;
   const pct = Math.round((done / total) * 100);
-  const color = transaction.type === "buyer" ? "#1565c0" : "#2e7d32";
+  const color = transaction.type === "buyer" ? "#1565c0" : transaction.type === "listing-uc" ? "#b45309" : "#2e7d32";
 
   // Group items by day label
   const today = new Date().toISOString().slice(0, 10);
@@ -381,7 +382,7 @@ function getHTML(transaction, id) {
     </div>
   </div>
   <div class="info-grid">
-    ${(transaction.type === 'listing' ? [
+    ${(isListing ? [
       ["Property Address", "address", "text", false],
       ["Employment Agreement Date", "contractDate", "date", true],
       ["Client Name", "clientName", "text", false],
@@ -416,14 +417,11 @@ function getHTML(transaction, id) {
         <option value="Ashley Belliveau"${(fields.tcName||'')==='Ashley Belliveau'?' selected':''}>Ashley Belliveau</option>
       </select>
     </div>
-    ${transaction.type === 'listing' ? `<div class="info-field" style="background:#fff7ed">
-      <div class="info-label">Status</div>
-      <select class="info-input" onchange="saveField('underContract', this.value === 'contract')">
-        <option value="listing" ${!fields.underContract ? 'selected' : ''}>Active Listing</option>
-        <option value="contract" ${fields.underContract ? 'selected' : ''}>Under Contract</option>
-      </select>
+    ${transaction.type === 'listing-uc' && transaction.linkedListingId ? `<div class="info-field" style="background:#fef3c7">
+      <div class="info-label">Linked Listing</div>
+      <a href="/t/${transaction.linkedListingId}" style="font-size:14px;color:#1e3a5f;font-weight:600;text-decoration:none">→ View Original Listing</a>
     </div>` : ''}
-    ${transaction.type !== 'listing' ? `<div class="info-field" style="background:#fff7ed">
+    ${!isListing ? `<div class="info-field" style="background:#fff7ed">
       <div class="info-label">BINSR Due (Day 10)</div>
       <input id="binsrDue" class="info-input" type="date" placeholder="—"
         style="color:#b45309;font-weight:600"
@@ -579,7 +577,7 @@ function getDashboardHTML(transactions) {
     const items = t.type === "buyer" ? BUYER_ITEMS : LISTING_ITEMS;
     const done = items.filter(i => (t.checked || {})[i.id]).length;
     const pct = Math.round((done / items.length) * 100);
-    const color = t.type === "buyer" ? "#1565c0" : "#2e7d32";
+    const color = t.type === "buyer" ? "#1565c0" : t.type === "listing-uc" ? "#b45309" : "#2e7d32";
     const fields = t.fields || {};
     const actionBtns = isArchived
       ? `<button onclick="event.stopPropagation();setStatus('${id}','active')" style="background:#f0f4ff;color:#1e3a5f;border:none;padding:4px 10px;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer">Reopen</button>`
@@ -606,10 +604,13 @@ function getDashboardHTML(transactions) {
     </tr>`;
   }
 
-  const active    = sorted.filter(([,t]) => (!t.status || t.status === "active") && t.type === "buyer");
-  const listings  = sorted.filter(([,t]) => (!t.status || t.status === "active") && t.type === "listing");
-  const closed    = sorted.filter(([,t]) => t.status === "closed");
-  const cancelled = sorted.filter(([,t]) => t.status === "cancelled");
+  const todayISO   = new Date().toISOString().slice(0,10);
+  const active     = sorted.filter(([,t]) => (!t.status || t.status === "active") && t.type === "buyer");
+  const listings   = sorted.filter(([,t]) => (!t.status || t.status === "active") && t.type === "listing");
+  const listingUC  = sorted.filter(([,t]) => (!t.status || t.status === "active") && t.type === "listing-uc");
+  const closingToday = sorted.filter(([,t]) => (!t.status || t.status === "active") && (t.fields?.closeDate === todayISO));
+  const closed     = sorted.filter(([,t]) => t.status === "closed");
+  const cancelled  = sorted.filter(([,t]) => t.status === "cancelled");
 
   function makeTable(list, archived) {
     if (list.length === 0) return '<div class="empty">None</div>';
@@ -681,6 +682,9 @@ function getDashboardHTML(transactions) {
 <div class="container">
 <div class="dashboard-layout">
   <div class="dashboard-main">
+    ${closingToday.length > 0 ? `
+    <div style="font-size:12px;font-weight:700;text-transform:uppercase;color:white;letter-spacing:.5px;margin-bottom:8px;background:#dc2626;padding:8px 14px;border-radius:8px;display:flex;align-items:center;gap:8px">🔴 CLOSINGS TODAY — ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}</div>
+    <div class="card" style="margin-bottom:28px;border:2px solid #dc2626">${makeTable(closingToday, false)}</div>` : ''}
     <div style="font-size:12px;font-weight:700;text-transform:uppercase;color:#1565c0;letter-spacing:.5px;margin-bottom:8px">Active Transactions</div>
     <div class="card" style="margin-bottom:28px">
       ${active.length === 0 ? '<div class="empty">No active transactions.</div>' : makeTable(active, false)}
@@ -688,6 +692,10 @@ function getDashboardHTML(transactions) {
     <div style="font-size:12px;font-weight:700;text-transform:uppercase;color:#2e7d32;letter-spacing:.5px;margin-bottom:8px">Active Listings</div>
     <div class="card" style="margin-bottom:28px">
       ${listings.length === 0 ? '<div class="empty">No active listings.</div>' : makeTable(listings, false)}
+    </div>
+    <div style="font-size:12px;font-weight:700;text-transform:uppercase;color:#b45309;letter-spacing:.5px;margin-bottom:8px">Listings Under Contract</div>
+    <div class="card" style="margin-bottom:28px">
+      ${listingUC.length === 0 ? '<div class="empty">No listings under contract.</div>' : makeTable(listingUC, false)}
     </div>
     <div style="font-size:12px;font-weight:700;text-transform:uppercase;color:#15803d;letter-spacing:.5px;margin-bottom:8px">Closed Transactions</div>
     <div class="card" style="margin-bottom:28px">${makeTable(closed, true)}</div>
@@ -742,7 +750,17 @@ function getDashboardHTML(transactions) {
   <div class="modal">
     <h2>New Transaction</h2>
     <div class="field"><label>Type</label>
-      <select id="f-type"><option value="buyer">Buyer</option><option value="listing">Listing</option></select>
+      <select id="f-type" onchange="onTypeChange(this.value)">
+        <option value="buyer">Buyer</option>
+        <option value="listing">Listing</option>
+        <option value="listing-uc">Listing Under Contract</option>
+      </select>
+    </div>
+    <div class="field" id="f-linked-wrap" style="display:none"><label>Link to Listing</label>
+      <select id="f-linked">
+        <option value="">— Select listing —</option>
+        ${listings.map(([id,t]) => `<option value="${id}" data-address="${(t.address||'').replace(/"/g,'&quot;')}">${t.address || '(no address)'}</option>`).join('')}
+      </select>
     </div>
     <div class="field"><label>Property Address</label>
       <input id="f-address" placeholder="123 Main St, Phoenix AZ 85001">
@@ -756,10 +774,10 @@ function getDashboardHTML(transactions) {
         ${['Akanksha Tomar','Alexandra Allen','Alexis Wilson','Angela Massey','Angie Rodriguez','Annie Clark','Arielle Jaime','Ashleigh DiFilippantonio','Ashton Kaufman','Benjamin Veader','Brandi Romero','Carla Balk','Chelsea Higgs','Cierra Farrow-Boyle','Darlena Barley','Dennis Sadberry','Donica Sadberry','Gabriela Crosser','Hector Torres','India Blackshear','Jenny Cohen','Jessenia Zinner','Joyce Mireault','Justine Johnston','Kahila White','Keith Glass','Kira Warrens','Kye Mingus','Kyle Olson','Lake Porter','Michael Tarver','Prakash Agrawal','Ravi Sharma','Richie Corrie','Roberta Harris','Thomas Doheny','Time Isufi','Youseff Daboul','Yuxuan Xia'].map(n => `<option value="${n}">${n}</option>`).join('')}
       </select>
     </div>
-    <div class="field"><label>Contract Execution Date (Day 0)</label>
+    <div class="field" id="f-contract-wrap"><label id="f-contract-label">Contract Execution Date (Day 0)</label>
       <input id="f-contract" type="date">
     </div>
-    <div class="field"><label>Close of Escrow Date (COE)</label>
+    <div class="field" id="f-close-wrap"><label>Close of Escrow Date (COE)</label>
       <input id="f-close" type="date">
     </div>
     <div class="modal-actions">
@@ -769,6 +787,17 @@ function getDashboardHTML(transactions) {
   </div>
 </div>
 <script>
+function onTypeChange(val) {
+  const isListing = val === 'listing';
+  const isUC = val === 'listing-uc';
+  document.getElementById('f-linked-wrap').style.display = isUC ? '' : 'none';
+  document.getElementById('f-close-wrap').style.display = isListing ? 'none' : '';
+  document.getElementById('f-contract-label').textContent = isListing ? 'Employment Agreement Date' : 'Contract Execution Date (Day 0)';
+}
+document.getElementById('f-linked').addEventListener('change', function() {
+  const opt = this.options[this.selectedIndex];
+  if (opt.value) document.getElementById('f-address').value = opt.dataset.address;
+});
 async function dashCheck(txnId, itemId, checked) {
   await fetch('/api/transactions/' + txnId + '/check', {
     method:'POST', headers:{'Content-Type':'application/json'},
@@ -796,9 +825,11 @@ async function deleteTxn(id, label, btn) {
 }
 async function create() {
   const addr = document.getElementById('f-address').value;
+  const type = document.getElementById('f-type').value;
   const body = {
-    type: document.getElementById('f-type').value,
+    type,
     address: addr,
+    linkedListingId: type === 'listing-uc' ? document.getElementById('f-linked').value : null,
     fields: {
       address: addr,
       clientName: document.getElementById('f-client').value,
