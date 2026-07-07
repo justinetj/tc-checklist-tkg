@@ -393,11 +393,13 @@ function getHTML(transaction, id) {
   <div style="padding:12px 0 8px;display:flex;align-items:center;justify-content:space-between">
     <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#888;letter-spacing:.5px">Transaction Details</div>
     <div style="display:flex;gap:8px;align-items:center">
+      ${transaction.status === 'pending' ? `<span style="background:#fef3c7;color:#b45309;padding:4px 12px;border-radius:6px;font-size:12px;font-weight:700">⚠️ Pending — Needs Setup</span>` : ''}
       ${transaction.status === 'closed' ? `<span style="background:#dcfce7;color:#15803d;padding:4px 12px;border-radius:6px;font-size:12px;font-weight:700">✓ Closed</span>` : ''}
       ${transaction.status === 'cancelled' ? `<span style="background:#fee2e2;color:#dc2626;padding:4px 12px;border-radius:6px;font-size:12px;font-weight:700">✕ Cancelled</span>` : ''}
-      ${transaction.status !== 'closed' ? `<button onclick="setTxnStatus('closed')" style="background:#dcfce7;color:#15803d;border:1px solid #bbf7d0;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer">Mark Closed</button>` : ''}
-      ${transaction.status !== 'cancelled' ? `<button onclick="setTxnStatus('cancelled')" style="background:#fee2e2;color:#dc2626;border:1px solid #fecaca;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer">Mark Cancelled</button>` : ''}
-      ${transaction.status && transaction.status !== 'active' ? `<button onclick="setTxnStatus('active')" style="background:#f0f4ff;color:#1e3a5f;border:1px solid #c7d2fe;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer">Reopen</button>` : ''}
+      ${transaction.status === 'pending' ? `<button onclick="setTxnStatus('active')" style="background:#1565c0;color:white;border:none;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer">✓ Activate Transaction</button>` : ''}
+      ${transaction.status !== 'closed' && transaction.status !== 'pending' ? `<button onclick="setTxnStatus('closed')" style="background:#dcfce7;color:#15803d;border:1px solid #bbf7d0;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer">Mark Closed</button>` : ''}
+      ${transaction.status !== 'cancelled' && transaction.status !== 'pending' ? `<button onclick="setTxnStatus('cancelled')" style="background:#fee2e2;color:#dc2626;border:1px solid #fecaca;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer">Mark Cancelled</button>` : ''}
+      ${transaction.status && transaction.status !== 'active' && transaction.status !== 'pending' ? `<button onclick="setTxnStatus('active')" style="background:#f0f4ff;color:#1e3a5f;border:1px solid #c7d2fe;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer">Reopen</button>` : ''}
     </div>
   </div>
   <div class="info-grid">
@@ -655,6 +657,7 @@ function getDashboardHTML(transactions, tc) {
   }
 
   const todayISO   = new Date().toISOString().slice(0,10);
+  const pending     = sorted.filter(([,t]) => t.status === "pending");
   const active      = sorted.filter(([,t]) => (!t.status || t.status === "active") && t.type === "buyer");
   const listings    = sorted.filter(([,t]) => (!t.status || t.status === "active") && t.type === "listing" && !t.fields?.ucDate);
   const listingUC   = sorted.filter(([,t]) => (!t.status || t.status === "active") && (t.type === "listing-uc" || (t.type === "listing" && t.fields?.ucDate)));
@@ -736,6 +739,9 @@ function getDashboardHTML(transactions, tc) {
 <div class="container">
 <div class="dashboard-layout">
   <div class="dashboard-main">
+    ${pending.length > 0 ? `
+    <div style="background:#b45309;color:white;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;padding:9px 16px;border-radius:8px;margin-bottom:8px;display:flex;align-items:center;gap:8px">⚠️ Needs Attention — New Submissions (${pending.length})</div>
+    <div class="card" style="margin-bottom:28px;border:2px solid #b45309">${makeTable(pending, false, 'buyer')}</div>` : ''}
     ${closingToday.length > 0 ? `
     <div style="font-size:12px;font-weight:700;text-transform:uppercase;color:white;letter-spacing:.5px;margin-bottom:8px;background:#dc2626;padding:8px 14px;border-radius:8px;display:flex;align-items:center;gap:8px">🔴 CLOSINGS TODAY — ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}</div>
     <div class="card" style="margin-bottom:28px;border:2px solid #dc2626">${makeTable(closingToday, false, 'buyer')}</div>` : ''}
@@ -1063,6 +1069,52 @@ const server = http.createServer(async (req, res) => {
       }
       res.writeHead(200, { "Content-Type": "application/json" });
       res.end(JSON.stringify({ ok: true }));
+    });
+    return;
+  }
+
+  if (req.method === "POST" && pathname === "/api/webhook/formstack") {
+    let body = "";
+    req.on("data", d => body += d);
+    req.on("end", async () => {
+      try {
+        const params = new URLSearchParams(body);
+        const get = (...keys) => { for (const k of keys) { const v = params.get(k); if (v && v.trim()) return v.trim(); } return ''; };
+        const client1 = get('Client 1 Name', 'Client1Name', 'client_1_name');
+        const client2 = get('Client 2 Name', 'Client2Name', 'client_2_name');
+        const clientName = [client1, client2].filter(Boolean).join(' & ');
+        const address = get('Subject Property Address', 'SubjectPropertyAddress', 'subject_property_address');
+        const agentName = get('Agent Partner Name', 'AgentPartnerName', 'agent_partner_name');
+        const agentEmail = get('Agent Partner Email', 'AgentPartnerEmail', 'agent_partner_email');
+        const agentPhone = get('Agent Partner Cell Number', 'AgentPartnerCellNumber', 'agent_partner_cell_number');
+        const rawType = get('Transaction Type', 'Type', 'type', 'Listing or Buyer', 'listing_or_buyer').toLowerCase();
+        const type = rawType.includes('listing') ? 'listing' : 'buyer';
+        const contractDate = get('Contract Execution Date', 'ContractDate', 'contract_date', 'Employment Agreement Date');
+        const closeDate = get('Close of Escrow', 'CloseDate', 'close_date', 'COE Date');
+        const data = await loadData();
+        const id = 'txn_' + Date.now();
+        data.transactions[id] = {
+          type,
+          address: address || '(Address pending)',
+          status: 'pending',
+          createdAt: Date.now(),
+          fields: {
+            clientName,
+            agentPartner1: agentName,
+            agentPartner1Email: agentEmail,
+            agentPartner1Phone: agentPhone,
+            contractDate,
+            closeDate,
+          },
+          checked: {},
+          notes: {},
+        };
+        await saveData(data);
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ ok: true, id }));
+      } catch(e) {
+        res.writeHead(500); res.end(e.message);
+      }
     });
     return;
   }
