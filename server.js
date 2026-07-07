@@ -686,12 +686,12 @@ function getDashboardHTML(transactions) {
     <div class="card" style="margin-bottom:24px;border-top:3px solid #1565c0">
       ${active.length === 0 ? '<div class="empty">No active transactions.</div>' : makeTable(active, false, 'buyer')}
     </div>
-    <div style="background:#2e7d32;color:white;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;padding:9px 16px;border-radius:8px;margin-bottom:8px">📋 Active Listings</div>
-    <div class="card" style="margin-bottom:24px;border-top:3px solid #2e7d32">
+    <div style="background:#1565c0;color:white;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;padding:9px 16px;border-radius:8px;margin-bottom:8px">📋 Active Listings</div>
+    <div class="card" style="margin-bottom:24px;border-top:3px solid #1565c0">
       ${listings.length === 0 ? '<div class="empty">No active listings.</div>' : makeTable(listings, false, 'listing')}
     </div>
-    <div style="background:#b45309;color:white;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;padding:9px 16px;border-radius:8px;margin-bottom:8px">📝 Listings Under Contract</div>
-    <div class="card" style="margin-bottom:24px;border-top:3px solid #b45309">
+    <div style="background:#1565c0;color:white;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;padding:9px 16px;border-radius:8px;margin-bottom:8px">📝 Listings Under Contract</div>
+    <div class="card" style="margin-bottom:24px;border-top:3px solid #1565c0">
       ${listingUC.length === 0 ? '<div class="empty">No listings under contract.</div>' : makeTable(listingUC, false, 'buyer')}
     </div>
     <div style="background:#15803d;color:white;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;padding:9px 16px;border-radius:8px;margin-bottom:8px">✓ Closed Transactions</div>
