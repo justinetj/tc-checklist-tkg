@@ -939,6 +939,14 @@ function getTCSelectHTML() {
   .admin-card .tc-role { color:#a8c4e0; }
 </style>
 <script>
+const TC_PASSCODES = { 'Joana Guzman': '5211' };
+function tcLogin(name) {
+  const required = TC_PASSCODES[name];
+  if (!required) { window.location.href = '/?tc=' + encodeURIComponent(name); return; }
+  const code = prompt('Enter passcode:');
+  if (code === required) { window.location.href = '/?tc=' + encodeURIComponent(name); }
+  else if (code !== null) { alert('Incorrect passcode.'); }
+}
 function adminLogin() {
   const code = prompt('Enter passcode:');
   if (code === '3315') { window.location.href = '/?tc=admin'; }
@@ -956,7 +964,7 @@ function adminLogin() {
   <div class="tc-grid">
     ${TC_NAMES.map((name, i) => {
       const initials = name.split(' ').map(w=>w[0]).join('');
-      return `<a class="tc-card" href="/?tc=${encodeURIComponent(name)}">
+      return `<a class="tc-card" href="javascript:void(0)" onclick="tcLogin('${name.replace(/'/g,"\\'")}')">
         <div class="tc-avatar" style="background:${TC_COLORS[i]}">${initials}</div>
         <div class="tc-name">${name}</div>
         <div class="tc-role">Transaction Coordinator</div>
