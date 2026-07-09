@@ -648,6 +648,15 @@ function updateDayHeaders() {
       td.style.textDecoration = allDone ? 'line-through' : '';
       td.style.opacity = allDone ? '0.5' : '';
     }
+    // auto-collapse when all done, auto-expand when not
+    const arrow = hdr.querySelector('.collapse-arrow');
+    if (allDone) {
+      tbody.style.display = 'none';
+      if (arrow) arrow.textContent = '▼';
+    } else {
+      tbody.style.display = '';
+      if (arrow) arrow.textContent = '▲';
+    }
   });
 }
 async function saveDue(itemId, val) {
