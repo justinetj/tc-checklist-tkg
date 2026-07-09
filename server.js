@@ -1399,20 +1399,28 @@ const server = http.createServer(async (req, res) => {
         const address = [addr1, city, state, zip].filter(Boolean).join(', ') || addrRaw;
 
         // Detect form type: listing form has "Seller 1 Name", escrow has "Client 1 Name"
-        const hasSeller = !!(p['Seller 1 Name First'] || p['Seller 1 Name Last'] || p['Seller/Client Email']);
+        const hasSeller = !!(p['Seller 1 Name'] || p['Seller 1 Name First'] || p['Seller 1 Name Last'] || p['Seller/Client Email']);
         const type = hasSeller ? 'listing' : 'buyer';
+
+        // Parse a name field that may be "first = X last = Y" or separate First/Last keys
+        const parseName = (raw, keyFirst, keyLast) => {
+          const r = get(raw);
+          const first = subVal(r, 'first') || get(keyFirst);
+          const last  = subVal(r, 'last')  || get(keyLast);
+          return [first, last].filter(Boolean).join(' ') || r;
+        };
 
         // Client/Seller names
         let clientName = '';
         if (hasSeller) {
-          const s1 = [get('Seller 1 Name First'), get('Seller 1 Name Last')].filter(Boolean).join(' ');
-          const s2 = [get('Seller 2 Name First'), get('Seller 2 Name Last')].filter(Boolean).join(' ');
-          const s3 = [get('Seller 3 Name First'), get('Seller 3 Name Last')].filter(Boolean).join(' ');
+          const s1 = parseName('Seller 1 Name', 'Seller 1 Name First', 'Seller 1 Name Last');
+          const s2 = parseName('Seller 2 Name', 'Seller 2 Name First', 'Seller 2 Name Last');
+          const s3 = parseName('Seller 3 Name', 'Seller 3 Name First', 'Seller 3 Name Last');
           clientName = [s1, s2, s3].filter(Boolean).join(' & ');
         } else {
-          const c1 = [get('Client 1 Name First'), get('Client 1 Name Last')].filter(Boolean).join(' ');
-          const c2 = [get('Client 2 Name First'), get('Client 2 Name Last')].filter(Boolean).join(' ');
-          const c3 = [get('Client 3 Name First'), get('Client 3 Name Last')].filter(Boolean).join(' ');
+          const c1 = parseName('Client 1 Name', 'Client 1 Name First', 'Client 1 Name Last');
+          const c2 = parseName('Client 2 Name', 'Client 2 Name First', 'Client 2 Name Last');
+          const c3 = parseName('Client 3 Name', 'Client 3 Name First', 'Client 3 Name Last');
           clientName = [c1, c2, c3].filter(Boolean).join(' & ');
         }
 
