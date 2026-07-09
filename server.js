@@ -461,20 +461,33 @@ function getHTML(transaction, id, tc) {
 <div class="detail-layout">
   <div class="detail-main">${sectionHTML}</div>
   <div class="detail-sidebar">
-    <div class="detail-sidebar-hdr">📋 Tasks Due Today</div>
+    <div class="detail-sidebar-hdr">📋 Tasks</div>
     ${(() => {
       const today = new Date().toISOString().slice(0,10);
-      const dueTasks = items.filter(item => {
-        if (checked[item.id]) return false;
+      const pastDue = [], dueToday = [];
+      for (const item of items) {
+        if (checked[item.id]) continue;
         const autoISO = calcDueDateISO(item.day, contractDate, closeDate);
         const dueISO = (notes[item.id]?.due) || autoISO;
-        return dueISO === today;
-      });
-      if (!dueTasks.length) return '<div class="task-due-empty">No tasks due today</div>';
-      return '<div class="task-due-group">' + dueTasks.map(item => {
-        const overdue = false;
-        return `<div class="task-due-item"><input type="checkbox" onchange="toggle('${item.id}', this.checked)" id="s-${item.id}"><label for="s-${item.id}">${item.label}</label></div>`;
-      }).join('') + '</div>';
+        if (!dueISO) continue;
+        if (dueISO < today) pastDue.push(item);
+        else if (dueISO === today) dueToday.push(item);
+      }
+      if (!pastDue.length && !dueToday.length) return '<div class="task-due-empty">No tasks due today</div>';
+      let html = '';
+      if (pastDue.length) {
+        html += '<div class="task-due-group" style="background:#fff5f5">';
+        html += '<div class="task-due-label" style="color:#dc2626">⚠ Past Due</div>';
+        html += pastDue.map(item => `<div class="task-due-item"><input type="checkbox" onchange="toggle('${item.id}', this.checked)" id="s-${item.id}"><label for="s-${item.id}" class="overdue">${item.label}</label></div>`).join('');
+        html += '</div>';
+      }
+      if (dueToday.length) {
+        html += '<div class="task-due-group" style="background:#f0fdf4">';
+        html += '<div class="task-due-label" style="color:#15803d">✓ Due Today</div>';
+        html += dueToday.map(item => `<div class="task-due-item"><input type="checkbox" onchange="toggle('${item.id}', this.checked)" id="s-${item.id}"><label for="s-${item.id}" style="color:#15803d;font-weight:600">${item.label}</label></div>`).join('');
+        html += '</div>';
+      }
+      return html;
     })()}
   </div>
 </div>
