@@ -509,7 +509,7 @@ function getHTML(transaction, id, tc) {
       <div class="info-label">Linked Listing</div>
       <a href="/t/${transaction.linkedListingId}" style="font-size:14px;color:#1e3a5f;font-weight:600;text-decoration:none">→ View Original Listing</a>
     </div>` : ''}
-    ${!isListing ? `<div class="info-field" style="background:#fff7ed">
+    ${!isListing && transaction.type !== 'buyer-new-build' ? `<div class="info-field" style="background:#fff7ed">
       <div class="info-label">BINSR Due (Day 10)</div>
       <input id="binsrDue" class="info-input" type="date" placeholder="—"
         style="color:#b45309;font-weight:600"
