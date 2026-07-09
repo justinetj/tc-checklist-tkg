@@ -915,7 +915,7 @@ function getDashboardHTML(transactions, tc) {
     </div>` : ''}
     <div style="background:#1565c0;color:white;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;padding:9px 16px;border-radius:8px;margin-bottom:8px">🏠 Active Transactions — Buyers</div>
     <div class="card" style="margin-bottom:24px;border-top:3px solid #1565c0">
-      ${active.length === 0 ? '<div class="empty">No active transactions.</div>' : makeTable(active, false, 'buyer')}
+      ${active.length === 0 ? '<div class="empty">No active transactions.</div>' : makeTable([...active].sort((a,b) => { const da = a[1].fields?.closeDate || '9999-99-99', db = b[1].fields?.closeDate || '9999-99-99'; return da < db ? -1 : da > db ? 1 : 0; }), false, 'buyer')}
     </div>
     <div style="background:#1565c0;color:white;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;padding:9px 16px;border-radius:8px;margin-bottom:8px">📝 Active Transactions — Sellers</div>
     <div class="card" style="margin-bottom:24px;border-top:3px solid #1565c0">
