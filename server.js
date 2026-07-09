@@ -4,6 +4,11 @@ import { fileURLToPath } from "url";
 import crypto from "crypto";
 import pg from "pg";
 
+// Arizona is UTC-7 with no DST
+function todayAZ() {
+  return new Date().toLocaleDateString('en-CA', { timeZone: 'America/Phoenix' });
+}
+
 const { Pool } = pg;
 const pool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } });
 const PORT = process.env.PORT || 3002;
@@ -229,7 +234,7 @@ function getHTML(transaction, id, tc) {
   const color = isBuyer ? "#1565c0" : transaction.type === "listing-uc" ? "#b45309" : "#2e7d32";
 
   // Group items by day label
-  const today = new Date().toISOString().slice(0, 10);
+  const today = todayAZ();
   const groups = [];
   let lastDay = null;
   for (const item of items) {
@@ -463,7 +468,7 @@ function getHTML(transaction, id, tc) {
   <div class="detail-main">${sectionHTML}</div>
   <div class="detail-sidebar">
     ${(() => {
-      const today = new Date().toISOString().slice(0,10);
+      const today = todayAZ();
       const pastDue = [], dueToday = [];
       for (const item of items) {
         if (checked[item.id]) continue;
@@ -710,7 +715,7 @@ function getDashboardHTML(transactions, tc) {
       dateCols = `<td>${fmt(fields.contractDate)}</td><td>${fmt(fields.closeDate)}</td>`;
     }
     // Compute past-due and due-today counts
-    const todayStr = new Date().toISOString().slice(0,10);
+    const todayStr = todayAZ();
     const contractDate = fields.contractDate || '';
     const closeDate = fields.closeDate || '';
     const notes = t.notes || {};
@@ -734,7 +739,7 @@ function getDashboardHTML(transactions, tc) {
     return `<tr onclick="window.location='/t/${id}?tc=${tc}'" style="cursor:pointer;border-bottom:none;${isArchived?'opacity:0.7':''}">${base}${dateCols}${progress}${actions}</tr>${taskPills}`;
   }
 
-  const todayISO   = new Date().toISOString().slice(0,10);
+  const todayISO   = todayAZ();
   const pending     = sorted.filter(([,t]) => t.status === "pending");
   const active      = sorted.filter(([,t]) => (!t.status || t.status === "active") && (t.type === "buyer" || t.type === "buyer-new-build"));
   const listings    = sorted.filter(([,t]) => (!t.status || t.status === "active") && t.type === "listing" && !t.fields?.ucDate);
@@ -845,7 +850,7 @@ function getDashboardHTML(transactions, tc) {
     <div style="font-size:12px;font-weight:700;text-transform:uppercase;color:#b45309;letter-spacing:.5px;margin-bottom:8px">📋 Tasks Due Today</div>
     <div class="card" style="border-left:4px solid #f59e0b">
       ${(() => {
-        const today = new Date().toISOString().slice(0, 10);
+        const today = todayAZ();
         const groups = [];
         for (const [id, t] of active) {
           const items = (t.type === 'buyer' || t.type === 'buyer-new-build') ? BUYER_ITEMS : LISTING_ITEMS;
