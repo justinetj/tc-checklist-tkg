@@ -906,14 +906,14 @@ function getDashboardHTML(transactions, tc) {
         const agent = t.fields?.agentPartner1 || t.fields?.agentName || '—';
         const client = t.fields?.clientName || '—';
         const addr = t.address || '—';
-        const ago = (() => { const m = Math.floor((Date.now() - (t.createdAt||0)) / 60000); if (m < 1) return 'just now'; if (m < 60) return m + 'm ago'; const h = Math.floor(m/60); return h + 'h ago'; })();
+        const receivedAt = t.createdAt ? new Date(t.createdAt).toLocaleString('en-US', { timeZone: 'America/Phoenix', month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true }) : '—';
         return `<div style="background:white;border:2px solid #7c3aed;border-radius:10px;padding:14px 18px;display:flex;align-items:center;gap:16px;flex-wrap:wrap">
           <span style="background:${typeBg};color:white;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;padding:5px 12px;border-radius:6px;white-space:nowrap">${typeLabel}</span>
           <div style="flex:1;min-width:180px">
             <div style="font-weight:700;font-size:14px;color:#1e293b">${addr}</div>
             <div style="font-size:12px;color:#64748b;margin-top:2px">Client: <b style="color:#1e293b">${client}</b> &nbsp;·&nbsp; Agent: <b style="color:#1e293b">${agent}</b></div>
+            <div style="font-size:11px;color:#94a3b8;margin-top:3px">Received: ${receivedAt}</div>
           </div>
-          <span style="font-size:11px;color:#94a3b8;white-space:nowrap">${ago}</span>
           <a href="/t/${id}?tc=${tc}" style="background:#7c3aed;color:white;text-decoration:none;font-size:12px;font-weight:700;padding:7px 14px;border-radius:6px;white-space:nowrap">Open →</a>
         </div>`;
       }).join('')}
