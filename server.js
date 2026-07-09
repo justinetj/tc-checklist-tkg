@@ -763,7 +763,10 @@ function getDashboardHTML(transactions, tc) {
     if (da !== db) return da < db ? -1 : 1;
     return b[1].createdAt - a[1].createdAt;
   });
-  const sorted = isAdmin ? allEntries : allEntries.filter(([,t]) => (t.fields?.tcName || '') === tc);
+  const sorted = isAdmin ? allEntries : allEntries.filter(([,t]) => {
+    const assigned = t.fields?.tcName || '';
+    return assigned === tc || assigned === '';
+  });
 
   function fmt(dateStr) { if (!dateStr) return '—'; const [y,m,d] = dateStr.split('-'); return `${m}/${d}/${y}`; }
   function makeRow(id, t, isArchived, mode) {
