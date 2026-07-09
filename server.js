@@ -1375,6 +1375,7 @@ const server = http.createServer(async (req, res) => {
           address: address || '(Address pending)',
           status: 'pending',
           createdAt: Date.now(),
+          _rawFields: p,
           fields: {
             clientName,
             agentPartner1: agentName,
