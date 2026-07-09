@@ -789,8 +789,8 @@ function getDashboardHTML(transactions, tc) {
       pastDue.length ? `<span style="background:#fee2e2;color:#dc2626;border-radius:10px;padding:1px 7px;margin-right:4px;font-weight:700;font-size:10px">⚠ ${pastDue.length} past due</span>` : '',
       dueToday.length ? `<span style="background:#dcfce7;color:#15803d;border-radius:10px;padding:1px 7px;font-weight:700;font-size:10px">✓ ${dueToday.length} today</span>` : ''
     ].filter(Boolean).join('');
-    const addrCell = `<td style="padding:6px 8px"><strong style="font-size:13px">${t.address || '(no address)'}</strong>${pills ? `<br><span style="margin-top:2px;display:inline-block">${pills}</span>` : ''}</td>`;
-    const baseCompact = `${addrCell}<td>${fields.clientName || t.clientName || '—'}</td><td>${fields.agentPartner1 || '—'}</td>`;
+    const addrCell = `<td style="white-space:nowrap"><strong>${t.address || '(no address)'}</strong>${pills ? ` ${pills}` : ''}</td>`;
+    const baseCompact = `${addrCell}<td style="white-space:nowrap">${fields.clientName || t.clientName || '—'}</td><td style="white-space:nowrap">${fields.agentPartner1 || '—'}</td>`;
     const rowStyle = dueToday.length && !pastDue.length
       ? 'border-left:4px solid #16a34a;background:#f0fdf4;'
       : pastDue.length ? 'border-left:4px solid #dc2626;' : '';
@@ -886,7 +886,7 @@ function getDashboardHTML(transactions, tc) {
     ${closingToday.length > 0 ? `
     <div style="font-size:12px;font-weight:700;text-transform:uppercase;color:white;letter-spacing:.5px;margin-bottom:8px;background:#dc2626;padding:8px 14px;border-radius:8px;display:flex;align-items:center;gap:8px">🔴 CLOSINGS TODAY — ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}</div>
     <div class="card" style="margin-bottom:28px;border:2px solid #dc2626">${makeTable(closingToday, false, 'buyer')}</div>` : ''}
-    <div style="background:#1565c0;color:white;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;padding:9px 16px;border-radius:8px;margin-bottom:8px">🏠 Active Transactions — Buyers</div>
+    <div style="background:#1565c0;color:white;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;padding:9px 16px;border-radius:8px;margin-bottom:8px">🏠 Buyers</div>
     <div class="card" style="margin-bottom:24px;border-top:3px solid #1565c0">
       ${active.length === 0 ? '<div class="empty">No active transactions.</div>' : makeTable(active, false, 'buyer')}
     </div>
@@ -894,7 +894,7 @@ function getDashboardHTML(transactions, tc) {
     <div class="card" style="margin-bottom:24px;border-top:3px solid #1565c0">
       ${listings.length === 0 ? '<div class="empty">No active listings.</div>' : makeTable(listings, false, 'listing')}
     </div>
-    <div style="background:#1565c0;color:white;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;padding:9px 16px;border-radius:8px;margin-bottom:8px">📝 Active Transactions — Sellers</div>
+    <div style="background:#1565c0;color:white;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;padding:9px 16px;border-radius:8px;margin-bottom:8px">📝 Sellers</div>
     <div class="card" style="margin-bottom:24px;border-top:3px solid #1565c0">
       ${listingUC.length === 0 ? '<div class="empty">No listings under contract.</div>' : makeTable(listingUC, false, 'buyer')}
     </div>
