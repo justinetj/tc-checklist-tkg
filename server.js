@@ -461,7 +461,6 @@ function getHTML(transaction, id, tc) {
 <div class="detail-layout">
   <div class="detail-main">${sectionHTML}</div>
   <div class="detail-sidebar">
-    <div class="detail-sidebar-hdr">📋 Tasks</div>
     ${(() => {
       const today = new Date().toISOString().slice(0,10);
       const pastDue = [], dueToday = [];
@@ -473,8 +472,13 @@ function getHTML(transaction, id, tc) {
         if (dueISO < today) pastDue.push(item);
         else if (dueISO === today) dueToday.push(item);
       }
-      if (!pastDue.length && !dueToday.length) return '<div class="task-due-empty">No tasks due today</div>';
-      let html = '';
+      const hdrBadges = [
+        pastDue.length ? `<span style="background:#dc2626;color:white;border-radius:10px;padding:2px 8px;font-size:11px;font-weight:700">⚠ ${pastDue.length} past due</span>` : '',
+        dueToday.length ? `<span style="background:#15803d;color:white;border-radius:10px;padding:2px 8px;font-size:11px;font-weight:700">✓ ${dueToday.length} today</span>` : ''
+      ].filter(Boolean).join(' ');
+      const hdr = `<div class="detail-sidebar-hdr" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px">📋 Tasks ${hdrBadges}</div>`;
+      if (!pastDue.length && !dueToday.length) return hdr + '<div class="task-due-empty">No tasks due today</div>';
+      let html = hdr;
       if (pastDue.length) {
         html += '<div class="task-due-group" style="background:#fff5f5">';
         html += `<div class="task-due-label" style="color:#dc2626">⚠ Past Due <span style="font-size:11px;background:#dc2626;color:white;border-radius:10px;padding:1px 7px">${pastDue.length}</span></div>`;
