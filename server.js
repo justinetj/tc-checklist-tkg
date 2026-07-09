@@ -853,8 +853,8 @@ function getDashboardHTML(transactions, tc) {
     ${(() => {
       const today = todayAZ();
       const allTxns = [...active, ...listings, ...listingUC];
-      const pastDueGroups = [], dueTodayGroups = [];
       let totalPast = 0, totalToday = 0;
+      const txnGroups = [];
       for (const [id, t] of allTxns) {
         const items = (t.type === 'buyer' || t.type === 'buyer-new-build') ? BUYER_ITEMS : LISTING_ITEMS;
         const fields = t.fields || {};
@@ -871,30 +871,20 @@ function getDashboardHTML(transactions, tc) {
           if (due < today) pastDue.push(item);
           else if (due === today) dueToday.push(item);
         }
+        if (!pastDue.length && !dueToday.length) continue;
+        totalPast += pastDue.length;
+        totalToday += dueToday.length;
         const shortAddr = (t.address || '(no address)').replace(/,.*$/, '');
-        if (pastDue.length) {
-          totalPast += pastDue.length;
-          pastDueGroups.push(`<div class="task-group">
-            <div class="task-group-name">${shortAddr}</div>
-            ${pastDue.map(item => `<div class="task-item"><input type="checkbox" id="dt-${id}-${item.id}" onchange="dashCheck('${id}','${item.id}',this.checked)"><label for="dt-${id}-${item.id}" style="color:#dc2626;font-weight:600">${item.label}</label></div>`).join('')}
-          </div>`);
-        }
-        if (dueToday.length) {
-          totalToday += dueToday.length;
-          dueTodayGroups.push(`<div class="task-group">
-            <div class="task-group-name">${shortAddr}</div>
-            ${dueToday.map(item => `<div class="task-item"><input type="checkbox" id="dt-${id}-${item.id}" onchange="dashCheck('${id}','${item.id}',this.checked)"><label for="dt-${id}-${item.id}" style="color:#15803d;font-weight:600">${item.label}</label></div>`).join('')}
-          </div>`);
-        }
+        let inner = `<div class="task-group-name" style="font-size:11px;font-weight:700;color:#1e3a5f;padding:5px 0 3px;border-bottom:1px solid #e0e4f0;margin-bottom:4px">${shortAddr}</div>`;
+        if (pastDue.length) inner += pastDue.map(item => `<div class="task-item"><input type="checkbox" id="dt-${id}-${item.id}" onchange="dashCheck('${id}','${item.id}',this.checked)"><label for="dt-${id}-${item.id}" style="color:#dc2626;font-weight:600">${item.label}</label></div>`).join('');
+        if (dueToday.length) inner += dueToday.map(item => `<div class="task-item"><input type="checkbox" id="dt-${id}-${item.id}" onchange="dashCheck('${id}','${item.id}',this.checked)"><label for="dt-${id}-${item.id}" style="color:#15803d;font-weight:600">${item.label}</label></div>`).join('');
+        txnGroups.push(`<div style="padding:8px 12px;border-bottom:1px solid #f0f2f8">${inner}</div>`);
       }
       const hdrBadges = [
         totalPast ? `<span style="background:#dc2626;color:white;border-radius:10px;padding:2px 8px;font-size:11px;font-weight:700">⚠ ${totalPast} past due</span>` : '',
         totalToday ? `<span style="background:#15803d;color:white;border-radius:10px;padding:2px 8px;font-size:11px;font-weight:700">✓ ${totalToday} today</span>` : ''
       ].filter(Boolean).join(' ');
-      let body = '';
-      if (pastDueGroups.length) body += `<div style="background:#fff5f5;border-bottom:1px solid #fecaca;padding:8px 12px"><div style="font-size:11px;font-weight:700;color:#dc2626;margin-bottom:6px;text-transform:uppercase">⚠ Past Due</div>${pastDueGroups.join('')}</div>`;
-      if (dueTodayGroups.length) body += `<div style="background:#f0fdf4;padding:8px 12px"><div style="font-size:11px;font-weight:700;color:#15803d;margin-bottom:6px;text-transform:uppercase">✓ Due Today</div>${dueTodayGroups.join('')}</div>`;
-      if (!body) body = '<div class="task-panel-empty">No tasks due today</div>';
+      const body = txnGroups.length ? txnGroups.join('') : '<div class="task-panel-empty">No tasks due today</div>';
       return `<div class="detail-sidebar-hdr" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px">📋 Tasks ${hdrBadges}</div><div class="card" style="padding:0;overflow:hidden">${body}</div>`;
     })()}
   </div>
