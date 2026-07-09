@@ -785,11 +785,10 @@ function getDashboardHTML(transactions, tc) {
       if (dueISO < todayStr) pastDue.push(item.label);
       else if (dueISO === todayStr) dueToday.push(item.label);
     }
-    const taskPills = (pastDue.length || dueToday.length) ? `
+    const taskPills = dueToday.length ? `
       <tr onclick="window.location='/t/${id}?tc=${tc}'" style="cursor:pointer;border-top:none;${isArchived?'opacity:0.7':''}">
         <td colspan="99" style="padding:3px 14px 8px 14px;font-size:11px">
-          ${pastDue.length ? `<span style="display:inline-block;background:#fee2e2;color:#dc2626;border-radius:10px;padding:2px 9px;margin-right:8px;font-weight:700">⚠ ${pastDue.length} past due</span>` : ''}
-          ${dueToday.length ? `<span style="color:#15803d;font-weight:700;margin-right:6px">✓ Due today:</span>${dueToday.map(l => `<span style="display:inline-block;background:#dcfce7;color:#15803d;border-radius:8px;padding:2px 8px;margin-right:4px;margin-bottom:2px">${l}</span>`).join('')}` : ''}
+          <span style="display:inline-block;background:#dcfce7;color:#15803d;border-radius:10px;padding:2px 9px;font-weight:700">✓ ${dueToday.length} due today</span>
         </td>
       </tr>` : '';
     const rowStyle = dueToday.length && !pastDue.length
