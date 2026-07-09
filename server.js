@@ -1480,6 +1480,46 @@ const server = http.createServer(async (req, res) => {
   res.end("Not found");
 });
 
-initDB().then(() => {
+function parseSubField(str, key) {
+  if (!str) return '';
+  const m = str.match(new RegExp(`${key}\\s*=\\s*([^=]+?)(?:\\s+\\w+\\s*=|$)`));
+  return m ? m[1].trim() : '';
+}
+
+async function migrateAddresses() {
+  const data = await loadData();
+  let changed = false;
+  for (const t of Object.values(data.transactions)) {
+    const addr = t.address || '';
+    if (/address\s*=/.test(addr)) {
+      const a = parseSubField(addr, 'address');
+      const city = parseSubField(addr, 'city');
+      const state = parseSubField(addr, 'state');
+      const zip = parseSubField(addr, 'zip');
+      t.address = [a, city, state, zip].filter(Boolean).join(', ') || addr;
+      changed = true;
+    }
+    // Fix agent name "first = X last = Y" format
+    const ag = t.fields?.agentPartner1 || '';
+    if (/first\s*=/.test(ag)) {
+      const first = parseSubField(ag, 'first');
+      const last  = parseSubField(ag, 'last');
+      t.fields.agentPartner1 = [first, last].filter(Boolean).join(' ') || ag;
+      changed = true;
+    }
+    // Fix client name
+    const cl = t.fields?.clientName || '';
+    if (/first\s*=/.test(cl)) {
+      const first = parseSubField(cl, 'first');
+      const last  = parseSubField(cl, 'last');
+      t.fields.clientName = [first, last].filter(Boolean).join(' ') || cl;
+      changed = true;
+    }
+  }
+  if (changed) await saveData(data);
+}
+
+initDB().then(async () => {
+  await migrateAddresses();
   server.listen(PORT, () => console.log(`TC Checklist running on port ${PORT}`));
 }).catch(err => { console.error("DB init failed:", err); process.exit(1); });
