@@ -508,11 +508,11 @@ function getHTML(transaction, id, tc) {
       <div class="info-label">Linked Listing</div>
       <a href="/t/${transaction.linkedListingId}" style="font-size:14px;color:#1e3a5f;font-weight:600;text-decoration:none">→ View Original Listing</a>
     </div>` : ''}
-    ${!isListing && transaction.type !== 'buyer-new-build' ? `<div class="info-field" style="background:#fff7ed">
+    ${transaction.type !== 'buyer-new-build' ? `<div class="info-field" style="background:#fff7ed">
       <div class="info-label">BINSR Due (Day 10)</div>
       <input id="binsrDue" class="info-input" type="date" placeholder="—"
         style="color:#b45309;font-weight:600"
-        value="${fields.binsrDue || (fields.contractDate ? (() => { const d = new Date(fields.contractDate + "T12:00:00"); d.setDate(d.getDate() + 10); return d.toISOString().slice(0,10); })() : '')}"
+        value="${fields.binsrDue || (() => { const base = isListing ? fields.ucDate : fields.contractDate; if (!base) return ''; const d = new Date(base + 'T12:00:00'); d.setDate(d.getDate() + 10); return d.toISOString().slice(0,10); })()}"
         onchange="saveField('binsrDue', this.value)">
     </div>` : ''}
   </div>
@@ -664,7 +664,7 @@ document.querySelectorAll('.info-input').forEach((inp, i) => {
   if (keys[i] === 'binsrDue') {
     inp.addEventListener('change', function() { this.dataset.manual = this.value ? '1' : ''; });
   }
-  if (keys[i] === 'contractDate') {
+  if (keys[i] === 'contractDate' || keys[i] === 'ucDate') {
     inp.addEventListener('change', function() {
       const binsr = document.getElementById('binsrDue');
       if (binsr && !binsr.dataset.manual) {
@@ -672,6 +672,7 @@ document.querySelectorAll('.info-input').forEach((inp, i) => {
         const d = new Date(this.value + 'T12:00:00');
         d.setDate(d.getDate() + 10);
         binsr.value = d.toISOString().slice(0, 10);
+        saveField('binsrDue', binsr.value);
       }
     });
   }
