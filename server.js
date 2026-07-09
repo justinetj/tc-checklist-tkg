@@ -785,10 +785,11 @@ function getDashboardHTML(transactions, tc) {
       if (dueISO < todayStr) pastDue.push(item.label);
       else if (dueISO === todayStr) dueToday.push(item.label);
     }
-    const taskPills = dueToday.length ? `
+    const taskPills = (pastDue.length || dueToday.length) ? `
       <tr onclick="window.location='/t/${id}?tc=${tc}'" style="cursor:pointer;border-top:none;${isArchived?'opacity:0.7':''}">
         <td colspan="99" style="padding:3px 14px 8px 14px;font-size:11px">
-          <span style="display:inline-block;background:#dcfce7;color:#15803d;border-radius:10px;padding:2px 9px;font-weight:700">✓ ${dueToday.length} due today</span>
+          ${pastDue.length ? `<span style="display:inline-block;background:#fee2e2;color:#dc2626;border-radius:10px;padding:2px 9px;margin-right:6px;font-weight:700">⚠ ${pastDue.length} past due</span>` : ''}
+          ${dueToday.length ? `<span style="display:inline-block;background:#dcfce7;color:#15803d;border-radius:10px;padding:2px 9px;font-weight:700">✓ ${dueToday.length} due today</span>` : ''}
         </td>
       </tr>` : '';
     const rowStyle = dueToday.length && !pastDue.length
