@@ -477,13 +477,13 @@ function getHTML(transaction, id, tc) {
       let html = '';
       if (pastDue.length) {
         html += '<div class="task-due-group" style="background:#fff5f5">';
-        html += '<div class="task-due-label" style="color:#dc2626">⚠ Past Due</div>';
+        html += `<div class="task-due-label" style="color:#dc2626">⚠ Past Due <span style="font-size:11px;background:#dc2626;color:white;border-radius:10px;padding:1px 7px">${pastDue.length}</span></div>`;
         html += pastDue.map(item => `<div class="task-due-item"><input type="checkbox" onchange="toggle('${item.id}', this.checked)" id="s-${item.id}"><label for="s-${item.id}" class="overdue">${item.label}</label></div>`).join('');
         html += '</div>';
       }
       if (dueToday.length) {
         html += '<div class="task-due-group" style="background:#f0fdf4">';
-        html += '<div class="task-due-label" style="color:#15803d">✓ Due Today</div>';
+        html += `<div class="task-due-label" style="color:#15803d">✓ Due Today <span style="font-size:11px;background:#15803d;color:white;border-radius:10px;padding:1px 7px">${dueToday.length}</span></div>`;
         html += dueToday.map(item => `<div class="task-due-item"><input type="checkbox" onchange="toggle('${item.id}', this.checked)" id="s-${item.id}"><label for="s-${item.id}" style="color:#15803d;font-weight:600">${item.label}</label></div>`).join('');
         html += '</div>';
       }
