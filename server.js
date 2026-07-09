@@ -736,7 +736,10 @@ function getDashboardHTML(transactions, tc) {
           ${dueToday.length ? `<span title="${dueToday.join(', ')}" style="display:inline-block;background:#dcfce7;color:#15803d;border-radius:10px;padding:2px 9px;font-weight:700;cursor:pointer">✓ ${dueToday.length} due today</span>` : ''}
         </td>
       </tr>` : '';
-    return `<tr onclick="window.location='/t/${id}?tc=${tc}'" style="cursor:pointer;border-bottom:none;${isArchived?'opacity:0.7':''}">${base}${dateCols}${progress}${actions}</tr>${taskPills}`;
+    const rowStyle = dueToday.length && !pastDue.length
+      ? 'border-left:4px solid #16a34a;background:#f0fdf4;'
+      : pastDue.length ? 'border-left:4px solid #dc2626;' : '';
+    return `<tr onclick="window.location='/t/${id}?tc=${tc}'" style="cursor:pointer;border-bottom:none;${rowStyle}${isArchived?'opacity:0.7':''}">${base}${dateCols}${progress}${actions}</tr>${taskPills}`;
   }
 
   const todayISO   = todayAZ();
