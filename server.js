@@ -897,7 +897,7 @@ function getDashboardHTML(transactions, tc) {
 <div class="dashboard-layout">
   <div class="dashboard-main">
     ${pending.length > 0 ? `
-    <div style="background:#7c3aed;color:white;font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;padding:10px 16px;border-radius:8px;margin-bottom:10px;display:flex;align-items:center;gap:8px">📋 New Formstack Submission${pending.length > 1 ? 's' : ''} (${pending.length})</div>
+    <div style="background:#7c3aed;color:white;font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;padding:10px 16px;border-radius:8px;margin-bottom:10px;display:flex;align-items:center;gap:8px">⚠️ Needs Attention — New Formstack (${pending.length})</div>
     <div style="margin-bottom:28px;display:flex;flex-direction:column;gap:10px">
       ${pending.map(([id, t]) => {
         const isListing = t.type === 'listing' || t.type === 'listing-uc';
