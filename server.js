@@ -881,7 +881,7 @@ function getDashboardHTML(transactions, tc) {
     ${closingToday.length > 0 ? `
     <div style="font-size:12px;font-weight:700;text-transform:uppercase;color:white;letter-spacing:.5px;margin-bottom:8px;background:#dc2626;padding:8px 14px;border-radius:8px;display:flex;align-items:center;gap:8px">🔴 CLOSINGS TODAY — ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}</div>
     <div class="card" style="margin-bottom:28px;border:2px solid #dc2626">${makeTable(closingToday, false, 'buyer')}</div>` : ''}
-    <div style="background:#1565c0;color:white;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;padding:9px 16px;border-radius:8px;margin-bottom:8px">🏠 Buyers</div>
+    <div style="background:#1565c0;color:white;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;padding:9px 16px;border-radius:8px;margin-bottom:8px">🏠 Active Transactions — Buyers</div>
     <div class="card" style="margin-bottom:24px;border-top:3px solid #1565c0">
       ${active.length === 0 ? '<div class="empty">No active transactions.</div>' : makeTable(active, false, 'buyer')}
     </div>
