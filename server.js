@@ -974,7 +974,7 @@ function getDashboardHTML(transactions, tc) {
         const [m, y] = label.split(' ');
         return `${y}-${String(months.indexOf(m)+1).padStart(2,'0')}`;
       }
-      function makeMonthGroups(list, label, icon) {
+      function makeMonthGroups(list, sectionLabel, icon) {
         if (!list.length) return '';
         const groups = {};
         for (const [id,t] of list) {
@@ -984,7 +984,7 @@ function getDashboardHTML(transactions, tc) {
         }
         const sortedMonths = Object.keys(groups).sort((a,b) => monthSort(b).localeCompare(monthSort(a)));
         const rows = sortedMonths.map((month, i) => {
-          const mId = `m-${label.replace(/\s/g,'')}-${i}`;
+          const mId = `m-${sectionLabel.replace(/\s/g,'')}-${i}`;
           const count = groups[month].length;
           return `<div style="margin-bottom:6px;border:1px solid #e0e4f0;border-radius:8px;overflow:hidden">
             <div onclick="toggleM('${mId}')" style="display:flex;justify-content:space-between;align-items:center;padding:8px 14px;background:#f8fafc;cursor:pointer;font-size:12px;font-weight:700;color:#4b5563">
@@ -994,7 +994,7 @@ function getDashboardHTML(transactions, tc) {
             <div id="${mId}" style="display:none">${makeTable(groups[month], true, 'buyer')}</div>
           </div>`;
         }).join('');
-        return `<div style="background:#6b7280;color:white;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;padding:9px 16px;border-radius:8px;margin-bottom:8px">${icon} ${label}</div>
+        return `<div style="background:#6b7280;color:white;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;padding:9px 16px;border-radius:8px;margin-bottom:8px">${icon} ${sectionLabel}</div>
         <div style="margin-bottom:24px">${rows}</div>`;
       }
       return makeMonthGroups(closed,'Closed Transactions','✓') + makeMonthGroups(cancelled,'Cancelled Transactions','✕');
