@@ -551,10 +551,10 @@ function updateDayHeaders() {
     const allDone = [...boxes].every(b => b.checked);
     const hdr = document.getElementById('hdr-' + tbody.id);
     if (!hdr) return;
-    const badge = hdr.querySelector('.day-badge');
-    if (badge) {
-      badge.style.textDecoration = allDone ? 'line-through' : '';
-      badge.style.opacity = allDone ? '0.5' : '';
+    const td = hdr.querySelector('td');
+    if (td) {
+      td.style.textDecoration = allDone ? 'line-through' : '';
+      td.style.opacity = allDone ? '0.5' : '';
     }
   });
 }
@@ -615,20 +615,8 @@ async function toggle(itemId, val) {
   });
   const row = document.getElementById(itemId).closest('tr');
   row.classList.toggle('done', val);
-  if (val) {
-    row.classList.remove('row-overdue');
-    const inp = row.querySelector('.date-input.due, .date-input');
-    if (inp && inp.classList.contains('due')) colorDue(inp);
-  } else {
-    const today = new Date().toISOString().slice(0,10);
-    const contractDate = document.querySelector('input[data-key="contractDate"]')?.value || '';
-    const closeDate = document.querySelector('input[data-key="closeDate"]')?.value || '';
-    const dayLabel = row.dataset.day || '';
-    const inp = row.querySelector('.date-input');
-    const dueDate = (inp?.value) || calcDueISO(dayLabel, contractDate, closeDate);
-    row.classList.toggle('row-overdue', !!(dueDate && dueDate < today));
-    if (inp && inp.classList.contains('due')) colorDue(inp);
-  }
+  const inp = row.querySelector('.date-input');
+  if (inp) colorDue(inp);
   updateDayHeaders();
   updateProgress();
   refreshDueDates();
@@ -702,7 +690,29 @@ function getDashboardHTML(transactions, tc) {
     } else {
       dateCols = `<td>${fmt(fields.contractDate)}</td><td>${fmt(fields.closeDate)}</td>`;
     }
-    return `<tr onclick="window.location='/t/${id}?tc=${tc}'" style="cursor:pointer;${isArchived?'opacity:0.7':''}">${base}${dateCols}${progress}${actions}</tr>`;
+    // Compute past-due and due-today counts
+    const todayStr = new Date().toISOString().slice(0,10);
+    const contractDate = fields.contractDate || '';
+    const closeDate = fields.closeDate || '';
+    const notes = t.notes || {};
+    const checked = t.checked || {};
+    let pastDue = [], dueToday = [];
+    for (const item of items) {
+      if (checked[item.id]) continue;
+      const autoISO = calcDueDateISO(item.day, contractDate, closeDate);
+      const dueISO = (notes[item.id]?.due) || autoISO;
+      if (!dueISO) continue;
+      if (dueISO < todayStr) pastDue.push(item.label);
+      else if (dueISO === todayStr) dueToday.push(item.label);
+    }
+    const taskPills = (pastDue.length || dueToday.length) ? `
+      <tr onclick="window.location='/t/${id}?tc=${tc}'" style="cursor:pointer;border-top:none;background:#fafbff;${isArchived?'opacity:0.7':''}">
+        <td colspan="99" style="padding:3px 12px 7px 14px;font-size:11px">
+          ${pastDue.length ? `<span title="${pastDue.join(', ')}" style="display:inline-block;background:#fee2e2;color:#dc2626;border-radius:10px;padding:2px 9px;margin-right:6px;font-weight:700;cursor:pointer">⚠ ${pastDue.length} past due</span>` : ''}
+          ${dueToday.length ? `<span title="${dueToday.join(', ')}" style="display:inline-block;background:#dcfce7;color:#15803d;border-radius:10px;padding:2px 9px;font-weight:700;cursor:pointer">✓ ${dueToday.length} due today</span>` : ''}
+        </td>
+      </tr>` : '';
+    return `<tr onclick="window.location='/t/${id}?tc=${tc}'" style="cursor:pointer;border-bottom:none;${isArchived?'opacity:0.7':''}">${base}${dateCols}${progress}${actions}</tr>${taskPills}`;
   }
 
   const todayISO   = new Date().toISOString().slice(0,10);
