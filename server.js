@@ -478,7 +478,6 @@ function getHTML(transaction, id, tc) {
       ["Contract Date — Day 0", "contractDate", "date", true],
       ["Close of Escrow Date (COE)", "closeDate", "date", true],
       ["Client Name", "clientName", "text", false],
-      ["BINSR Due (Day 10)", "binsrDue", "date", true],
     ]).map(([label, key, type, hi]) => `
       <div class="info-field${hi ? ' highlight' : ''}">
         <div class="info-label">${label}</div>
