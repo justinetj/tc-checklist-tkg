@@ -232,10 +232,10 @@ const LISTING_ITEMS = [
   { id: "l46", section: "COE -5 Days",                 day: "COE -5", label: "CDA sent to title" },
   { id: "l47", section: "COE -5 Days",                 day: "COE -5", label: "Loan approval received / confirmed" },
   // COE -4
-  { id: "l49", section: "COE -4 Days",                 day: "COE -4", label: "Final walkthrough reminder sent to buyer & agent" },
+  { id: "l49", section: "COE -4 Days",                 day: "COE -4", label: "Did final walkthrough happen?" },
   // COE -3
   { id: "l50", section: "COE -3 Days",                 day: "COE -3", label: "Confirm all repairs are complete" },
-  { id: "l51", section: "COE -3 Days",                 day: "COE -3", label: "Docs to title (all required docs submitted)" },
+  { id: "l51", section: "COE -3 Days",                 day: "COE -3", label: "Docs to title" },
   { id: "l52", section: "COE -3 Days",                 day: "COE -3", label: "Utilities cancellation scheduled by seller" },
   // COE — Close of Escrow
   { id: "l53", section: "COE — Close of Escrow",       day: "COE",    label: "Recording confirmed" },
