@@ -279,7 +279,7 @@ function getHTML(transaction, id, tc) {
     }).join('');
     const lockedBanner = locked ? `<tr style="background:#fef9c3"><td colspan="4" style="padding:6px 12px;font-size:11px;color:#92400e;font-weight:600">🔒 Enter Under Contract Date above to unlock this section</td></tr>` : '';
     const tbodyId = 'day-' + g.day.replace(/[^a-z0-9]/gi, '-');
-    const header = g.day ? `<tr class="day-header" style="background:#f8fafc;${locked?'opacity:0.4':''}cursor:pointer;" onclick="toggleDay('${tbodyId}',this)"><td colspan="4" style="padding:8px 12px;font-size:12px;font-weight:700;letter-spacing:.5px;border-bottom:1px solid #e2e8f0"><span style="background:${headerBg};color:white;padding:2px 9px;border-radius:10px;font-size:11px">${g.day}</span>${dateDisplay} <span class="collapse-arrow" style="float:right;font-size:10px;color:#94a3b8">▲</span></td></tr>` : '';
+    const header = g.day ? `<tr class="day-header" id="hdr-${tbodyId}" style="background:#f8fafc;${locked?'opacity:0.4':''}cursor:pointer;" onclick="toggleDay('${tbodyId}',this)"><td colspan="4" style="padding:8px 12px;font-size:12px;font-weight:700;letter-spacing:.5px;border-bottom:1px solid #e2e8f0"><span class="day-badge" style="background:${headerBg};color:white;padding:2px 9px;border-radius:10px;font-size:11px">${g.day}</span>${dateDisplay} <span class="collapse-arrow" style="float:right;font-size:10px;color:#94a3b8">▲</span></td></tr>` : '';
     const rowsOut = locked ? rows.replace(/<input type="checkbox"/g, '<input type="checkbox" disabled').replace(/<input type="date"/g, '<input type="date" disabled').replace(/<input type="text"/g, '<input type="text" disabled') : rows;
     return lockedBanner + header + `<tbody id="${tbodyId}" style="${locked?'opacity:0.4;pointer-events:none':''}">${rowsOut}</tbody>`;
   }).join('');
@@ -520,11 +520,43 @@ function refreshDueDates() {
     colorDue(inp);
   });
 }
+function calcDueISO(dayLabel, contractDate, closeDate) {
+  if (!dayLabel) return '';
+  let base = '', offset = 0;
+  if (dayLabel.startsWith('Day')) {
+    if (!contractDate) return '';
+    base = contractDate; offset = parseInt(dayLabel.split(' ')[1]) || 0;
+  } else if (dayLabel.startsWith('COE')) {
+    if (!closeDate) return '';
+    base = closeDate; offset = dayLabel === 'COE' ? 0 : parseInt(dayLabel.split(' ')[1]) || 0;
+  } else return '';
+  const d = new Date(base + 'T12:00:00');
+  d.setDate(d.getDate() + offset);
+  return d.toISOString().slice(0, 10);
+}
+
 function colorDue(inp) {
   const today = new Date().toISOString().slice(0, 10);
   const isChecked = inp.closest('tr')?.querySelector('input[type=checkbox]')?.checked;
   const overdue = inp.value && !isChecked && inp.value < today;
   inp.classList.toggle('overdue', !!overdue);
+  // go gray when done, green when active with date
+  inp.classList.toggle('due', !isChecked);
+}
+
+function updateDayHeaders() {
+  document.querySelectorAll('tbody[id^="day-"]').forEach(tbody => {
+    const boxes = tbody.querySelectorAll('input[type=checkbox]');
+    if (!boxes.length) return;
+    const allDone = [...boxes].every(b => b.checked);
+    const hdr = document.getElementById('hdr-' + tbody.id);
+    if (!hdr) return;
+    const badge = hdr.querySelector('.day-badge');
+    if (badge) {
+      badge.style.textDecoration = allDone ? 'line-through' : '';
+      badge.style.opacity = allDone ? '0.5' : '';
+    }
+  });
 }
 async function saveDue(itemId, val) {
   const inp = document.querySelector('.date-input.due[data-item="' + itemId + '"]');
@@ -542,6 +574,7 @@ document.querySelectorAll('.date-input.due').forEach(inp => {
   if (inp.value && inp.value !== auto) inp.dataset.manual = '1';
   colorDue(inp);
 });
+updateDayHeaders();
 
 // tag info-inputs with data-key for easy lookup
 document.querySelectorAll('.info-input').forEach((inp, i) => {
@@ -580,7 +613,23 @@ async function toggle(itemId, val) {
     method:'POST', headers:{'Content-Type':'application/json'},
     body: JSON.stringify({itemId, checked: val})
   });
-  document.getElementById(itemId).closest('tr').classList.toggle('done', val);
+  const row = document.getElementById(itemId).closest('tr');
+  row.classList.toggle('done', val);
+  if (val) {
+    row.classList.remove('row-overdue');
+    const inp = row.querySelector('.date-input.due, .date-input');
+    if (inp && inp.classList.contains('due')) colorDue(inp);
+  } else {
+    const today = new Date().toISOString().slice(0,10);
+    const contractDate = document.querySelector('input[data-key="contractDate"]')?.value || '';
+    const closeDate = document.querySelector('input[data-key="closeDate"]')?.value || '';
+    const dayLabel = row.dataset.day || '';
+    const inp = row.querySelector('.date-input');
+    const dueDate = (inp?.value) || calcDueISO(dayLabel, contractDate, closeDate);
+    row.classList.toggle('row-overdue', !!(dueDate && dueDate < today));
+    if (inp && inp.classList.contains('due')) colorDue(inp);
+  }
+  updateDayHeaders();
   updateProgress();
   refreshDueDates();
   showToast();
