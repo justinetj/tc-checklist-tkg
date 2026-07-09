@@ -785,17 +785,16 @@ function getDashboardHTML(transactions, tc) {
       if (dueISO < todayStr) pastDue.push(item.label);
       else if (dueISO === todayStr) dueToday.push(item.label);
     }
-    const taskPills = (pastDue.length || dueToday.length) ? `
-      <tr onclick="window.location='/t/${id}?tc=${tc}'" style="cursor:pointer;border-top:none;${isArchived?'opacity:0.7':''}">
-        <td colspan="99" style="padding:3px 14px 8px 14px;font-size:11px">
-          ${pastDue.length ? `<span style="display:inline-block;background:#fee2e2;color:#dc2626;border-radius:10px;padding:2px 9px;margin-right:6px;font-weight:700">⚠ ${pastDue.length} past due</span>` : ''}
-          ${dueToday.length ? `<span style="display:inline-block;background:#dcfce7;color:#15803d;border-radius:10px;padding:2px 9px;font-weight:700">✓ ${dueToday.length} due today</span>` : ''}
-        </td>
-      </tr>` : '';
+    const pills = [
+      pastDue.length ? `<span style="background:#fee2e2;color:#dc2626;border-radius:10px;padding:1px 7px;margin-right:4px;font-weight:700;font-size:10px">⚠ ${pastDue.length} past due</span>` : '',
+      dueToday.length ? `<span style="background:#dcfce7;color:#15803d;border-radius:10px;padding:1px 7px;font-weight:700;font-size:10px">✓ ${dueToday.length} today</span>` : ''
+    ].filter(Boolean).join('');
+    const addrCell = `<td style="padding:6px 8px"><strong style="font-size:13px">${t.address || '(no address)'}</strong>${pills ? `<br><span style="margin-top:2px;display:inline-block">${pills}</span>` : ''}</td>`;
+    const baseCompact = `${addrCell}<td>${fields.clientName || t.clientName || '—'}</td><td>${fields.agentPartner1 || '—'}</td>`;
     const rowStyle = dueToday.length && !pastDue.length
       ? 'border-left:4px solid #16a34a;background:#f0fdf4;'
       : pastDue.length ? 'border-left:4px solid #dc2626;' : '';
-    return `<tr onclick="window.location='/t/${id}?tc=${tc}'" style="cursor:pointer;border-bottom:none;${rowStyle}${isArchived?'opacity:0.7':''}">${base}${dateCols}${progress}${actions}</tr>${taskPills}`;
+    return `<tr onclick="window.location='/t/${id}?tc=${tc}'" style="cursor:pointer;${rowStyle}${isArchived?'opacity:0.7':''}">${baseCompact}${dateCols}${progress}${actions}</tr>`;
   }
 
   const todayISO   = todayAZ();
