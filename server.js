@@ -1214,6 +1214,14 @@ const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, `http://localhost`);
   const pathname = url.pathname;
 
+  if (req.method === "GET" && pathname === "/api/debug/rawfields") {
+    const data = await loadData();
+    const pending = Object.entries(data.transactions).filter(([,t]) => t.status === 'pending' && t._rawFields);
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify(pending.map(([id,t]) => ({ id, _rawFields: t._rawFields })), null, 2));
+    return;
+  }
+
   if (req.method === "POST" && pathname === "/api/transactions") {
     let body = "";
     req.on("data", d => body += d);
