@@ -900,21 +900,25 @@ function getDashboardHTML(transactions, tc) {
     <div style="background:#7c3aed;color:white;font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;padding:10px 16px;border-radius:8px;margin-bottom:10px;display:flex;align-items:center;gap:8px">⚠️ Needs Attention — New Formstack (${pending.length})</div>
     <div style="margin-bottom:28px;display:flex;flex-direction:column;gap:10px">
       ${pending.map(([id, t]) => {
-        const isListing = t.type === 'listing' || t.type === 'listing-uc';
-        const typeLabel = isListing ? 'NEW LISTING' : 'NEW ESCROW';
-        const typeBg = isListing ? '#0f766e' : '#1565c0';
         const agent = t.fields?.agentPartner1 || t.fields?.agentName || '—';
         const client = t.fields?.clientName || '—';
         const addr = t.address || '—';
         const receivedAt = t.createdAt ? new Date(t.createdAt).toLocaleString('en-US', { timeZone: 'America/Phoenix', month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true }) : '—';
-        return `<div style="background:white;border:2px solid #7c3aed;border-radius:10px;padding:14px 18px;display:flex;align-items:center;gap:16px;flex-wrap:wrap">
-          <span style="background:${typeBg};color:white;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;padding:5px 12px;border-radius:6px;white-space:nowrap">${typeLabel}</span>
-          <div style="flex:1;min-width:180px">
-            <div style="font-weight:700;font-size:14px;color:#1e293b">${addr}</div>
-            <div style="font-size:12px;color:#64748b;margin-top:2px">Client: <b style="color:#1e293b">${client}</b> &nbsp;·&nbsp; Agent: <b style="color:#1e293b">${agent}</b> &nbsp;·&nbsp; TC: <b style="color:#7c3aed">${t.fields?.tcName || 'Unassigned'}</b></div>
-            <div style="font-size:11px;color:#94a3b8;margin-top:3px">Received: ${receivedAt}</div>
+        const curType = t.type || 'buyer';
+        const typeOpts = [['buyer','Buyer — Resale'],['buyer-new-build','Buyer — New Build'],['listing','Listing'],['listing-uc','Listing Escrow']];
+        return `<div style="background:white;border:2px solid #7c3aed;border-radius:10px;padding:14px 18px">
+          <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+            <div style="flex:1;min-width:180px">
+              <div style="font-weight:700;font-size:14px;color:#1e293b">${addr}</div>
+              <div style="font-size:12px;color:#64748b;margin-top:2px">Client: <b style="color:#1e293b">${client}</b> &nbsp;·&nbsp; Agent: <b style="color:#1e293b">${agent}</b></div>
+              <div style="font-size:11px;color:#94a3b8;margin-top:3px">Received: ${receivedAt}</div>
+            </div>
+            <a href="/t/${id}?tc=${tc}" style="background:#7c3aed;color:white;text-decoration:none;font-size:12px;font-weight:700;padding:7px 14px;border-radius:6px;white-space:nowrap">Open →</a>
           </div>
-          <a href="/t/${id}?tc=${tc}" style="background:#7c3aed;color:white;text-decoration:none;font-size:12px;font-weight:700;padding:7px 14px;border-radius:6px;white-space:nowrap">Open →</a>
+          <div style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+            <span style="font-size:11px;color:#94a3b8;font-weight:600;margin-right:2px">TYPE:</span>
+            ${typeOpts.map(([val, label]) => `<button onclick="setFsType('${id}','${val}',this)" style="font-size:11px;font-weight:700;padding:4px 10px;border-radius:5px;cursor:pointer;border:2px solid ${curType===val?'#7c3aed':'#e2e8f0'};background:${curType===val?'#7c3aed':'white'};color:${curType===val?'white':'#64748b'}">${label}</button>`).join('')}
+          </div>
         </div>`;
       }).join('')}
     </div>` : ''}
@@ -1096,6 +1100,18 @@ function toggleM(id) {
   el.style.display = open ? '' : 'none';
   if (arr) arr.textContent = open ? '▲' : '▼';
 }
+async function setFsType(id, type, btn) {
+  await fetch('/api/transactions/' + id + '/type', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({type})
+  });
+  btn.closest('div').querySelectorAll('button').forEach(b => {
+    const active = b === btn;
+    b.style.background = active ? '#7c3aed' : 'white';
+    b.style.color = active ? 'white' : '#64748b';
+    b.style.borderColor = active ? '#7c3aed' : '#e2e8f0';
+  });
+}
 async function setStatus(id, status) {
   await fetch('/api/transactions/' + id + '/status', {
     method:'POST', headers:{'Content-Type':'application/json'},
@@ -1248,6 +1264,21 @@ const server = http.createServer(async (req, res) => {
       const txId = statusMatch[1];
       const { status } = JSON.parse(body);
       if (data.transactions[txId]) { data.transactions[txId].status = status; await saveData(data); }
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ ok: true }));
+    });
+    return;
+  }
+
+  const typeMatch = pathname.match(/^\/api\/transactions\/([^/]+)\/type$/);
+  if (req.method === "POST" && typeMatch) {
+    let body = "";
+    req.on("data", d => body += d);
+    req.on("end", async () => {
+      const data = await loadData();
+      const txId = typeMatch[1];
+      const { type } = JSON.parse(body);
+      if (data.transactions[txId]) { data.transactions[txId].type = type; await saveData(data); }
       res.writeHead(200, { "Content-Type": "application/json" });
       res.end(JSON.stringify({ ok: true }));
     });
