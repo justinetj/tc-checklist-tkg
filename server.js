@@ -168,17 +168,17 @@ const BUYER_NEW_BUILD_ITEMS = [
 const LISTING_ITEMS = [
   // Day 0 — Listing Setup
   { id: "l1",  section: "Day 0 — Listing Setup",       day: "Day 0",  label: "Listing agreement fully executed" },
-  { id: "l2",  section: "Day 0 — Listing Setup",       day: "Day 0",  label: "Review Formstack — download & review all documents" },
-  { id: "l3",  section: "Day 0 — Listing Setup",       day: "Day 0",  label: "Create Deal in FUB / update task due dates" },
-  { id: "l4",  section: "Day 0 — Listing Setup",       day: "Day 0",  label: "Update Kumler Group Workbook" },
-  { id: "l5",  section: "Day 0 — Listing Setup",       day: "Day 0",  label: "Verify commission split (agent partner vs Kumler)" },
+  { id: "l2",  section: "Day 0 — Listing Setup",       day: "Day 0",  label: "Review Formstack" },
+  { id: "l3",  section: "Day 0 — Listing Setup",       day: "Day 0",  label: "Create Deal in FUB" },
+  { id: "l3a", section: "Day 0 — Listing Setup",       day: "Day 0",  label: "Accurate stage", indent: true },
+  { id: "l3b", section: "Day 0 — Listing Setup",       day: "Day 0",  label: "Accurate source", indent: true },
   { id: "l6",  section: "Day 0 — Listing Setup",       day: "Day 0",  label: "Create Zillow Payment Form (if applicable)" },
+  { id: "l4",  section: "Day 0 — Listing Setup",       day: "Day 0",  label: "Update Kumler Group Workbook" },
   { id: "l7",  section: "Day 0 — Listing Setup",       day: "Day 0",  label: "SPDS completed by seller — on file", hasDue: true },
   { id: "l7b", section: "Day 0 — Listing Setup",       day: "Day 0",  label: "CLUE report received" },
   { id: "l8",  section: "Day 0 — Listing Setup",       day: "Day 0",  label: "Lead-based paint disclosure (pre-1978 homes)" },
   { id: "l9",  section: "Day 0 — Listing Setup",       day: "Day 0",  label: "HOA addendum completed (if applicable)" },
   { id: "l10", section: "Day 0 — Listing Setup",       day: "Day 0",  label: "Professional photos scheduled" },
-  { id: "l11", section: "Day 0 — Listing Setup",       day: "Day 0",  label: "Create SkySlope transaction" },
   { id: "l12", section: "Day 0 — Listing Setup",       day: "Day 0",  label: "Send intro email to all parties" },
   // Day 1
   { id: "l13", section: "Day 1",                       day: "Day 1",  label: "Photos received & approved" },
@@ -189,20 +189,25 @@ const LISTING_ITEMS = [
   { id: "l18", section: "Day 1",                       day: "Day 1",  label: "Yard sign installed" },
   { id: "l19", section: "Day 1",                       day: "Day 1",  label: "Notify agent of any missing docs" },
   // Under Contract
-  { id: "l20", section: "Under Contract",              day: "",       label: "Offer received & presented to seller" },
-  { id: "l21", section: "Under Contract",              day: "Day 0",  label: "Purchase contract fully executed" },
-  { id: "l22", section: "Under Contract",              day: "Day 0",  label: "Update FUB status → Under Contract" },
-  { id: "l23", section: "Under Contract",              day: "Day 0",  label: "Update MLS status → Pending" },
-  { id: "l24", section: "Under Contract",              day: "Day 0",  label: "Update Zillow status → Pending" },
-  { id: "l25", section: "Under Contract",              day: "Day 0",  label: "Update Workbook — add contract price & buyer lender" },
-  { id: "l26", section: "Under Contract",              day: "Day 0",  label: "Verify buyer lender — confirm pre-approval on file" },
-  { id: "l27", section: "Under Contract",              day: "Day 0",  label: "Escrow opened — escrow number on file" },
-  { id: "l28", section: "Under Contract",              day: "Day 0",  label: "Earnest money confirmed received by title" },
-  { id: "l29", section: "Under Contract",              day: "Day 0",  label: "Send intro email to all parties" },
-  { id: "l30", section: "Under Contract",              day: "Day 0",  label: "Create Zillow Payment Form (if applicable)" },
+  { id: "l20",  section: "Under Contract",             day: "",       label: "Offer received & presented to seller" },
+  { id: "l20b", section: "Under Contract",             day: "Day 0",  label: "Review Formstack" },
+  { id: "l21",  section: "Under Contract",             day: "Day 0",  label: "Purchase contract fully executed" },
+  { id: "l22",  section: "Under Contract",             day: "Day 0",  label: "Update FUB status → Under Contract" },
+  { id: "l23",  section: "Under Contract",             day: "Day 0",  label: "Update MLS status → Pending" },
+  { id: "l24",  section: "Under Contract",             day: "Day 0",  label: "Update Zillow status → Pending" },
+  { id: "l25",  section: "Under Contract",             day: "Day 0",  label: "Update Workbook" },
+  { id: "l25a", section: "Under Contract",             day: "Day 0",  label: "Add title", indent: true },
+  { id: "l25b", section: "Under Contract",             day: "Day 0",  label: "Add lender", indent: true },
+  { id: "l25c", section: "Under Contract",             day: "Day 0",  label: "Add price", indent: true },
+  { id: "l26",  section: "Under Contract",             day: "Day 0",  label: "Pre-approval on file" },
+  { id: "l27",  section: "Under Contract",             day: "Day 0",  label: "Escrow opened" },
+  { id: "l29",  section: "Under Contract",             day: "Day 0",  label: "Send intro email to all parties" },
+  { id: "l30",  section: "Under Contract",             day: "Day 0",  label: "Create Zillow Payment Form (if applicable)" },
   // Day 1 (after contract)
-  { id: "l31", section: "Day 1 (After Contract)",      day: "Day 1",  label: "Create SkySlope transaction (under contract file)" },
+  { id: "l31", section: "Day 1 (After Contract)",      day: "Day 1",  label: "Create SkySlope transaction" },
   { id: "l32", section: "Day 1 (After Contract)",      day: "Day 1",  label: "Notify agent of any missing docs" },
+  // Day 3
+  { id: "l28", section: "Day 3",                       day: "Day 3",  label: "Earnest money confirmed received by title" },
   // Day 5
   { id: "l33", section: "Day 5",                       day: "Day 5",  label: "Buyer inspection scheduled — confirm with agent" },
   // Day 7
@@ -226,7 +231,6 @@ const LISTING_ITEMS = [
   // COE -5
   { id: "l46", section: "COE -5 Days",                 day: "COE -5", label: "CDA (Commission Disbursement Authorization) sent to title" },
   { id: "l47", section: "COE -5 Days",                 day: "COE -5", label: "Buyer clear to close received from lender" },
-  { id: "l48", section: "COE -5 Days",                 day: "COE -5", label: "Seller net sheet reviewed" },
   // COE -4
   { id: "l49", section: "COE -4 Days",                 day: "COE -4", label: "Final walkthrough reminder sent to buyer & agent" },
   // COE -3
