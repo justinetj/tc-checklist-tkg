@@ -253,6 +253,7 @@ const LISTING_ITEMS = [
   { id: "l56",  section: "COE — Close of Escrow",      day: "COE",    label: "Update MLS status → Sold" },
   { id: "l57",  section: "COE — Close of Escrow",      day: "COE",    label: "Update Zillow status → Sold" },
   { id: "l58",  section: "COE — Close of Escrow",      day: "COE",    label: "Move file to close" },
+  { id: "l59",  section: "COE — Close of Escrow",      day: "COE",    label: "Commission settled" },
 ];
 
 // ─── HTML ────────────────────────────────────────────────────────────────────
