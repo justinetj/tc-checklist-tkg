@@ -889,7 +889,7 @@ function getDashboardHTML(transactions, tc) {
     <div class="card" style="margin-bottom:24px;border-top:3px solid #1565c0">
       ${listings.length === 0 ? '<div class="empty">No active listings.</div>' : makeTable(listings, false, 'listing')}
     </div>
-    <div style="background:#1565c0;color:white;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;padding:9px 16px;border-radius:8px;margin-bottom:8px">📝 Sellers</div>
+    <div style="background:#1565c0;color:white;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;padding:9px 16px;border-radius:8px;margin-bottom:8px">📝 Active Transactions — Sellers</div>
     <div class="card" style="margin-bottom:24px;border-top:3px solid #1565c0">
       ${listingUC.length === 0 ? '<div class="empty">No listings under contract.</div>' : makeTable(listingUC, false, 'buyer')}
     </div>
