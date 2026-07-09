@@ -744,7 +744,26 @@ function showToast() {
 
 function getDashboardHTML(transactions, tc) {
   const isAdmin = !tc || tc === 'admin';
-  const allEntries = Object.entries(transactions).sort((a,b) => b[1].createdAt - a[1].createdAt);
+  function earliestDue(t) {
+    const items = t.type === "buyer" ? BUYER_ITEMS : t.type === "buyer-new-build" ? BUYER_NEW_BUILD_ITEMS : LISTING_ITEMS;
+    const fields = t.fields || {};
+    const contractDate = fields.contractDate || '';
+    const closeDate = fields.closeDate || '';
+    const checked = t.checked || {};
+    const notes = t.notes || {};
+    let earliest = '';
+    for (const item of items) {
+      if (checked[item.id]) continue;
+      const due = (notes[item.id]?.due) || calcDueDateISO(item.day, contractDate, closeDate);
+      if (due && (!earliest || due < earliest)) earliest = due;
+    }
+    return earliest || '9999-99-99';
+  }
+  const allEntries = Object.entries(transactions).sort((a,b) => {
+    const da = earliestDue(a[1]), db = earliestDue(b[1]);
+    if (da !== db) return da < db ? -1 : 1;
+    return b[1].createdAt - a[1].createdAt;
+  });
   const sorted = isAdmin ? allEntries : allEntries.filter(([,t]) => (t.fields?.tcName || '') === tc);
 
   function fmt(dateStr) { if (!dateStr) return '—'; const [y,m,d] = dateStr.split('-'); return `${m}/${d}/${y}`; }
