@@ -214,13 +214,13 @@ const LISTING_ITEMS = [
   { id: "l34", section: "Day 7",                       day: "Day 7",  label: "BINSR received from buyer — send to seller" },
   { id: "l35", section: "Day 7",                       day: "Day 7",  label: "Follow up with agent regarding BINSR response" },
   // Day 10
-  { id: "l36", section: "Day 10",                      day: "Day 10", label: "BINSR due (10 days from contract acceptance)" },
+  { id: "l36", section: "Day 10",                      day: "Day 10", label: "BINSR #1 Due", hasDue: true },
   { id: "l37", section: "Day 10",                      day: "Day 10", label: "Inspection period complete" },
   { id: "l38", section: "Day 10",                      day: "Day 10", label: "Request title commitment from title company" },
   // Day 15
   { id: "l39", section: "Day 15",                      day: "Day 15", label: "Appraisal appointment confirmed" },
   { id: "l40", section: "Day 15",                      day: "Day 15", label: "Confirm any agreed repairs are scheduled" },
-  { id: "l40b", section: "Day 15",                     day: "Day 15", label: "Seller response to BINSR due (5 days after BINSR)", hasDue: true },
+  { id: "l40b", section: "Day 15",                     day: "Day 15", label: "Seller response to BINSR due", hasDue: true },
   // Day 22
   { id: "l41", section: "Day 22",                      day: "Day 22", label: "Appraisal received — confirm value" },
   { id: "l42", section: "Day 22",                      day: "Day 22", label: "Buyer loan approval confirmed" },
@@ -229,8 +229,8 @@ const LISTING_ITEMS = [
   { id: "l44", section: "COE -10 Days",                day: "COE -10", label: "Confirm home warranty — ordered & who pays" },
   { id: "l45", section: "COE -10 Days",                day: "COE -10", label: "Mortgage payoff ordered by title" },
   // COE -5
-  { id: "l46", section: "COE -5 Days",                 day: "COE -5", label: "CDA (Commission Disbursement Authorization) sent to title" },
-  { id: "l47", section: "COE -5 Days",                 day: "COE -5", label: "Buyer clear to close received from lender" },
+  { id: "l46", section: "COE -5 Days",                 day: "COE -5", label: "CDA sent to title" },
+  { id: "l47", section: "COE -5 Days",                 day: "COE -5", label: "Loan approval received / confirmed" },
   // COE -4
   { id: "l49", section: "COE -4 Days",                 day: "COE -4", label: "Final walkthrough reminder sent to buyer & agent" },
   // COE -3
