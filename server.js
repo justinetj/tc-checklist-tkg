@@ -911,7 +911,7 @@ function getDashboardHTML(transactions, tc) {
           <span style="background:${typeBg};color:white;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;padding:5px 12px;border-radius:6px;white-space:nowrap">${typeLabel}</span>
           <div style="flex:1;min-width:180px">
             <div style="font-weight:700;font-size:14px;color:#1e293b">${addr}</div>
-            <div style="font-size:12px;color:#64748b;margin-top:2px">Client: <b style="color:#1e293b">${client}</b> &nbsp;·&nbsp; Agent: <b style="color:#1e293b">${agent}</b></div>
+            <div style="font-size:12px;color:#64748b;margin-top:2px">Client: <b style="color:#1e293b">${client}</b> &nbsp;·&nbsp; Agent: <b style="color:#1e293b">${agent}</b> &nbsp;·&nbsp; TC: <b style="color:#7c3aed">${t.fields?.tcName || 'Unassigned'}</b></div>
             <div style="font-size:11px;color:#94a3b8;margin-top:3px">Received: ${receivedAt}</div>
           </div>
           <a href="/t/${id}?tc=${tc}" style="background:#7c3aed;color:white;text-decoration:none;font-size:12px;font-weight:700;padding:7px 14px;border-radius:6px;white-space:nowrap">Open →</a>
@@ -1337,21 +1337,35 @@ const server = http.createServer(async (req, res) => {
           for (const [k,v] of params.entries()) p[k] = v;
         }
         const get = (...keys) => { for (const k of keys) { const v = p[k]; if (v && String(v).trim()) return String(v).trim(); } return ''; };
-        const join = (...keys) => keys.map(k => get(k)).filter(Boolean).join(' ').trim();
+
+        // Parse Formstack sub-field strings like "first = Justine last = Johnston"
+        const subVal = (str, subKey) => {
+          if (!str) return '';
+          const m = str.match(new RegExp(`${subKey}\\s*=\\s*([^=]+?)(?:\\s+\\w+\\s*=|$)`));
+          return m ? m[1].trim() : '';
+        };
 
         // Agent
-        const agentFirst = get('Agent Partner Name First', 'agent_partner_name_first');
-        const agentLast  = get('Agent Partner Name Last',  'agent_partner_name_last');
-        const agentName  = join('Agent Partner Name') || [agentFirst, agentLast].filter(Boolean).join(' ');
+        const agentRaw   = get('Agent Partner Name');
+        const agentFirst = subVal(agentRaw, 'first') || get('Agent Partner Name First');
+        const agentLast  = subVal(agentRaw, 'last')  || get('Agent Partner Name Last');
+        const agentName  = [agentFirst, agentLast].filter(Boolean).join(' ') || agentRaw;
         const agentEmail = get('Agent Partner Email');
         const agentPhone = get('Agent Partner Cell Number');
 
-        // Address (assembled from parts)
-        const addr1  = get('Subject Property Address Address Line 1', 'Subject Property Address_1');
-        const city   = get('Subject Property Address City', 'Subject Property Address_3');
-        const state  = get('Subject Property Address State', 'Subject Property Address_4');
-        const zip    = get('Subject Property Address ZIP Code', 'Subject Property Address_5');
-        const address = addr1 ? [addr1, city, state, zip].filter(Boolean).join(', ') : get('Subject Property Address');
+        // TC Name
+        const tcRaw   = get('Transaction Coordinator', 'TC Name', 'Assigned TC', 'Transaction Coordinator Name');
+        const tcFirst = subVal(tcRaw, 'first') || get('Transaction Coordinator First');
+        const tcLast  = subVal(tcRaw, 'last')  || get('Transaction Coordinator Last');
+        const tcName  = [tcFirst, tcLast].filter(Boolean).join(' ') || tcRaw;
+
+        // Address
+        const addrRaw = get('Subject Property Address');
+        const addr1   = subVal(addrRaw, 'address') || get('Subject Property Address Address Line 1');
+        const city    = subVal(addrRaw, 'city')    || get('Subject Property Address City');
+        const state   = subVal(addrRaw, 'state')   || get('Subject Property Address State');
+        const zip     = subVal(addrRaw, 'zip')     || get('Subject Property Address ZIP Code');
+        const address = [addr1, city, state, zip].filter(Boolean).join(', ') || addrRaw;
 
         // Detect form type: listing form has "Seller 1 Name", escrow has "Client 1 Name"
         const hasSeller = !!(p['Seller 1 Name First'] || p['Seller 1 Name Last'] || p['Seller/Client Email']);
@@ -1386,6 +1400,7 @@ const server = http.createServer(async (req, res) => {
           _rawFields: p,
           fields: {
             clientName,
+            tcName,
             agentPartner1: agentName,
             agentPartner1Email: agentEmail,
             agentPartner1Phone: agentPhone,
