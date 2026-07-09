@@ -215,7 +215,8 @@ function dayBadge(dayLabel, color) {
 }
 
 function getHTML(transaction, id, tc) {
-  const items = transaction.type === "buyer" ? BUYER_ITEMS : LISTING_ITEMS;
+  const isBuyer = transaction.type === "buyer" || transaction.type === "buyer-new-build";
+  const items = isBuyer ? BUYER_ITEMS : LISTING_ITEMS;
   const isListing = transaction.type === "listing" || transaction.type === "listing-uc";
   const checked = transaction.checked || {};
   const notes = transaction.notes || {};
@@ -225,7 +226,7 @@ function getHTML(transaction, id, tc) {
   const total = items.length;
   const done = items.filter(i => checked[i.id]).length;
   const pct = Math.round((done / total) * 100);
-  const color = transaction.type === "buyer" ? "#1565c0" : transaction.type === "listing-uc" ? "#b45309" : "#2e7d32";
+  const color = isBuyer ? "#1565c0" : transaction.type === "listing-uc" ? "#b45309" : "#2e7d32";
 
   // Group items by day label
   const today = new Date().toISOString().slice(0, 10);
@@ -382,7 +383,7 @@ function getHTML(transaction, id, tc) {
 <div class="header">
   <div style="flex:1">
     <div><a href="/?tc=${tc}">← All Transactions</a></div>
-    <h1>${transaction.address || 'No address'} <span class="badge">${transaction.type}</span></h1>
+    <h1>${transaction.address || 'No address'} <span class="badge">${transaction.type === 'buyer' ? 'Buyer - Resale' : transaction.type === 'buyer-new-build' ? 'Buyer - New Build' : transaction.type}</span></h1>
   </div>
   <div style="text-align:right;font-size:13px;color:#a8c4e0">${done}/${total} complete</div>
 </div>
@@ -687,10 +688,11 @@ function getDashboardHTML(transactions, tc) {
 
   function fmt(dateStr) { if (!dateStr) return '—'; const [y,m,d] = dateStr.split('-'); return `${m}/${d}/${y}`; }
   function makeRow(id, t, isArchived, mode) {
-    const items = t.type === "buyer" ? BUYER_ITEMS : LISTING_ITEMS;
+    const isBuyerT = t.type === "buyer" || t.type === "buyer-new-build";
+    const items = isBuyerT ? BUYER_ITEMS : LISTING_ITEMS;
     const done = items.filter(i => (t.checked || {})[i.id]).length;
     const pct = Math.round((done / items.length) * 100);
-    const color = t.type === "buyer" ? "#1565c0" : t.type === "listing-uc" ? "#b45309" : "#2e7d32";
+    const color = isBuyerT ? "#1565c0" : t.type === "listing-uc" ? "#b45309" : "#2e7d32";
     const fields = t.fields || {};
     const actionBtns = isArchived
       ? `<button onclick="event.stopPropagation();setStatus('${id}','active')" style="background:#f0f4ff;color:#1e3a5f;border:none;padding:4px 10px;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer">Reopen</button>`
@@ -734,7 +736,7 @@ function getDashboardHTML(transactions, tc) {
 
   const todayISO   = new Date().toISOString().slice(0,10);
   const pending     = sorted.filter(([,t]) => t.status === "pending");
-  const active      = sorted.filter(([,t]) => (!t.status || t.status === "active") && t.type === "buyer");
+  const active      = sorted.filter(([,t]) => (!t.status || t.status === "active") && (t.type === "buyer" || t.type === "buyer-new-build"));
   const listings    = sorted.filter(([,t]) => (!t.status || t.status === "active") && t.type === "listing" && !t.fields?.ucDate);
   const listingUC   = sorted.filter(([,t]) => (!t.status || t.status === "active") && (t.type === "listing-uc" || (t.type === "listing" && t.fields?.ucDate)));
   const closingToday = sorted.filter(([,t]) => (!t.status || t.status === "active") && t.type !== "listing" && (t.fields?.closeDate === todayISO));
@@ -846,7 +848,7 @@ function getDashboardHTML(transactions, tc) {
         const today = new Date().toISOString().slice(0, 10);
         const groups = [];
         for (const [id, t] of active) {
-          const items = t.type === 'buyer' ? BUYER_ITEMS : LISTING_ITEMS;
+          const items = (t.type === 'buyer' || t.type === 'buyer-new-build') ? BUYER_ITEMS : LISTING_ITEMS;
           const fields = t.fields || {};
           const contractDate = fields.contractDate || '';
           const closeDate = fields.closeDate || '';
@@ -887,7 +889,8 @@ function getDashboardHTML(transactions, tc) {
     <h2>New Transaction</h2>
     <div class="field"><label>Type</label>
       <select id="f-type" onchange="onTypeChange(this.value)">
-        <option value="buyer">Buyer</option>
+        <option value="buyer">Buyer - Resale</option>
+        <option value="buyer-new-build">Buyer - New Build</option>
         <option value="listing">Listing</option>
         <option value="listing-uc">Listing Under Contract</option>
       </select>
