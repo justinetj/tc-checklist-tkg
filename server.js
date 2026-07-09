@@ -481,7 +481,7 @@ function getHTML(transaction, id, tc) {
     ]).map(([label, key, type, hi]) => `
       <div class="info-field${hi ? ' highlight' : ''}">
         <div class="info-label">${label}</div>
-        <input class="info-input" type="${type}" placeholder="—"
+        <input class="info-input" type="${type}" placeholder="—" data-key="${key}"
           value="${(key === 'address' ? (fields.address || transaction.address || '') : (fields[key] || '')).replace(/"/g, '&quot;')}"
           onchange="saveField('${key}', this.value)">
       </div>`).join('')}
@@ -586,14 +586,14 @@ function calcDue(dayLabel, contractDate, closeDate) {
 
 function refreshDueDates() {
   const contractDate = document.querySelector('input[data-key="contractDate"]')?.value || '';
+  const ucDate = document.querySelector('input[data-key="ucDate"]')?.value || '';
   const closeDate = document.querySelector('input[data-key="closeDate"]')?.value || '';
-  const today = new Date().toISOString().slice(0, 10);
+  const baseDate = ucDate || contractDate;
   ITEMS.forEach(item => {
     const inp = document.querySelector('.date-input.due[data-item="' + item.id + '"]');
     if (!inp) return;
-    const autoISO = calcDue(item.day, contractDate, closeDate);
+    const autoISO = calcDue(item.day, baseDate, closeDate);
     inp.setAttribute('data-auto', autoISO);
-    // only auto-fill if user hasn't manually saved a due date
     if (!inp.dataset.manual) inp.value = autoISO;
     colorDue(inp);
   });
@@ -654,17 +654,16 @@ document.querySelectorAll('.date-input.due').forEach(inp => {
 });
 updateDayHeaders();
 
-// tag info-inputs with data-key for easy lookup
-document.querySelectorAll('.info-input').forEach((inp, i) => {
-  const keys = ['address','contractDate','closeDate','clientName','binsrDue'];
-  inp.setAttribute('data-key', keys[i] || '');
-  if (keys[i] === 'contractDate' || keys[i] === 'closeDate') {
+// wire up info-inputs using data-key attributes set server-side
+document.querySelectorAll('.info-input[data-key]').forEach(inp => {
+  const key = inp.dataset.key;
+  if (key === 'contractDate' || key === 'closeDate' || key === 'ucDate') {
     inp.addEventListener('change', refreshDueDates);
   }
-  if (keys[i] === 'binsrDue') {
+  if (key === 'binsrDue') {
     inp.addEventListener('change', function() { this.dataset.manual = this.value ? '1' : ''; });
   }
-  if (keys[i] === 'contractDate' || keys[i] === 'ucDate') {
+  if (key === 'contractDate' || key === 'ucDate') {
     inp.addEventListener('change', function() {
       const binsr = document.getElementById('binsrDue');
       if (binsr && !binsr.dataset.manual) {
