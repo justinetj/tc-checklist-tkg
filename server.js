@@ -925,10 +925,43 @@ function getDashboardHTML(transactions, tc) {
     <div class="card" style="margin-bottom:24px;border-top:3px solid #1565c0">
       ${listings.length === 0 ? '<div class="empty">No active listings.</div>' : makeTable(listings, false, 'listing')}
     </div>
-    <div style="background:#6b7280;color:white;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;padding:9px 16px;border-radius:8px;margin-bottom:8px">✓ Closed Transactions</div>
-    <div class="card" style="margin-bottom:24px;border-top:3px solid #6b7280">${makeTable(closed, true, 'buyer')}</div>
-    <div style="background:#6b7280;color:white;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;padding:9px 16px;border-radius:8px;margin-bottom:8px">✕ Cancelled Transactions</div>
-    <div class="card" style="margin-bottom:24px;border-top:3px solid #6b7280">${makeTable(cancelled, true, 'buyer')}</div>
+    ${(() => {
+      function monthLabel(t) {
+        const d = t.fields?.closeDate || t.fields?.contractDate;
+        if (d) { const [y,m] = d.split('-'); return `${['','January','February','March','April','May','June','July','August','September','October','November','December'][+m]} ${y}`; }
+        if (t.createdAt) { const dt = new Date(t.createdAt); return dt.toLocaleDateString('en-US',{month:'long',year:'numeric'}); }
+        return 'Unknown';
+      }
+      function monthSort(label) {
+        const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+        const [m, y] = label.split(' ');
+        return `${y}-${String(months.indexOf(m)+1).padStart(2,'0')}`;
+      }
+      function makeMonthGroups(list, label, icon) {
+        if (!list.length) return '';
+        const groups = {};
+        for (const [id,t] of list) {
+          const ml = monthLabel(t);
+          if (!groups[ml]) groups[ml] = [];
+          groups[ml].push([id,t]);
+        }
+        const sortedMonths = Object.keys(groups).sort((a,b) => monthSort(b).localeCompare(monthSort(a)));
+        const rows = sortedMonths.map((month, i) => {
+          const mId = `m-${label.replace(/\s/g,'')}-${i}`;
+          const count = groups[month].length;
+          return `<div style="margin-bottom:6px;border:1px solid #e0e4f0;border-radius:8px;overflow:hidden">
+            <div onclick="toggleM('${mId}')" style="display:flex;justify-content:space-between;align-items:center;padding:8px 14px;background:#f8fafc;cursor:pointer;font-size:12px;font-weight:700;color:#4b5563">
+              <span>${month} <span style="background:#e5e7eb;color:#6b7280;border-radius:8px;padding:1px 8px;font-size:11px;margin-left:6px">${count}</span></span>
+              <span id="arr-${mId}">▼</span>
+            </div>
+            <div id="${mId}" style="display:none">${makeTable(groups[month], true, 'buyer')}</div>
+          </div>`;
+        }).join('');
+        return `<div style="background:#6b7280;color:white;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;padding:9px 16px;border-radius:8px;margin-bottom:8px">${icon} ${label}</div>
+        <div style="margin-bottom:24px">${rows}</div>`;
+      }
+      return makeMonthGroups(closed,'Closed Transactions','✓') + makeMonthGroups(cancelled,'Cancelled Transactions','✕');
+    })()}
   </div>
 
   <div class="task-panel">
@@ -1035,6 +1068,14 @@ async function dashCheck(txnId, itemId, checked) {
     const row = document.getElementById('dt-' + txnId + '-' + itemId);
     if (row) row.closest('.task-item').style.opacity = '0.4';
   }
+}
+function toggleM(id) {
+  const el = document.getElementById(id);
+  const arr = document.getElementById('arr-' + id);
+  if (!el) return;
+  const open = el.style.display === 'none';
+  el.style.display = open ? '' : 'none';
+  if (arr) arr.textContent = open ? '▲' : '▼';
 }
 async function setStatus(id, status) {
   await fetch('/api/transactions/' + id + '/status', {
