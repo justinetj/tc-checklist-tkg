@@ -238,12 +238,21 @@ const LISTING_ITEMS = [
   { id: "l51", section: "COE -3 Days",                 day: "COE -3", label: "Docs to title" },
   { id: "l52", section: "COE -3 Days",                 day: "COE -3", label: "Utilities cancellation scheduled by seller" },
   // COE — Close of Escrow
-  { id: "l53", section: "COE — Close of Escrow",       day: "COE",    label: "Recording confirmed" },
-  { id: "l54", section: "COE — Close of Escrow",       day: "COE",    label: "Update Workbook" },
-  { id: "l55", section: "COE — Close of Escrow",       day: "COE",    label: "Update FUB status → Closed" },
-  { id: "l56", section: "COE — Close of Escrow",       day: "COE",    label: "Update MLS status → Sold" },
-  { id: "l57", section: "COE — Close of Escrow",       day: "COE",    label: "Update Zillow status → Sold" },
-  { id: "l58", section: "COE — Close of Escrow",       day: "COE",    label: "Move file to close" },
+  { id: "l53",  section: "COE — Close of Escrow",      day: "COE",    label: "Recording confirmed" },
+  { id: "l53a", section: "COE — Close of Escrow",      day: "COE",    label: "Final SS / copy of check" },
+  { id: "l53b", section: "COE — Close of Escrow",      day: "COE",    label: "Check SkySlope — final docs" },
+  { id: "l54",  section: "COE — Close of Escrow",      day: "COE",    label: "Update Workbook" },
+  { id: "l54a", section: "COE — Close of Escrow",      day: "COE",    label: "Reconfirm title company", indent: true },
+  { id: "l54b", section: "COE — Close of Escrow",      day: "COE",    label: "Reconfirm lender", indent: true },
+  { id: "l54c", section: "COE — Close of Escrow",      day: "COE",    label: "Reconfirm home warranty", indent: true },
+  { id: "l54d", section: "COE — Close of Escrow",      day: "COE",    label: "Reconfirm sales price", indent: true },
+  { id: "l55",  section: "COE — Close of Escrow",      day: "COE",    label: "Update FUB status" },
+  { id: "l55a", section: "COE — Close of Escrow",      day: "COE",    label: "Change status to closed", indent: true },
+  { id: "l55b", section: "COE — Close of Escrow",      day: "COE",    label: "Reconfirm sales price", indent: true },
+  { id: "l55c", section: "COE — Close of Escrow",      day: "COE",    label: "Reconfirm closing date", indent: true },
+  { id: "l56",  section: "COE — Close of Escrow",      day: "COE",    label: "Update MLS status → Sold" },
+  { id: "l57",  section: "COE — Close of Escrow",      day: "COE",    label: "Update Zillow status → Sold" },
+  { id: "l58",  section: "COE — Close of Escrow",      day: "COE",    label: "Move file to close" },
 ];
 
 // ─── HTML ────────────────────────────────────────────────────────────────────
