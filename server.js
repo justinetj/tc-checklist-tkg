@@ -816,7 +816,7 @@ function getDashboardHTML(transactions, tc) {
   const active      = sorted.filter(([,t]) => (!t.status || t.status === "active") && (t.type === "buyer" || t.type === "buyer-new-build"));
   const listings    = sorted.filter(([,t]) => (!t.status || t.status === "active") && t.type === "listing" && !t.fields?.ucDate);
   const listingUC   = sorted.filter(([,t]) => (!t.status || t.status === "active") && (t.type === "listing-uc" || (t.type === "listing" && t.fields?.ucDate)));
-  const closingToday = sorted.filter(([,t]) => (!t.status || t.status === "active") && t.type !== "listing" && (t.fields?.closeDate === todayISO));
+  const closingToday = sorted.filter(([,t]) => (!t.status || t.status === "active") && (t.fields?.closeDate === todayISO));
   const closed     = sorted.filter(([,t]) => t.status === "closed");
   const cancelled  = sorted.filter(([,t]) => t.status === "cancelled");
 
@@ -898,8 +898,19 @@ function getDashboardHTML(transactions, tc) {
     <div style="background:#b45309;color:white;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;padding:9px 16px;border-radius:8px;margin-bottom:8px;display:flex;align-items:center;gap:8px">⚠️ Needs Attention — New Submissions (${pending.length})</div>
     <div class="card" style="margin-bottom:28px;border:2px solid #b45309">${makeTable(pending, false, 'buyer')}</div>` : ''}
     ${closingToday.length > 0 ? `
-    <div style="font-size:12px;font-weight:700;text-transform:uppercase;color:white;letter-spacing:.5px;margin-bottom:8px;background:#dc2626;padding:8px 14px;border-radius:8px;display:flex;align-items:center;gap:8px">🔴 CLOSINGS TODAY — ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}</div>
-    <div class="card" style="margin-bottom:28px;border:2px solid #dc2626">${makeTable(closingToday, false, 'buyer')}</div>` : ''}
+    <div style="background:#15803d;color:white;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;padding:9px 16px;border-radius:8px;margin-bottom:8px">🎉 Closings Today — ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})} (${closingToday.length})</div>
+    <div class="card" style="margin-bottom:24px;border:2px solid #15803d;background:#f0fdf4">
+      <table><tbody>${closingToday.map(([id,t]) => {
+        const fields = t.fields || {};
+        const label = t.type === 'listing' || t.type === 'listing-uc' ? '🏡 Seller' : '🔑 Buyer';
+        return `<tr onclick="window.location='/t/${id}?tc=${tc}'" style="cursor:pointer">
+          <td style="padding:7px 14px;font-size:13px;font-weight:700;color:#14532d">${t.address || '(no address)'}</td>
+          <td style="padding:7px 8px;font-size:12px;color:#166534">${fields.clientName || t.clientName || '—'}</td>
+          <td style="padding:7px 8px;font-size:11px"><span style="background:#dcfce7;color:#15803d;border-radius:8px;padding:2px 8px;font-weight:700">${label}</span></td>
+          <td style="padding:7px 8px;font-size:12px;color:#166534">${fields.agentPartner1 || '—'}</td>
+        </tr>`;
+      }).join('')}</tbody></table>
+    </div>` : ''}
     <div style="background:#1565c0;color:white;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;padding:9px 16px;border-radius:8px;margin-bottom:8px">🏠 Active Transactions — Buyers</div>
     <div class="card" style="margin-bottom:24px;border-top:3px solid #1565c0">
       ${active.length === 0 ? '<div class="empty">No active transactions.</div>' : makeTable(active, false, 'buyer')}
