@@ -785,7 +785,7 @@ function getDashboardHTML(transactions, tc) {
       if (dueISO < todayStr) pastDue.push(item.label);
       else if (dueISO === todayStr) dueToday.push(item.label);
     }
-    const baseCompact = `<td style="font-size:13px"><strong>${t.address || '(no address)'}</strong></td><td style="font-size:12px">${fields.clientName || t.clientName || '—'}</td><td style="font-size:12px">${fields.agentPartner1 || '—'}</td>`;
+    const baseCompact = `<td style="font-size:13px"><strong>${t.address || '(no address)'}</strong></td><td style="font-size:12px;white-space:nowrap">${fields.clientName || t.clientName || '—'}</td><td style="font-size:12px;white-space:nowrap">${fields.agentPartner1 || '—'}</td>`;
     const rowStyle = dueToday.length && !pastDue.length
       ? 'border-left:4px solid #16a34a;background:#f0fdf4;'
       : pastDue.length ? 'border-left:4px solid #dc2626;' : '';
