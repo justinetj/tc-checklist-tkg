@@ -214,7 +214,7 @@ function dayBadge(dayLabel, color) {
   return `<span class="day-badge" style="background:${bg}">${dayLabel}</span>`;
 }
 
-function getHTML(transaction, id) {
+function getHTML(transaction, id, tc) {
   const items = transaction.type === "buyer" ? BUYER_ITEMS : LISTING_ITEMS;
   const isListing = transaction.type === "listing" || transaction.type === "listing-uc";
   const checked = transaction.checked || {};
@@ -381,7 +381,7 @@ function getHTML(transaction, id) {
 <body>
 <div class="header">
   <div style="flex:1">
-    <div><a href="/">← All Transactions</a></div>
+    <div><a href="/?tc=${tc}">← All Transactions</a></div>
     <h1>${transaction.address || 'No address'} <span class="badge">${transaction.type}</span></h1>
   </div>
   <div style="text-align:right;font-size:13px;color:#a8c4e0">${done}/${total} complete</div>
@@ -653,7 +653,7 @@ function getDashboardHTML(transactions, tc) {
     } else {
       dateCols = `<td>${fmt(fields.contractDate)}</td><td>${fmt(fields.closeDate)}</td>`;
     }
-    return `<tr onclick="window.location='/t/${id}'" style="cursor:pointer;${isArchived?'opacity:0.7':''}">${base}${dateCols}${progress}${actions}</tr>`;
+    return `<tr onclick="window.location='/t/${id}?tc=${tc}'" style="cursor:pointer;${isArchived?'opacity:0.7':''}">${base}${dateCols}${progress}${actions}</tr>`;
   }
 
   const todayISO   = new Date().toISOString().slice(0,10);
@@ -903,7 +903,7 @@ async function create() {
     method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)
   });
   const t = await res.json();
-  window.location.href = '/t/' + t.id;
+  window.location.href = '/t/' + t.id + '?tc=${tc}';
 }
 document.getElementById('modal').addEventListener('click', function(e) {
   if (e.target === this) this.classList.remove('open');
@@ -1166,8 +1166,9 @@ const server = http.createServer(async (req, res) => {
     const data = await loadData();
     const tx = data.transactions[txMatch[1]];
     if (!tx) { res.writeHead(404); res.end("Not found"); return; }
+    const tc = url.searchParams.get('tc') || '';
     res.writeHead(200, { "Content-Type": "text/html" });
-    res.end(getHTML(tx, txMatch[1]));
+    res.end(getHTML(tx, txMatch[1], tc));
     return;
   }
 
