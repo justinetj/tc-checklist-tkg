@@ -115,6 +115,56 @@ const BUYER_ITEMS = [
   { id: "b51",  day: "COE",     label: "Commission Settled" },
 ];
 
+// Buyer - New Build checklist (BINSR, appraisal, LSU, repair items removed)
+const BUYER_NEW_BUILD_ITEMS = [
+  // Day 0
+  { id: "b60",  day: "Day 0",   label: "Review Formstack" },
+  { id: "b2",   day: "Day 0",   label: "Create Deal in FUB" },
+  { id: "b2a",  day: "Day 0",   label: "Accurate stage?", indent: true },
+  { id: "b2b",  day: "Day 0",   label: "Accurate source?", indent: true },
+  { id: "b3",   day: "Day 0",   label: "Create Zillow Payment Form (if applicable)" },
+  { id: "b4",   day: "Day 0",   label: "Update Kumler Group Workbook" },
+  { id: "b5",   day: "Day 0",   label: "Send intro email to all parties" },
+  { id: "b5a",  day: "Day 0",   label: "TC", indent: true },
+  { id: "b5d",  day: "Day 0",   label: "Title", indent: true },
+  { id: "b5b",  day: "Day 0",   label: "Lender", indent: true },
+  { id: "b5c",  day: "Day 0",   label: "Agents", indent: true },
+  { id: "b6",   day: "Day 0",   label: "Send buyer intro email (if applicable)" },
+  // Day 1
+  { id: "b61",  day: "Day 1",   label: "Confirm inspection has been scheduled" },
+  { id: "b13",  day: "Day 1",   label: "Earnest money received by title" },
+  { id: "b14",  day: "Day 1",   label: "Create SkySlope transaction" },
+  { id: "b15",  day: "Day 1",   label: "Notify agent of missing docs / send missing items checklist" },
+  // Day 5
+  { id: "b19",  day: "Day 5",   label: "Send seller ABD" },
+  // Day 10
+  { id: "b26",  day: "Day 10",  label: "Request title commitment", hasDue: true },
+  // COE -10
+  { id: "b38",  day: "COE -10", label: "Send questionnaire to listing agent", hasDue: true },
+  // COE -5
+  { id: "b39",  day: "COE -5",  label: "CDA sent to title", hasDue: true },
+  { id: "b40",  day: "COE -5",  label: "Loan approval received / confirmed" },
+  // COE -3
+  { id: "b67",  day: "COE -3",  label: "Docs to title" },
+  { id: "b40b", day: "COE -3",  label: "Est. Settlement statement" },
+  // COE
+  { id: "b68",  day: "COE",     label: "Recording confirmed" },
+  { id: "b44",  day: "COE",     label: "Final SS / copy of check" },
+  { id: "b50",  day: "COE",     label: "Check SkySlope — final documents" },
+  { id: "b45",  day: "COE",     label: "Update Workbook" },
+  { id: "b45a", day: "COE",     label: "Reconfirm title company", indent: true },
+  { id: "b45b", day: "COE",     label: "Reconfirm lender", indent: true },
+  { id: "b45c", day: "COE",     label: "Reconfirm home warranty", indent: true },
+  { id: "b45d", day: "COE",     label: "Reconfirm sales price", indent: true },
+  { id: "b46",  day: "COE",     label: "Update FUB status" },
+  { id: "b46b", day: "COE",     label: "Change status to closed", indent: true },
+  { id: "b46c", day: "COE",     label: "Reconfirm sales price", indent: true },
+  { id: "b46a", day: "COE",     label: "Reconfirm closing date", indent: true },
+  { id: "b48",  day: "COE",     label: "Update Zillow status → Sold" },
+  { id: "b49",  day: "COE",     label: "Move file to close" },
+  { id: "b51",  day: "COE",     label: "Commission Settled" },
+];
+
 const LISTING_ITEMS = [
   // Day 0 — Listing Setup
   { id: "l1",  section: "Day 0 — Listing Setup",       day: "Day 0",  label: "Listing agreement fully executed" },
@@ -220,8 +270,7 @@ function dayBadge(dayLabel, color) {
 }
 
 function getHTML(transaction, id, tc) {
-  const isBuyer = transaction.type === "buyer" || transaction.type === "buyer-new-build";
-  const items = isBuyer ? BUYER_ITEMS : LISTING_ITEMS;
+  const items = transaction.type === "buyer" ? BUYER_ITEMS : transaction.type === "buyer-new-build" ? BUYER_NEW_BUILD_ITEMS : LISTING_ITEMS;
   const isListing = transaction.type === "listing" || transaction.type === "listing-uc";
   const checked = transaction.checked || {};
   const notes = transaction.notes || {};
@@ -231,6 +280,7 @@ function getHTML(transaction, id, tc) {
   const total = items.length;
   const done = items.filter(i => checked[i.id]).length;
   const pct = Math.round((done / total) * 100);
+  const isBuyer = transaction.type === "buyer" || transaction.type === "buyer-new-build";
   const color = isBuyer ? "#1565c0" : transaction.type === "listing-uc" ? "#b45309" : "#2e7d32";
 
   // Group items by day label
@@ -693,8 +743,8 @@ function getDashboardHTML(transactions, tc) {
 
   function fmt(dateStr) { if (!dateStr) return '—'; const [y,m,d] = dateStr.split('-'); return `${m}/${d}/${y}`; }
   function makeRow(id, t, isArchived, mode) {
+    const items = t.type === "buyer" ? BUYER_ITEMS : t.type === "buyer-new-build" ? BUYER_NEW_BUILD_ITEMS : LISTING_ITEMS;
     const isBuyerT = t.type === "buyer" || t.type === "buyer-new-build";
-    const items = isBuyerT ? BUYER_ITEMS : LISTING_ITEMS;
     const done = items.filter(i => (t.checked || {})[i.id]).length;
     const pct = Math.round((done / items.length) * 100);
     const color = isBuyerT ? "#1565c0" : t.type === "listing-uc" ? "#b45309" : "#2e7d32";
@@ -856,7 +906,7 @@ function getDashboardHTML(transactions, tc) {
       let totalPast = 0, totalToday = 0;
       const txnGroups = [];
       for (const [id, t] of allTxns) {
-        const items = (t.type === 'buyer' || t.type === 'buyer-new-build') ? BUYER_ITEMS : LISTING_ITEMS;
+        const items = t.type === 'buyer' ? BUYER_ITEMS : t.type === 'buyer-new-build' ? BUYER_NEW_BUILD_ITEMS : LISTING_ITEMS;
         const fields = t.fields || {};
         const contractDate = fields.contractDate || '';
         const closeDate = fields.closeDate || '';
