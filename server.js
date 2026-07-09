@@ -785,12 +785,11 @@ function getDashboardHTML(transactions, tc) {
       if (dueISO < todayStr) pastDue.push(item.label);
       else if (dueISO === todayStr) dueToday.push(item.label);
     }
-    const pills = [
-      pastDue.length ? `<span style="background:#fee2e2;color:#dc2626;border-radius:10px;padding:1px 7px;margin-right:4px;font-weight:700;font-size:10px">⚠ ${pastDue.length} past due</span>` : '',
-      dueToday.length ? `<span style="background:#dcfce7;color:#15803d;border-radius:10px;padding:1px 7px;font-weight:700;font-size:10px">✓ ${dueToday.length} today</span>` : ''
-    ].filter(Boolean).join('');
-    const addrCell = `<td style="white-space:nowrap"><strong>${t.address || '(no address)'}</strong>${pills ? ` ${pills}` : ''}</td>`;
-    const baseCompact = `${addrCell}<td style="white-space:nowrap">${fields.clientName || t.clientName || '—'}</td><td style="white-space:nowrap">${fields.agentPartner1 || '—'}</td>`;
+    const pillsCell = `<td style="white-space:nowrap;font-size:10px">` +
+      (pastDue.length ? `<span style="background:#fee2e2;color:#dc2626;border-radius:8px;padding:1px 6px;font-weight:700;margin-right:3px">⚠${pastDue.length}</span>` : '') +
+      (dueToday.length ? `<span style="background:#dcfce7;color:#15803d;border-radius:8px;padding:1px 6px;font-weight:700">✓${dueToday.length}</span>` : '') +
+      `</td>`;
+    const baseCompact = `<td style="white-space:nowrap;font-size:13px"><strong>${t.address || '(no address)'}</strong></td><td style="white-space:nowrap;font-size:12px">${fields.clientName || t.clientName || '—'}</td><td style="white-space:nowrap;font-size:12px">${fields.agentPartner1 || '—'}</td>${pillsCell}`;
     const rowStyle = dueToday.length && !pastDue.length
       ? 'border-left:4px solid #16a34a;background:#f0fdf4;'
       : pastDue.length ? 'border-left:4px solid #dc2626;' : '';
