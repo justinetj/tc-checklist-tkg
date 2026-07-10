@@ -1217,7 +1217,7 @@ function tcLogin(name) {
 }
 function adminLogin() {
   const code = prompt('Enter passcode:');
-  if (code === '3315') { window.location.href = '/?tc=admin'; }
+  if (code === '0001') { window.location.href = '/?tc=admin'; }
   else if (code !== null) { alert('Incorrect passcode.'); }
 }
 </script>
