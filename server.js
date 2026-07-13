@@ -844,7 +844,7 @@ function getDashboardHTML(transactions, tc) {
       if (dueISO < todayStr) pastDue.push(item.label);
       else if (dueISO === todayStr) dueToday.push(item.label);
     }
-    const baseCompact = `<td style="font-size:13px"><strong>${t.address || '(no address)'}</strong></td><td style="font-size:12px;white-space:nowrap">${fields.clientName || t.clientName || '—'}</td><td style="font-size:12px;white-space:nowrap">${fields.agentPartner1 || '—'}</td>`;
+    const baseCompact = `<td style="font-size:13px;white-space:nowrap"><strong>${(t.address || '(no address)').replace(/,.*$/, '')}</strong></td><td style="font-size:12px;white-space:nowrap">${fields.clientName || t.clientName || '—'}</td><td style="font-size:12px;white-space:nowrap">${fields.agentPartner1 || '—'}</td>`;
     const rowStyle = dueToday.length && !pastDue.length
       ? 'border-left:4px solid #16a34a;background:#f0fdf4;'
       : pastDue.length ? 'border-left:4px solid #dc2626;' : '';
@@ -885,7 +885,7 @@ function getDashboardHTML(transactions, tc) {
   .btn { background:#2563eb; color:white; border:none; padding:10px 20px; border-radius:7px;
          font-size:13px; font-weight:600; cursor:pointer; }
   .btn:hover { background:#1d4ed8; }
-  .container { max-width:1400px; margin:28px auto; padding:0 16px; }
+  .container { max-width:1400px; margin:14px auto; padding:0 16px; }
   .dashboard-layout { display:flex; gap:20px; align-items:flex-start; }
   .dashboard-main { flex:1; min-width:0; }
   .task-panel { width:300px; flex-shrink:0; position:sticky; top:16px; }
@@ -901,12 +901,12 @@ function getDashboardHTML(transactions, tc) {
   @media(max-width:900px) { .dashboard-layout { flex-direction:column; } .task-panel { width:100%; position:static; } }
   .card { background:white; border-radius:10px; box-shadow:0 1px 4px rgba(0,0,0,.07); overflow:hidden; }
   table { width:100%; border-collapse:collapse; }
-  th { text-align:left; padding:11px 16px; background:#f0f4ff; font-size:11px; color:#555;
+  th { text-align:left; padding:6px 12px; background:#f0f4ff; font-size:10px; color:#555;
        font-weight:700; text-transform:uppercase; letter-spacing:.4px; border-bottom:2px solid #e0e4f0; }
-  td { padding:12px 16px; border-bottom:1px solid #f0f2f8; font-size:14px; }
+  td { padding:5px 12px; border-bottom:1px solid #f0f2f8; font-size:13px; }
   tr:last-child td { border-bottom:none; }
   tr:hover td { background:#f7f9ff; }
-  .empty { padding:48px; text-align:center; color:#888; font-size:14px; }
+  .empty { padding:14px; text-align:center; color:#888; font-size:13px; }
   .modal-bg { display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:100; align-items:center; justify-content:center; }
   .modal-bg.open { display:flex; }
   .modal { background:white; border-radius:12px; padding:28px; width:440px; max-width:95vw; box-shadow:0 8px 32px rgba(0,0,0,.18); }
@@ -935,8 +935,8 @@ function getDashboardHTML(transactions, tc) {
 <div class="dashboard-layout">
   <div class="dashboard-main">
     ${pending.length > 0 ? `
-    <div style="background:#7c3aed;color:white;font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;padding:10px 16px;border-radius:8px;margin-bottom:10px;display:flex;align-items:center;gap:8px">⚠️ Needs Attention — New Formstack (${pending.length})</div>
-    <div style="margin-bottom:28px;display:flex;flex-direction:column;gap:10px">
+    <div style="background:#7c3aed;color:white;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;padding:5px 12px;border-radius:7px;margin-bottom:6px;display:flex;align-items:center;gap:8px">⚠️ Needs Attention — New Formstack (${pending.length})</div>
+    <div style="margin-bottom:14px;display:flex;flex-direction:column;gap:6px">
       ${pending.map(([id, t]) => {
         const agent = t.fields?.agentPartner1 || t.fields?.agentName || '—';
         const client = t.fields?.clientName || '—';
@@ -944,7 +944,7 @@ function getDashboardHTML(transactions, tc) {
         const receivedAt = t.createdAt ? new Date(t.createdAt).toLocaleString('en-US', { timeZone: 'America/Phoenix', month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true }) : '—';
         const curType = (t.type && t.type !== '') ? t.type : 'buyer';
         const typeOpts = [['buyer','Buyer — Resale'],['buyer-new-build','Buyer — New Build'],['listing','Listing'],['listing-uc','Listing Escrow']];
-        return `<div style="background:white;border:2px solid #7c3aed;border-radius:10px;padding:14px 18px">
+        return `<div style="background:white;border:2px solid #7c3aed;border-radius:8px;padding:8px 12px">
           <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
             <div style="flex:1;min-width:180px">
               <div style="font-weight:700;font-size:14px;color:#1e293b">${addr}</div>
@@ -953,7 +953,7 @@ function getDashboardHTML(transactions, tc) {
             </div>
             <a href="/t/${id}?tc=${tc}" style="background:#7c3aed;color:white;text-decoration:none;font-size:12px;font-weight:700;padding:7px 14px;border-radius:6px;white-space:nowrap">Open →</a>
           </div>
-          <div style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+          <div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap;align-items:center">
             <span style="font-size:11px;color:#94a3b8;font-weight:600;margin-right:2px">TYPE:</span>
             ${typeOpts.map(([val, label]) => `<button onclick="setFsType('${id}','${val}',this)" style="font-size:11px;font-weight:700;padding:4px 10px;border-radius:5px;cursor:pointer;border:2px solid ${curType===val?'#7c3aed':'#e2e8f0'};background:${curType===val?'#7c3aed':'white'};color:${curType===val?'white':'#64748b'}">${label}</button>`).join('')}
           </div>
@@ -961,8 +961,8 @@ function getDashboardHTML(transactions, tc) {
       }).join('')}
     </div>` : ''}
     ${closingToday.length > 0 ? `
-    <div style="background:#15803d;color:white;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;padding:9px 16px;border-radius:8px;margin-bottom:8px">🎉 Closings Today — ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})} (${closingToday.length})</div>
-    <div class="card" style="margin-bottom:24px;border:2px solid #15803d;background:#f0fdf4">
+    <div style="background:#15803d;color:white;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;padding:5px 12px;border-radius:7px;margin-bottom:5px">🎉 Closings Today — ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})} (${closingToday.length})</div>
+    <div class="card" style="margin-bottom:14px;border:2px solid #15803d;background:#f0fdf4">
       <table><tbody>${closingToday.map(([id,t]) => {
         const fields = t.fields || {};
         const label = t.type === 'listing' || t.type === 'listing-uc' ? '🏡 Seller' : '🔑 Buyer';
@@ -974,16 +974,16 @@ function getDashboardHTML(transactions, tc) {
         </tr>`;
       }).join('')}</tbody></table>
     </div>` : ''}
-    <div style="background:#1565c0;color:white;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;padding:9px 16px;border-radius:8px;margin-bottom:8px">🏠 Active Transactions — Buyers</div>
-    <div class="card" style="margin-bottom:24px;border-top:3px solid #1565c0">
+    <div style="background:#1565c0;color:white;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;padding:5px 12px;border-radius:7px;margin-bottom:5px">🏠 Active Transactions — Buyers</div>
+    <div class="card" style="margin-bottom:14px;border-top:3px solid #1565c0">
       ${active.length === 0 ? '<div class="empty">No active transactions.</div>' : makeTable([...active].sort((a,b) => { const da = a[1].fields?.closeDate || '9999-99-99', db = b[1].fields?.closeDate || '9999-99-99'; return da < db ? -1 : da > db ? 1 : 0; }), false, 'buyer')}
     </div>
-    <div style="background:#1565c0;color:white;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;padding:9px 16px;border-radius:8px;margin-bottom:8px">📝 Active Transactions — Sellers</div>
-    <div class="card" style="margin-bottom:24px;border-top:3px solid #1565c0">
+    <div style="background:#1565c0;color:white;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;padding:5px 12px;border-radius:7px;margin-bottom:5px">📝 Active Transactions — Sellers</div>
+    <div class="card" style="margin-bottom:14px;border-top:3px solid #1565c0">
       ${listingUC.length === 0 ? '<div class="empty">No listings under contract.</div>' : makeTable(listingUC, false, 'buyer')}
     </div>
-    <div style="background:#1565c0;color:white;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;padding:9px 16px;border-radius:8px;margin-bottom:8px">📋 Active Listings</div>
-    <div class="card" style="margin-bottom:24px;border-top:3px solid #1565c0">
+    <div style="background:#1565c0;color:white;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;padding:5px 12px;border-radius:7px;margin-bottom:5px">📋 Active Listings</div>
+    <div class="card" style="margin-bottom:14px;border-top:3px solid #1565c0">
       ${listings.length === 0 ? '<div class="empty">No active listings.</div>' : makeTable(listings, false, 'listing')}
     </div>
     ${(() => {
@@ -1018,7 +1018,7 @@ function getDashboardHTML(transactions, tc) {
             <div id="${mId}" style="display:none">${makeTable(groups[month], true, 'buyer')}</div>
           </div>`;
         }).join('');
-        return `<div style="background:#6b7280;color:white;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;padding:9px 16px;border-radius:8px;margin-bottom:8px">${icon} ${sectionLabel}</div>
+        return `<div style="background:#6b7280;color:white;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;padding:5px 12px;border-radius:7px;margin-bottom:5px">${icon} ${sectionLabel}</div>
         <div style="margin-bottom:24px">${rows}</div>`;
       }
       return makeMonthGroups(closed,'Closed Transactions','✓') + makeMonthGroups(cancelled,'Cancelled Transactions','✕');
