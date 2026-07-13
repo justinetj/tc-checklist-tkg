@@ -301,19 +301,23 @@ function getHTML(transaction, id, tc) {
   const today = todayAZ();
   const groups = [];
   let lastDay = null;
+  let ucPhaseFlag = false;
   for (const item of items) {
+    if (item.section === "Under Contract") ucPhaseFlag = true;
     const dayKey = item.day || item.section || '';
-    if (dayKey !== lastDay) { groups.push({ day: dayKey, items: [] }); lastDay = dayKey; }
+    if (dayKey !== lastDay) { groups.push({ day: dayKey, items: [], ucPhase: ucPhaseFlag }); lastDay = dayKey; }
     groups[groups.length - 1].items.push(item);
   }
 
   const ucDate = fields.ucDate || "";
   const isUnderContract = !isListing || !!ucDate;
 
+  let lockBannerShown = false;
   const flatRows = groups.map(g => {
-    const isUCSection = isListing && (g.items[0]?.section === "Under Contract" || g.items.some(i => i.section === "Under Contract" || i.section?.startsWith("COE")));
-    const locked = isUCSection && !isUnderContract;
-    const autoDateForGroup = calcDueDateISO(g.day, ucDate || contractDate, closeDate);
+    const locked = isListing && g.ucPhase && !isUnderContract;
+    // Listing due dates: pre-UC sections key off the agreement date, UC sections off the Under Contract date
+    const groupBase = isListing ? (g.ucPhase ? ucDate : contractDate) : contractDate;
+    const autoDateForGroup = calcDueDateISO(g.day, groupBase, closeDate);
     let dateDisplay = '';
     if (autoDateForGroup) {
       const [y,m,d] = autoDateForGroup.split('-');
@@ -323,7 +327,7 @@ function getHTML(transaction, id, tc) {
     const headerBg = isCOE ? '#7e22ce' : '#0f4c9e';
     const rows = g.items.map(item => {
       const itemNotes = notes[item.id] || {};
-      const autoISO = calcDueDateISO(item.day, contractDate, closeDate);
+      const autoISO = calcDueDateISO(item.day, groupBase, closeDate);
       const dueVal = itemNotes.due || autoISO;
       const isChecked = !!checked[item.id];
       const overdue = dueVal && !isChecked && dueVal < today;
@@ -347,7 +351,7 @@ function getHTML(transaction, id, tc) {
         </td>
       </tr>`;
     }).join('');
-    const lockedBanner = locked ? `<tr style="background:#fef9c3"><td colspan="4" style="padding:6px 12px;font-size:11px;color:#92400e;font-weight:600">🔒 Enter Under Contract Date above to unlock this section</td></tr>` : '';
+    const lockedBanner = locked && !lockBannerShown ? (lockBannerShown = true, `<tr style="background:#fef9c3"><td colspan="4" style="padding:6px 12px;font-size:11px;color:#92400e;font-weight:600">🔒 Enter Under Contract Date above to unlock the sections below</td></tr>`) : '';
     const tbodyId = 'day-' + g.day.replace(/[^a-z0-9]/gi, '-');
     const header = g.day ? `<tr class="day-header" id="hdr-${tbodyId}" style="background:#f8fafc;${locked?'opacity:0.4':''}cursor:pointer;" onclick="toggleDay('${tbodyId}',this)"><td colspan="4" style="padding:8px 12px;font-size:12px;font-weight:700;letter-spacing:.5px;border-bottom:1px solid #e2e8f0"><span class="day-badge" style="background:${headerBg};color:white;padding:2px 9px;border-radius:10px;font-size:11px">${g.day}</span>${dateDisplay} <span class="collapse-arrow" style="float:right;font-size:10px;color:#94a3b8">▲</span></td></tr>` : '';
     const rowsOut = locked ? rows.replace(/<input type="checkbox"/g, '<input type="checkbox" disabled').replace(/<input type="date"/g, '<input type="date" disabled').replace(/<input type="text"/g, '<input type="text" disabled') : rows;
@@ -482,6 +486,8 @@ function getHTML(transaction, id, tc) {
       ["Under Contract Date", "ucDate", "date", true],
       ["Close of Escrow (COE)", "closeDate", "date", true],
       ["BINSR Due (Day 10)", "binsrDue", "date", true],
+      ["Sales Price", "salesPrice", "text", false],
+      ["Commission Amount", "commissionAmount", "text", false],
     ] : transaction.type === "buyer-new-build" ? [
       ["Property Address", "address", "text", false],
       ["Contract Date — Day 0", "contractDate", "date", true],
@@ -539,9 +545,12 @@ function getHTML(transaction, id, tc) {
     ${(() => {
       const today = todayAZ();
       const pastDue = [], dueToday = [];
-      for (const item of items) {
+      let ucp = false;
+      // Listings: no due tasks in the sidebar until under contract
+      for (const item of (isListing && !ucDate ? [] : items)) {
+        if (item.section === "Under Contract") ucp = true;
         if (checked[item.id]) continue;
-        const autoISO = calcDueDateISO(item.day, contractDate, closeDate);
+        const autoISO = calcDueDateISO(item.day, isListing ? (ucp ? ucDate : contractDate) : contractDate, closeDate);
         const dueISO = (notes[item.id]?.due) || autoISO;
         if (!dueISO) continue;
         if (dueISO < today) pastDue.push(item);
@@ -575,7 +584,8 @@ function getHTML(transaction, id, tc) {
 
 <script>
 const TXN_ID = '${id}';
-const ITEMS = ${JSON.stringify(items.map(i => ({ id: i.id, day: i.day })))};
+const IS_LISTING = ${JSON.stringify(isListing)};
+const ITEMS = ${JSON.stringify((() => { let u = false; return items.map(i => { if (i.section === "Under Contract") u = true; return { id: i.id, day: i.day, uc: u }; }); })())};
 
 function addDays(dateStr, n) {
   const d = new Date(dateStr + 'T12:00:00');
@@ -602,10 +612,11 @@ function refreshDueDates() {
   const contractDate = document.querySelector('input[data-key="contractDate"]')?.value || '';
   const ucDate = document.querySelector('input[data-key="ucDate"]')?.value || '';
   const closeDate = document.querySelector('input[data-key="closeDate"]')?.value || '';
-  const baseDate = ucDate || contractDate;
   ITEMS.forEach(item => {
     const inp = document.querySelector('.date-input.due[data-item="' + item.id + '"]');
     if (!inp) return;
+    // listings: UC-phase items key off the Under Contract date only (blank until it's set)
+    const baseDate = IS_LISTING ? (item.uc ? ucDate : contractDate) : (ucDate || contractDate);
     const autoISO = calcDue(item.day, baseDate, closeDate);
     inp.setAttribute('data-auto', autoISO);
     if (!inp.dataset.manual) inp.value = autoISO;
@@ -688,6 +699,7 @@ document.querySelectorAll('.info-input[data-key]').forEach(inp => {
   }
   if (key === 'contractDate' || key === 'ucDate') {
     inp.addEventListener('change', function() {
+      if (IS_LISTING && key === 'contractDate') return; // listings: BINSR keys off the UC date only
       const binsr = document.getElementById('binsrDue');
       if (binsr && !binsr.dataset.manual) {
         if (!this.value) { binsr.value = ''; return; }
@@ -738,12 +750,14 @@ async function setTxnStatus(status) {
   location.reload();
 }
 async function saveField(key, val) {
-  await fetch('/api/transactions/' + TXN_ID + '/field', {
+  const res = await fetch('/api/transactions/' + TXN_ID + '/field', {
     method:'POST', headers:{'Content-Type':'application/json'},
     body: JSON.stringify({key, val})
   });
+  const out = await res.json().catch(() => ({}));
   showToast();
   refreshDueDates();
+  if (out.activated) window.location.reload();
 }
 function updateProgress() {
   const boxes = document.querySelectorAll('input[type=checkbox]');
@@ -1014,7 +1028,8 @@ function getDashboardHTML(transactions, tc) {
   <div class="task-panel">
     ${(() => {
       const today = todayAZ();
-      const allTxns = [...active, ...listings, ...listingUC];
+      // Buyers always; listings only once under contract
+      const allTxns = [...active, ...listingUC];
       let totalPast = 0, totalToday = 0;
       const txnGroups = [];
       for (const [id, t] of allTxns) {
@@ -1022,12 +1037,16 @@ function getDashboardHTML(transactions, tc) {
         const fields = t.fields || {};
         const contractDate = fields.contractDate || '';
         const closeDate = fields.closeDate || '';
+        const isListingTxn = t.type === 'listing' || t.type === 'listing-uc';
+        const ucDate = fields.ucDate || '';
         const checked = t.checked || {};
         const notes = t.notes || {};
         const pastDue = [], dueToday = [];
+        let ucp = false;
         for (const item of items) {
+          if (item.section === 'Under Contract') ucp = true;
           if (item.indent || checked[item.id]) continue;
-          const auto = calcDueDateISO(item.day, contractDate, closeDate);
+          const auto = calcDueDateISO(item.day, isListingTxn ? (ucp ? ucDate : contractDate) : contractDate, closeDate);
           const due = notes[item.id]?.due || auto;
           if (!due) continue;
           if (due < today) pastDue.push(item);
@@ -1368,14 +1387,22 @@ const server = http.createServer(async (req, res) => {
       const data = await loadData();
       const txId = fieldMatch[1];
       const { key, val } = JSON.parse(body);
+      let activated = false;
       if (data.transactions[txId]) {
         if (!data.transactions[txId].fields) data.transactions[txId].fields = {};
         data.transactions[txId].fields[key] = val;
         if (key === 'address') data.transactions[txId].address = val;
+        // Auto-activate pending listings once agreement, start, and expiration dates are all set
+        const t = data.transactions[txId];
+        if (t.status === 'pending' && (t.type === 'listing' || t.type === 'listing-uc') &&
+            t.fields.contractDate && t.fields.listingStartDate && t.fields.listingExpDate) {
+          t.status = 'active';
+          activated = true;
+        }
         await saveData(data);
       }
       res.writeHead(200, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ ok: true }));
+      res.end(JSON.stringify({ ok: true, activated }));
     });
     return;
   }
