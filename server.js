@@ -296,6 +296,9 @@ function getHTML(transaction, id, tc) {
   const pct = Math.round((done / total) * 100);
   const isBuyer = transaction.type === "buyer" || transaction.type === "buyer-new-build";
   const color = isBuyer ? "#1565c0" : transaction.type === "listing-uc" ? "#b45309" : "#2e7d32";
+  // TCs can open any transaction, but only see tasks for their own (admin sees all)
+  const assignedTC = fields.tcName || '';
+  const tasksHidden = tc && tc !== 'admin' && assignedTC && assignedTC !== tc;
 
   // Group items by day label
   const today = todayAZ();
@@ -540,9 +543,11 @@ function getHTML(transaction, id, tc) {
 
 <div class="container" style="padding-top:0;padding-bottom:0">
 <div class="detail-layout">
-  <div class="detail-main">${sectionHTML}</div>
+  <div class="detail-main">${tasksHidden
+    ? `<div style="background:white;border-radius:10px;box-shadow:0 1px 4px rgba(0,0,0,.07);padding:36px 24px;text-align:center;color:#64748b;font-size:14px">🔒 This transaction's checklist is managed by <strong style="color:#1e3a5f">${assignedTC}</strong></div>`
+    : sectionHTML}</div>
   <div class="detail-sidebar">
-    ${(() => {
+    ${tasksHidden ? `<div class="detail-sidebar-hdr">📋 Tasks</div><div class="task-due-empty">Managed by ${assignedTC}</div>` : (() => {
       const today = todayAZ();
       const pastDue = [], dueToday = [];
       let ucp = false;
@@ -800,10 +805,13 @@ function getDashboardHTML(transactions, tc) {
     if (da !== db) return da < db ? -1 : 1;
     return b[1].createdAt - a[1].createdAt;
   });
-  const sorted = isAdmin ? allEntries : allEntries.filter(([,t]) => {
+  // Everyone sees every transaction; only the Tasks panel is per-TC
+  const sorted = allEntries;
+  const isMine = ([,t]) => {
+    if (isAdmin) return true;
     const assigned = t.fields?.tcName || '';
     return assigned === tc || assigned === '';
-  });
+  };
 
   function fmt(dateStr) { if (!dateStr) return '—'; const [y,m,d] = dateStr.split('-'); return `${m}/${d}/${y}`; }
   function makeRow(id, t, isArchived, mode) {
@@ -927,7 +935,7 @@ function getDashboardHTML(transactions, tc) {
       <a href="/" style="color:rgba(255,255,255,.7);text-decoration:none;font-size:12px;font-weight:600;border:1px solid rgba(255,255,255,.3);border-radius:5px;padding:3px 8px">← Back</a>
       <h1>TC Checklist — Kumler Group</h1>
     </div>
-    <p>${isAdmin ? 'Viewing all transactions (Admin)' : `Viewing transactions for <strong>${tc}</strong>`}</p>
+    <p>${isAdmin ? 'Viewing all transactions (Admin)' : `All transactions — tasks for <strong>${tc}</strong>`}</p>
   </div>
   <button class="btn" onclick="document.getElementById('modal').classList.add('open')">+ New Transaction</button>
 </div>
@@ -1028,8 +1036,8 @@ function getDashboardHTML(transactions, tc) {
   <div class="task-panel">
     ${(() => {
       const today = todayAZ();
-      // Buyers always; listings only once under contract
-      const allTxns = [...active, ...listingUC];
+      // Buyers always; listings only once under contract — tasks only for this TC's transactions
+      const allTxns = [...active, ...listingUC].filter(isMine);
       let totalPast = 0, totalToday = 0;
       const txnGroups = [];
       for (const [id, t] of allTxns) {
@@ -1435,11 +1443,17 @@ const server = http.createServer(async (req, res) => {
         const agentEmail = get('Agent Partner Email');
         const agentPhone = get('Agent Partner Cell Number');
 
-        // TC Name
-        const tcRaw   = get('Transaction Coordinator', 'TC Name', 'Assigned TC', 'Transaction Coordinator Name');
+        // TC Name — Formstack sends "Who Is Your Transaction Coordinator?" with an email
+        const tcRaw   = get('Who Is Your Transaction Coordinator?', 'Transaction Coordinator', 'TC Name', 'Assigned TC', 'Transaction Coordinator Name');
         const tcFirst = subVal(tcRaw, 'first') || get('Transaction Coordinator First');
         const tcLast  = subVal(tcRaw, 'last')  || get('Transaction Coordinator Last');
-        const tcName  = [tcFirst, tcLast].filter(Boolean).join(' ') || tcRaw;
+        let tcName    = [tcFirst, tcLast].filter(Boolean).join(' ') || tcRaw;
+        // Map email or partial/misspelled name to the canonical TC name
+        const tcLower = tcName.toLowerCase();
+        for (const canonical of TC_NAMES) {
+          if (tcLower.includes(canonical.split(' ')[0].toLowerCase())) { tcName = canonical; break; }
+        }
+        if (tcLower.includes('joanna')) tcName = 'Joana Guzman';
 
         // Address
         const addrRaw = get('Subject Property Address');
