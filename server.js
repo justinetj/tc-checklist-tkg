@@ -296,9 +296,18 @@ function getHTML(transaction, id, tc) {
   const pct = Math.round((done / total) * 100);
   const isBuyer = transaction.type === "buyer" || transaction.type === "buyer-new-build";
   const color = isBuyer ? "#1565c0" : transaction.type === "listing-uc" ? "#b45309" : "#2e7d32";
-  // TCs can open any transaction, but only see tasks for their own (admin sees all)
+  // Task ownership: Listing Coordinators own the pre–Under Contract listing checklist;
+  // TCs own buyers + listings once Under Contract; admin sees everything.
   const assignedTC = fields.tcName || '';
-  const tasksHidden = tc && tc !== 'admin' && !ADMIN_TCS.includes(tc) && assignedTC && assignedTC !== tc;
+  const isPreUCListing = isListing && !fields.ucDate;
+  let tasksHidden;
+  if (!tc || tc === 'admin' || ADMIN_TCS.includes(tc)) {
+    tasksHidden = false;
+  } else if (LISTING_COORDS.includes(tc)) {
+    tasksHidden = !isPreUCListing;                                    // listing coordinator: only pre-UC listings
+  } else {
+    tasksHidden = isPreUCListing || (assignedTC && assignedTC !== tc); // TC: everything except the listing-input phase
+  }
 
   // Group items by day label
   const today = todayAZ();
@@ -553,7 +562,7 @@ ${(!isListing && !contractDate) ? `<div style="margin:12px 32px 0;background:#ff
       const pastDue = [], dueToday = [];
       let ucp = false;
       // Listings: no due tasks in the sidebar until under contract
-      for (const item of (isListing && !ucDate ? [] : items)) {
+      for (const item of items) {
         if (item.section === "Under Contract") ucp = true;
         if (checked[item.id]) continue;
         const autoISO = calcDueDateISO(item.day, isListing ? (ucp ? ucDate : contractDate) : contractDate, closeDate);
@@ -810,6 +819,9 @@ function getDashboardHTML(transactions, tc) {
   const sorted = allEntries;
   const isMine = ([,t]) => {
     if (isAdmin) return true;
+    const isPreUCListingT = t.type === 'listing' && !(t.fields?.ucDate);
+    if (LISTING_COORDS.includes(tc)) return isPreUCListingT;   // listing coordinator: pre-UC listings only
+    if (isPreUCListingT) return false;                          // pre-UC listings belong to the listing coordinator
     const assigned = t.fields?.tcName || '';
     return assigned === tc || assigned === '';
   };
@@ -1039,8 +1051,9 @@ function getDashboardHTML(transactions, tc) {
   <div class="task-panel">
     ${(() => {
       const today = todayAZ();
-      // Buyers always; listings only once under contract — tasks only for this TC's transactions
-      const allTxns = [...active, ...listingUC].filter(isMine);
+      // Listing coordinators get pre-UC listings (setup phase); everyone else gets buyers + UC listings.
+      const taskSource = LISTING_COORDS.includes(tc) ? [...listings] : [...active, ...listingUC];
+      const allTxns = taskSource.filter(isMine);
       let totalPast = 0, totalToday = 0;
       const txnGroups = [];
       for (const [id, t] of allTxns) {
@@ -1214,7 +1227,10 @@ const TC_NAMES = ["Joana Guzman", "Ashley Belliveau", "Cinnamon Kumler"];
 const TC_COLORS = ["#1565c0", "#0d5c2e", "#b45309"];
 const TC_ROLES = { "Cinnamon Kumler": "Listing Coordinator" };
 // Coordinators with full admin-level access (see all transactions AND all tasks)
-const ADMIN_TCS = ["Cinnamon Kumler"];
+const ADMIN_TCS = [];
+// Listing Coordinators: own the listing-INPUT (pre–Under Contract) tasks only.
+// The moment a listing goes Under Contract, its tasks hand off to the assigned TC.
+const LISTING_COORDS = ["Cinnamon Kumler"];
 
 function getTCSelectHTML() {
   return `<!DOCTYPE html>
