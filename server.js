@@ -465,6 +465,7 @@ function getHTML(transaction, id, tc) {
 </div>
 <div class="progress-bar"><div class="progress-fill" id="pbar"></div></div>
 <div class="progress-label" id="plabel"><strong>${done} of ${total}</strong> items complete &nbsp;·&nbsp; <strong>${pct}%</strong></div>
+${(!isListing && !contractDate) ? `<div style="margin:12px 32px 0;background:#fff7ed;border:1px solid #fed7aa;border-left:4px solid #f97316;border-radius:8px;padding:10px 14px;font-size:13px;color:#9a3412;font-weight:600">⚠️ Please update this — the Under Contract date is missing. Add it in Transaction Details below.</div>` : ''}
 
 <div class="info-card">
   <div style="padding:12px 0 8px;display:flex;align-items:center;justify-content:space-between">
@@ -525,6 +526,7 @@ function getHTML(transaction, id, tc) {
         <option value="">—</option>
         <option value="Joana Guzman"${(fields.tcName||'')==='Joana Guzman'?' selected':''}>Joana Guzman</option>
         <option value="Ashley Belliveau"${(fields.tcName||'')==='Ashley Belliveau'?' selected':''}>Ashley Belliveau</option>
+        <option value="Cinnamon Kumler"${(fields.tcName||'')==='Cinnamon Kumler'?' selected':''}>Cinnamon Kumler</option>
       </select>
     </div>
     ${transaction.type === 'listing-uc' && transaction.linkedListingId ? `<div class="info-field" style="background:#fef3c7">
@@ -829,9 +831,11 @@ function getDashboardHTML(transactions, tc) {
     const progress = `<td><div style="display:flex;align-items:center;gap:8px"><div style="flex:1;height:7px;background:#e0e4f0;border-radius:4px;min-width:80px"><div style="width:${pct}%;height:7px;background:${progColor};border-radius:4px"></div></div><span style="font-size:12px;font-weight:600;color:${progColor};white-space:nowrap">${pct}%</span></div></td>`;
     const actions = `<td onclick="event.stopPropagation()" style="white-space:nowrap">${actionBtns}<button onclick="event.stopPropagation();deleteTxn('${id}','${(t.address||'this transaction').replace(/'/g,"\\'")}',this)" style="background:#f5f5f5;color:#888;border:none;padding:4px 8px;border-radius:5px;font-size:11px;cursor:pointer;margin-left:4px">✕</button></td>`;
     const base = `<td><strong>${t.address || '(no address)'}</strong></td><td>${fields.clientName || t.clientName || '—'}</td><td>${fields.agentPartner1 || '—'}</td>`;
+    const ucFlag = `<span style="background:#fee2e2;color:#dc2626;border-radius:6px;padding:1px 7px;font-size:10px;font-weight:700;white-space:nowrap">⚠ Please update</span>`;
+    const ucCell = (isBuyerT && !fields.contractDate) ? ucFlag : fmt(fields.contractDate);
     let dateCols = '';
     if (mode === 'buyer') {
-      dateCols = `<td>${fmt(fields.contractDate)}</td><td>${fmt(fields.closeDate)}</td>`;
+      dateCols = `<td>${ucCell}</td><td>${fmt(fields.closeDate)}</td>`;
     } else if (mode === 'listing') {
       dateCols = `<td>${fmt(fields.contractDate)}</td><td>${fmt(fields.listingStartDate)}</td><td>${fmt(fields.listingExpDate)}</td>`;
     } else {
@@ -852,7 +856,7 @@ function getDashboardHTML(transactions, tc) {
       if (dueISO < todayStr) pastDue.push(item.label);
       else if (dueISO === todayStr) dueToday.push(item.label);
     }
-    const baseCompact = `<td style="font-size:13px;white-space:nowrap"><strong>${(t.address || '(no address)').replace(/,.*$/, '')}</strong></td><td style="font-size:12px;white-space:nowrap">${fields.clientName || t.clientName || '—'}</td><td style="font-size:12px;white-space:nowrap">${fields.agentPartner1 || '—'}</td>`;
+    const baseCompact = `<td style="font-size:13px;white-space:nowrap"><strong>${(t.address || '(no address)').replace(/,.*$/, '')}</strong></td><td style="font-size:12px;white-space:nowrap">${fields.clientName || t.clientName || '—'}</td><td style="font-size:12px;white-space:nowrap">${fields.agentPartner1 || '—'}</td><td style="font-size:12px;white-space:nowrap">${fields.tcName || '—'}</td>`;
     const rowStyle = dueToday.length && !pastDue.length
       ? 'border-left:4px solid #16a34a;background:#f0fdf4;'
       : pastDue.length ? 'border-left:4px solid #dc2626;' : '';
@@ -871,10 +875,10 @@ function getDashboardHTML(transactions, tc) {
   function makeTable(list, archived, mode) {
     if (list.length === 0) return '<div class="empty">None</div>';
     const headers = mode === 'buyer'
-      ? `<th>Address</th><th>Client</th><th>Agent</th><th>Under Contract</th><th>Closing Date</th><th>Progress</th><th>Actions</th>`
+      ? `<th>Address</th><th>Client</th><th>Agent</th><th>TC</th><th>Under Contract</th><th>Closing Date</th><th>Progress</th><th>Actions</th>`
       : mode === 'listing'
-      ? `<th>Address</th><th>Client</th><th>Agent</th><th>Agreement Date</th><th>Start Date</th><th>Expiration</th><th>Progress</th><th>Actions</th>`
-      : `<th>Address</th><th>Client</th><th>Agent</th><th>Contract Date</th><th>Close Date</th><th>Progress</th><th>Actions</th>`;
+      ? `<th>Address</th><th>Client</th><th>Agent</th><th>TC</th><th>Agreement Date</th><th>Start Date</th><th>Expiration</th><th>Progress</th><th>Actions</th>`
+      : `<th>Address</th><th>Client</th><th>Agent</th><th>TC</th><th>Contract Date</th><th>Close Date</th><th>Progress</th><th>Actions</th>`;
     return `<table><thead><tr>${headers}</tr></thead><tbody>${list.map(([id,t]) => makeRow(id,t,archived,mode)).join('')}</tbody></table>`;
   }
 
@@ -1207,8 +1211,9 @@ document.getElementById('modal').addEventListener('click', function(e) {
 </body></html>`;
 }
 
-const TC_NAMES = ["Joana Guzman", "Ashley Belliveau"];
-const TC_COLORS = ["#1565c0", "#0d5c2e"];
+const TC_NAMES = ["Joana Guzman", "Ashley Belliveau", "Cinnamon Kumler"];
+const TC_COLORS = ["#1565c0", "#0d5c2e", "#b45309"];
+const TC_ROLES = { "Cinnamon Kumler": "Listing Coordinator" };
 
 function getTCSelectHTML() {
   return `<!DOCTYPE html>
@@ -1234,7 +1239,7 @@ function getTCSelectHTML() {
   .admin-card .tc-role { color:#a8c4e0; }
 </style>
 <script>
-const TC_PASSCODES = { 'Joana Guzman': '5211' };
+const TC_PASSCODES = { 'Joana Guzman': '5211', 'Cinnamon Kumler': '0007' };
 function tcLogin(name) {
   const required = TC_PASSCODES[name];
   if (!required) { window.location.href = '/?tc=' + encodeURIComponent(name); return; }
@@ -1262,7 +1267,7 @@ function adminLogin() {
       return `<a class="tc-card" href="javascript:void(0)" onclick="tcLogin('${name.replace(/'/g,"\\'")}')">
         <div class="tc-avatar" style="background:${TC_COLORS[i]}">${initials}</div>
         <div class="tc-name">${name}</div>
-        <div class="tc-role">Transaction Coordinator</div>
+        <div class="tc-role">${TC_ROLES[name] || 'Transaction Coordinator'}</div>
       </a>`;
     }).join('')}
     <a class="tc-card admin-card" href="javascript:void(0)" onclick="adminLogin()">
