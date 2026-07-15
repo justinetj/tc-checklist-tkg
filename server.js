@@ -489,7 +489,6 @@ ${(!isListing && !contractDate) ? `<div style="margin:12px 32px 0;background:#ff
       ["Client Name", "clientName", "text", false],
       ["Under Contract Date", "ucDate", "date", true],
       ["Close of Escrow (COE)", "closeDate", "date", true],
-      ["BINSR Due (Day 10)", "binsrDue", "date", true],
       ["Sales Price", "salesPrice", "text", false],
       ["Commission Amount", "commissionAmount", "text", false],
     ] : transaction.type === "buyer-new-build" ? [
@@ -1263,20 +1262,34 @@ function adminLogin() {
 </div>
 <div class="select-wrap">
   <div class="select-label">Who are you?</div>
-  <div class="tc-grid">
-    ${TC_NAMES.map((name, i) => {
-      const initials = name.split(' ').map(w=>w[0]).join('');
-      return `<a class="tc-card" href="javascript:void(0)" onclick="tcLogin('${name.replace(/'/g,"\\'")}')">
-        <div class="tc-avatar" style="background:${TC_COLORS[i]}">${initials}</div>
-        <div class="tc-name">${name}</div>
-        <div class="tc-role">${TC_ROLES[name] || 'Transaction Coordinator'}</div>
-      </a>`;
-    }).join('')}
-    <a class="tc-card admin-card" href="javascript:void(0)" onclick="adminLogin()">
-      <div class="tc-avatar" style="background:#7e22ce">JJ</div>
-      <div class="tc-name">Justine Johnston</div>
-      <div class="tc-role">Director of Operations</div>
-    </a>
+  <div class="tc-grid" style="flex-direction:column;gap:16px;">
+    <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;">
+      ${['Joana Guzman','Ashley Belliveau'].map((name) => {
+        const i = TC_NAMES.indexOf(name);
+        const initials = name.split(' ').map(w=>w[0]).join('');
+        return `<a class="tc-card" href="javascript:void(0)" onclick="tcLogin('${name.replace(/'/g,"\\'")}')">
+          <div class="tc-avatar" style="background:${TC_COLORS[i]}">${initials}</div>
+          <div class="tc-name">${name}</div>
+          <div class="tc-role">${TC_ROLES[name] || 'Transaction Coordinator'}</div>
+        </a>`;
+      }).join('')}
+    </div>
+    <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;">
+      <a class="tc-card" href="javascript:void(0)" onclick="adminLogin()">
+        <div class="tc-avatar" style="background:#7e22ce">JJ</div>
+        <div class="tc-name">Justine Johnston</div>
+        <div class="tc-role">Director of Operations</div>
+      </a>
+      ${['Cinnamon Kumler'].map((name) => {
+        const i = TC_NAMES.indexOf(name);
+        const initials = name.split(' ').map(w=>w[0]).join('');
+        return `<a class="tc-card" href="javascript:void(0)" onclick="tcLogin('${name.replace(/'/g,"\\'")}')">
+          <div class="tc-avatar" style="background:${TC_COLORS[i]}">${initials}</div>
+          <div class="tc-name">${name}</div>
+          <div class="tc-role">${TC_ROLES[name] || 'Transaction Coordinator'}</div>
+        </a>`;
+      }).join('')}
+    </div>
   </div>
 </div>
 </body></html>`;
