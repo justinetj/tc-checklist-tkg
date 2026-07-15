@@ -298,7 +298,7 @@ function getHTML(transaction, id, tc) {
   const color = isBuyer ? "#1565c0" : transaction.type === "listing-uc" ? "#b45309" : "#2e7d32";
   // TCs can open any transaction, but only see tasks for their own (admin sees all)
   const assignedTC = fields.tcName || '';
-  const tasksHidden = tc && tc !== 'admin' && assignedTC && assignedTC !== tc;
+  const tasksHidden = tc && tc !== 'admin' && !ADMIN_TCS.includes(tc) && assignedTC && assignedTC !== tc;
 
   // Group items by day label
   const today = todayAZ();
@@ -786,7 +786,7 @@ function showToast() {
 }
 
 function getDashboardHTML(transactions, tc) {
-  const isAdmin = !tc || tc === 'admin';
+  const isAdmin = !tc || tc === 'admin' || ADMIN_TCS.includes(tc);
   function earliestDue(t) {
     const items = t.type === "buyer" ? BUYER_ITEMS : t.type === "buyer-new-build" ? BUYER_NEW_BUILD_ITEMS : LISTING_ITEMS;
     const fields = t.fields || {};
@@ -1214,6 +1214,8 @@ document.getElementById('modal').addEventListener('click', function(e) {
 const TC_NAMES = ["Joana Guzman", "Ashley Belliveau", "Cinnamon Kumler"];
 const TC_COLORS = ["#1565c0", "#0d5c2e", "#b45309"];
 const TC_ROLES = { "Cinnamon Kumler": "Listing Coordinator" };
+// Coordinators with full admin-level access (see all transactions AND all tasks)
+const ADMIN_TCS = ["Cinnamon Kumler"];
 
 function getTCSelectHTML() {
   return `<!DOCTYPE html>
