@@ -545,7 +545,7 @@ ${(!isListing && !contractDate) ? `<div style="margin:12px 32px 0;background:#ff
       <div class="info-label">BINSR Due (Day 10)</div>
       <input id="binsrDue" class="info-input" type="date" placeholder="—"
         style="color:#b45309;font-weight:600"
-        value="${fields.binsrDue || (() => { const base = isListing ? fields.ucDate : fields.contractDate; if (!base) return ''; const d = new Date(base + 'T12:00:00'); d.setDate(d.getDate() + 10); return d.toISOString().slice(0,10); })()}"
+        value="${(() => { if (isListing && !fields.ucDate) return ''; if (fields.binsrDue) return fields.binsrDue; const base = isListing ? fields.ucDate : fields.contractDate; if (!base) return ''; const d = new Date(base + 'T12:00:00'); d.setDate(d.getDate() + 10); return d.toISOString().slice(0,10); })()}"
         onchange="saveField('binsrDue', this.value)">
     </div>` : ''}
   </div>
@@ -1050,6 +1050,12 @@ function getDashboardHTML(transactions, tc) {
 
   <div class="task-panel">
     ${(() => {
+      // Only admin (Justine) and Listing Coordinators get the aggregated dashboard task list.
+      // TCs (Joana/Ashley) and leadership (Scott/Doug) see due tasks only inside each transaction.
+      const showDashTasks = tc === 'admin' || LISTING_COORDS.includes(tc);
+      if (!showDashTasks) {
+        return '<div class="detail-sidebar-hdr">📋 Tasks</div><div class="task-panel-empty">Open a transaction to see its due tasks.</div>';
+      }
       const today = todayAZ();
       // Listing coordinators get pre-UC listings (setup phase); everyone else gets buyers + UC listings.
       const taskSource = LISTING_COORDS.includes(tc) ? [...listings] : [...active, ...listingUC];
@@ -1226,8 +1232,8 @@ document.getElementById('modal').addEventListener('click', function(e) {
 const TC_NAMES = ["Joana Guzman", "Ashley Belliveau", "Cinnamon Kumler"];
 const TC_COLORS = ["#1565c0", "#0d5c2e", "#b45309"];
 const TC_ROLES = { "Cinnamon Kumler": "Listing Coordinator" };
-// Coordinators with full admin-level access (see all transactions AND all tasks)
-const ADMIN_TCS = [];
+// People with full admin-level access (see all transactions AND all tasks)
+const ADMIN_TCS = ["Scott Kumler", "Doug Milem"];
 // Listing Coordinators: own the listing-INPUT (pre–Under Contract) tasks only.
 // The moment a listing goes Under Contract, its tasks hand off to the assigned TC.
 const LISTING_COORDS = ["Cinnamon Kumler"];
@@ -1256,7 +1262,7 @@ function getTCSelectHTML() {
   .admin-card .tc-role { color:#a8c4e0; }
 </style>
 <script>
-const TC_PASSCODES = { 'Joana Guzman': '5211', 'Cinnamon Kumler': '0007' };
+const TC_PASSCODES = { 'Joana Guzman': '5211', 'Cinnamon Kumler': '0007', 'Scott Kumler': '0070', 'Doug Milem': '0002' };
 function tcLogin(name) {
   const required = TC_PASSCODES[name];
   if (!required) { window.location.href = '/?tc=' + encodeURIComponent(name); return; }
@@ -1305,6 +1311,18 @@ function adminLogin() {
           <div class="tc-role">${TC_ROLES[name] || 'Transaction Coordinator'}</div>
         </a>`;
       }).join('')}
+    </div>
+    <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;">
+      <a class="tc-card" href="javascript:void(0)" onclick="tcLogin('Scott Kumler')">
+        <div class="tc-avatar" style="background:#0f766e">SK</div>
+        <div class="tc-name">Scott Kumler</div>
+        <div class="tc-role">Team Lead</div>
+      </a>
+      <a class="tc-card" href="javascript:void(0)" onclick="tcLogin('Doug Milem')">
+        <div class="tc-avatar" style="background:#9a3412">DM</div>
+        <div class="tc-name">Doug Milem</div>
+        <div class="tc-role">Director of Sales</div>
+      </a>
     </div>
   </div>
 </div>
