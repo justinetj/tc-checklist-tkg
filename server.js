@@ -325,7 +325,7 @@ function getHTML(transaction, id, tc) {
   const isUnderContract = !isListing || !!ucDate;
 
   let lockBannerShown = false;
-  const flatRows = groups.map(g => {
+  const renderGroup = (g) => {
     const locked = isListing && g.ucPhase && !isUnderContract;
     // Listing due dates: pre-UC sections key off the agreement date, UC sections off the Under Contract date
     const groupBase = isListing ? (g.ucPhase ? ucDate : contractDate) : contractDate;
@@ -368,7 +368,28 @@ function getHTML(transaction, id, tc) {
     const header = g.day ? `<tr class="day-header" id="hdr-${tbodyId}" style="background:#f8fafc;${locked?'opacity:0.4':''}cursor:pointer;" onclick="toggleDay('${tbodyId}',this)"><td colspan="4" style="padding:8px 12px;font-size:12px;font-weight:700;letter-spacing:.5px;border-bottom:1px solid #e2e8f0"><span class="day-badge" style="background:${headerBg};color:white;padding:2px 9px;border-radius:10px;font-size:11px">${g.day}</span>${dateDisplay} <span class="collapse-arrow" style="float:right;font-size:10px;color:#94a3b8">▲</span></td></tr>` : '';
     const rowsOut = locked ? rows.replace(/<input type="checkbox"/g, '<input type="checkbox" disabled').replace(/<input type="date"/g, '<input type="date" disabled').replace(/<input type="text"/g, '<input type="text" disabled') : rows;
     return lockedBanner + header + `<tbody id="${tbodyId}" style="${locked?'opacity:0.4;pointer-events:none':''}">${rowsOut}</tbody>`;
-  }).join('');
+  };
+
+  // Interleave contingencies (with a due date) into the checklist, positioned by their due date.
+  const contsSorted = (transaction.contingencies || []).filter(c => c && c.due).slice()
+    .sort((a, b) => a.due < b.due ? -1 : a.due > b.due ? 1 : 0);
+  const contSection = (c) => {
+    const p = (c.due || '').split('-');
+    const dd = c.due ? (p[1] + '/' + p[2] + '/' + p[0]) : '';
+    const overdue = c.due && !c.done && c.due < today;
+    return `<tr class="day-header" style="background:#fff7ed;cursor:default"><td colspan="4" style="padding:8px 12px;font-size:12px;font-weight:700;border-bottom:1px solid #fed7aa"><span class="day-badge" style="background:#ea580c;color:white;padding:2px 9px;border-radius:10px;font-size:11px">🔶 CONTINGENCY</span> — <span style="font-size:12px;font-weight:700;color:#9a3412">${dd}</span></td></tr>`
+      + `<tbody><tr class="${c.done ? 'done' : ''}${overdue ? ' row-overdue' : ''}"><td class="cb-cell"><input type="checkbox" ${c.done ? 'checked' : ''} onchange="toggleContingencyDone('${c.id}')"></td><td class="label-cell"><label>${String(c.name || 'Contingency').replace(/</g, '&lt;')}</label></td><td class="date-cell"><span style="font-size:12px;color:#9a3412;font-weight:600">${dd || '—'}</span></td><td class="note-cell"></td></tr></tbody>`;
+  };
+  let ci = 0;
+  const partsArr = [];
+  for (const g of groups) {
+    const gBase = isListing ? (g.ucPhase ? ucDate : contractDate) : contractDate;
+    const gDate = calcDueDateISO(g.day, gBase, closeDate);
+    if (gDate) { while (ci < contsSorted.length && contsSorted[ci].due <= gDate) { partsArr.push(contSection(contsSorted[ci])); ci++; } }
+    partsArr.push(renderGroup(g));
+  }
+  while (ci < contsSorted.length) { partsArr.push(contSection(contsSorted[ci])); ci++; }
+  const flatRows = partsArr.join('');
 
   const sectionHTML = `
     <div class="section">
@@ -552,9 +573,8 @@ ${(!isListing && !contractDate) ? `<div style="margin:12px 32px 0;background:#ff
   <div style="border-top:1px solid #f1f1f4;margin-top:6px;padding-top:10px">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
       <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#9a3412;letter-spacing:.5px">📌 Contingencies</div>
-      <button onclick="showAddContingency()" style="background:#ea580c;color:white;border:none;border-radius:6px;padding:4px 11px;font-size:11px;font-weight:700;cursor:pointer">+ Add Contingency</button>
+      <button onclick="addContingency()" style="background:#ea580c;color:white;border:none;border-radius:6px;padding:4px 11px;font-size:11px;font-weight:700;cursor:pointer">+ Add Contingency</button>
     </div>
-    <div id="contingency-add"></div>
     <div id="contingency-list"></div>
   </div>
 </div>
@@ -808,42 +828,26 @@ function renderContingencies(){
     const due=c.due||''; let badge='';
     if(c.done){ badge='<span style="font-size:10px;font-weight:700;border-radius:8px;padding:1px 7px;background:#dcfce7;color:#15803d;white-space:nowrap">Done</span>'; }
     else if(due){ const cls = due<today?['#fee2e2','#b91c1c','Past due']:due===today?['#dcfce7','#15803d','Due today']:['#eef2f7','#475569','Upcoming']; badge='<span style="font-size:10px;font-weight:700;border-radius:8px;padding:1px 7px;white-space:nowrap;background:'+cls[0]+';color:'+cls[1]+'">'+cls[2]+'</span>'; }
-    else { badge='<span style="font-size:10px;color:#cbd5e1;white-space:nowrap">no date</span>'; }
     return '<div style="display:flex;align-items:center;gap:8px;padding:5px 2px;border-bottom:1px solid #f5f5f7">'+
       '<input type="checkbox" '+(c.done?'checked':'')+' onchange="setContingency('+i+',\\'done\\',this.checked)" style="width:15px;height:15px;flex-shrink:0">'+
-      '<span style="flex:1;min-width:80px;font-size:13px;color:'+(c.done?'#94a3b8':'#1e293b')+(c.done?';text-decoration:line-through':'')+'">'+String(c.name||'Contingency').replace(/</g,'&lt;')+'</span>'+
+      '<input type="text" data-cid="'+c.id+'" value="'+String(c.name||'').replace(/"/g,'&quot;')+'" placeholder="Which contingency? (e.g. Inspection, Appraisal, Loan)" onblur="setContingency('+i+',\\'name\\',this.value)" style="flex:1;min-width:100px;border:1px solid #e2e8f0;border-radius:5px;padding:4px 8px;font-size:13px'+(c.done?';text-decoration:line-through;color:#94a3b8':'')+'">'+
       badge+
       '<input type="date" value="'+due+'" onchange="setContingency('+i+',\\'due\\',this.value)" style="border:1px solid #e2e8f0;border-radius:5px;padding:3px 6px;font-size:12px;flex-shrink:0">'+
       '<button onclick="deleteContingency('+i+')" title="Remove" style="background:none;border:none;color:#cbd5e1;font-size:14px;cursor:pointer;flex-shrink:0">&#10005;</button>'+
       '</div>';
   }).join('');
 }
-function showAddContingency(){
-  const box=document.getElementById('contingency-add'); if(!box) return;
-  box.innerHTML='<div style="display:flex;gap:6px;align-items:center;padding:4px 0 6px">'+
-    '<input id="cont-new-name" type="text" placeholder="What is the contingency? (e.g. Inspection)" style="flex:1;border:1px solid #cbd5e1;border-radius:5px;padding:5px 8px;font-size:13px">'+
-    '<input id="cont-new-due" type="date" title="Due date" style="border:1px solid #cbd5e1;border-radius:5px;padding:4px 6px;font-size:12px">'+
-    '<button onclick="commitContingency()" style="background:#ea580c;color:white;border:none;border-radius:5px;padding:5px 11px;font-size:12px;font-weight:700;cursor:pointer">Add</button>'+
-    '</div>';
-  const nameEl=document.getElementById('cont-new-name');
-  const dueEl=document.getElementById('cont-new-due');
-  nameEl.focus();
-  const onEnter=function(e){ if(e.key==='Enter'){ e.preventDefault(); commitContingency(); } if(e.key==='Escape'){ box.innerHTML=''; } };
-  nameEl.addEventListener('keydown',onEnter);
-  dueEl.addEventListener('keydown',onEnter);
-}
-function commitContingency(){
-  const nameEl=document.getElementById('cont-new-name'); const dueEl=document.getElementById('cont-new-due');
-  const name=(nameEl?nameEl.value:'').trim(); const due=dueEl?dueEl.value:'';
-  const box=document.getElementById('contingency-add');
-  if(!name && !due){ if(box) box.innerHTML=''; return; }
-  CONTINGENCIES.push({id:Date.now().toString(),name:name,due:due,done:false});
-  if(box) box.innerHTML='';
+function addContingency(){
+  const id=Date.now().toString();
+  CONTINGENCIES.push({id:id,name:'',due:'',done:false});
   renderContingencies();
   saveContingencies();
+  const inp=document.querySelector('#contingency-list input[data-cid="'+id+'"]');
+  if(inp) inp.focus();
 }
-function setContingency(i,key,val){ if(!CONTINGENCIES[i])return; CONTINGENCIES[i][key]=val; renderContingencies(); saveContingencies(); }
-function deleteContingency(i){ CONTINGENCIES.splice(i,1); renderContingencies(); saveContingencies(); }
+function setContingency(i,key,val){ if(!CONTINGENCIES[i])return; CONTINGENCIES[i][key]=val; if(key!=='name') renderContingencies(); saveContingencies().then(function(){ if(key==='due'||key==='done') location.reload(); }); }
+function deleteContingency(i){ CONTINGENCIES.splice(i,1); renderContingencies(); saveContingencies().then(function(){ location.reload(); }); }
+function toggleContingencyDone(id){ const c=CONTINGENCIES.find(function(x){ return x.id===id; }); if(!c) return; c.done=!c.done; saveContingencies().then(function(){ location.reload(); }); }
 async function saveContingencies(){ await fetch('/api/transactions/'+TXN_ID+'/contingencies',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contingencies:CONTINGENCIES})}); if(typeof showToast==='function') showToast(); }
 renderContingencies();
 function updateProgress() {
