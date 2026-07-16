@@ -549,17 +549,16 @@ ${(!isListing && !contractDate) ? `<div style="margin:12px 32px 0;background:#ff
         onchange="saveField('binsrDue', this.value)">
     </div>` : ''}
   </div>
+  <div style="border-top:1px solid #f1f1f4;margin-top:6px;padding-top:10px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#9a3412;letter-spacing:.5px">📌 Contingencies</div>
+      <button onclick="addContingency()" style="background:#ea580c;color:white;border:none;border-radius:6px;padding:4px 11px;font-size:11px;font-weight:700;cursor:pointer">+ Contingency</button>
+    </div>
+    <div id="contingency-list"></div>
+  </div>
 </div>
 
 <div class="container" style="padding-top:0;padding-bottom:0">
-${!tasksHidden ? `
-<div class="card" style="margin-bottom:14px;padding:0;overflow:hidden">
-  <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid #f1f1f4;background:#fff7ed">
-    <div style="font-size:13px;font-weight:800;color:#9a3412">📌 Contingencies</div>
-    <button onclick="addContingency()" style="background:#ea580c;color:white;border:none;border-radius:6px;padding:5px 12px;font-size:12px;font-weight:700;cursor:pointer">+ Add Contingency</button>
-  </div>
-  <div id="contingency-list" style="padding:4px 10px 8px"></div>
-</div>` : ''}
 <div class="detail-layout">
   <div class="detail-main">${tasksHidden
     ? `<div style="background:white;border-radius:10px;box-shadow:0 1px 4px rgba(0,0,0,.07);padding:36px 24px;text-align:center;color:#64748b;font-size:14px">🔒 This transaction's checklist is managed by <strong style="color:#1e3a5f">${assignedTC}</strong></div>`
@@ -815,7 +814,7 @@ function renderContingencies(){
       '</div>';
   }).join('');
 }
-function addContingency(){ CONTINGENCIES.push({id:Date.now().toString(),name:'',due:'',done:false}); renderContingencies(); saveContingencies(); }
+function addContingency(){ CONTINGENCIES.push({id:Date.now().toString(),name:'',due:'',done:false}); renderContingencies(); saveContingencies(); const rows=document.querySelectorAll('#contingency-list input[type=text]'); if(rows.length){ const last=rows[rows.length-1]; last.focus(); } }
 function setContingency(i,key,val){ if(!CONTINGENCIES[i])return; CONTINGENCIES[i][key]=val; if(key!=='name') renderContingencies(); saveContingencies(); }
 function deleteContingency(i){ CONTINGENCIES.splice(i,1); renderContingencies(); saveContingencies(); }
 async function saveContingencies(){ await fetch('/api/transactions/'+TXN_ID+'/contingencies',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contingencies:CONTINGENCIES})}); if(typeof showToast==='function') showToast(); }
