@@ -552,8 +552,9 @@ ${(!isListing && !contractDate) ? `<div style="margin:12px 32px 0;background:#ff
   <div style="border-top:1px solid #f1f1f4;margin-top:6px;padding-top:10px">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
       <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#9a3412;letter-spacing:.5px">📌 Contingencies</div>
-      <button onclick="addContingency()" style="background:#ea580c;color:white;border:none;border-radius:6px;padding:4px 11px;font-size:11px;font-weight:700;cursor:pointer">+ Contingency</button>
+      <button onclick="showAddContingency()" style="background:#ea580c;color:white;border:none;border-radius:6px;padding:4px 11px;font-size:11px;font-weight:700;cursor:pointer">+ Add Contingency</button>
     </div>
+    <div id="contingency-add"></div>
     <div id="contingency-list"></div>
   </div>
 </div>
@@ -799,23 +800,49 @@ let CONTINGENCIES = ${JSON.stringify(transaction.contingencies || [])};
 function contToday(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
 function renderContingencies(){
   const el=document.getElementById('contingency-list'); if(!el) return;
-  if(!CONTINGENCIES.length){ el.innerHTML='<div style="padding:8px 4px;font-size:12px;color:#94a3b8">No contingencies yet. Click "+ Add Contingency", name it (e.g. Inspection), and set its due date.</div>'; return; }
+  if(!CONTINGENCIES.length){ el.innerHTML=''; return; }
   const today=contToday();
-  el.innerHTML=CONTINGENCIES.map(function(c,i){
+  const sorted=CONTINGENCIES.slice().sort(function(a,b){ const ad=a.due||'9999-99-99', bd=b.due||'9999-99-99'; return ad<bd?-1:ad>bd?1:0; });
+  el.innerHTML=sorted.map(function(c){
+    const i=CONTINGENCIES.indexOf(c);
     const due=c.due||''; let badge='';
-    if(c.done){ badge='<span style="font-size:10px;font-weight:700;border-radius:8px;padding:1px 7px;background:#dcfce7;color:#15803d">Done</span>'; }
+    if(c.done){ badge='<span style="font-size:10px;font-weight:700;border-radius:8px;padding:1px 7px;background:#dcfce7;color:#15803d;white-space:nowrap">Done</span>'; }
     else if(due){ const cls = due<today?['#fee2e2','#b91c1c','Past due']:due===today?['#dcfce7','#15803d','Due today']:['#eef2f7','#475569','Upcoming']; badge='<span style="font-size:10px;font-weight:700;border-radius:8px;padding:1px 7px;white-space:nowrap;background:'+cls[0]+';color:'+cls[1]+'">'+cls[2]+'</span>'; }
-    return '<div style="display:flex;align-items:center;gap:8px;padding:5px 4px;border-bottom:1px solid #f5f5f7">'+
-      '<input type="checkbox" '+(c.done?'checked':'')+' onchange="setContingency('+i+',\\'done\\',this.checked)" style="width:16px;height:16px;flex-shrink:0">'+
-      '<input type="text" value="'+String(c.name||'').replace(/"/g,'&quot;')+'" placeholder="Which contingency? (e.g. Inspection, Appraisal, Loan)" onblur="setContingency('+i+',\\'name\\',this.value)" style="flex:1;min-width:120px;border:1px solid #e2e8f0;border-radius:5px;padding:4px 8px;font-size:13px'+(c.done?';text-decoration:line-through;color:#94a3b8':'')+'">'+
+    else { badge='<span style="font-size:10px;color:#cbd5e1;white-space:nowrap">no date</span>'; }
+    return '<div style="display:flex;align-items:center;gap:8px;padding:5px 2px;border-bottom:1px solid #f5f5f7">'+
+      '<input type="checkbox" '+(c.done?'checked':'')+' onchange="setContingency('+i+',\\'done\\',this.checked)" style="width:15px;height:15px;flex-shrink:0">'+
+      '<span style="flex:1;min-width:80px;font-size:13px;color:'+(c.done?'#94a3b8':'#1e293b')+(c.done?';text-decoration:line-through':'')+'">'+String(c.name||'Contingency').replace(/</g,'&lt;')+'</span>'+
       badge+
       '<input type="date" value="'+due+'" onchange="setContingency('+i+',\\'due\\',this.value)" style="border:1px solid #e2e8f0;border-radius:5px;padding:3px 6px;font-size:12px;flex-shrink:0">'+
       '<button onclick="deleteContingency('+i+')" title="Remove" style="background:none;border:none;color:#cbd5e1;font-size:14px;cursor:pointer;flex-shrink:0">&#10005;</button>'+
       '</div>';
   }).join('');
 }
-function addContingency(){ CONTINGENCIES.push({id:Date.now().toString(),name:'',due:'',done:false}); renderContingencies(); saveContingencies(); const rows=document.querySelectorAll('#contingency-list input[type=text]'); if(rows.length){ const last=rows[rows.length-1]; last.focus(); } }
-function setContingency(i,key,val){ if(!CONTINGENCIES[i])return; CONTINGENCIES[i][key]=val; if(key!=='name') renderContingencies(); saveContingencies(); }
+function showAddContingency(){
+  const box=document.getElementById('contingency-add'); if(!box) return;
+  box.innerHTML='<div style="display:flex;gap:6px;align-items:center;padding:4px 0 6px">'+
+    '<input id="cont-new-name" type="text" placeholder="What is the contingency? (e.g. Inspection)" style="flex:1;border:1px solid #cbd5e1;border-radius:5px;padding:5px 8px;font-size:13px">'+
+    '<input id="cont-new-due" type="date" title="Due date" style="border:1px solid #cbd5e1;border-radius:5px;padding:4px 6px;font-size:12px">'+
+    '<button onclick="commitContingency()" style="background:#ea580c;color:white;border:none;border-radius:5px;padding:5px 11px;font-size:12px;font-weight:700;cursor:pointer">Add</button>'+
+    '</div>';
+  const nameEl=document.getElementById('cont-new-name');
+  const dueEl=document.getElementById('cont-new-due');
+  nameEl.focus();
+  const onEnter=function(e){ if(e.key==='Enter'){ e.preventDefault(); commitContingency(); } if(e.key==='Escape'){ box.innerHTML=''; } };
+  nameEl.addEventListener('keydown',onEnter);
+  dueEl.addEventListener('keydown',onEnter);
+}
+function commitContingency(){
+  const nameEl=document.getElementById('cont-new-name'); const dueEl=document.getElementById('cont-new-due');
+  const name=(nameEl?nameEl.value:'').trim(); const due=dueEl?dueEl.value:'';
+  const box=document.getElementById('contingency-add');
+  if(!name && !due){ if(box) box.innerHTML=''; return; }
+  CONTINGENCIES.push({id:Date.now().toString(),name:name,due:due,done:false});
+  if(box) box.innerHTML='';
+  renderContingencies();
+  saveContingencies();
+}
+function setContingency(i,key,val){ if(!CONTINGENCIES[i])return; CONTINGENCIES[i][key]=val; renderContingencies(); saveContingencies(); }
 function deleteContingency(i){ CONTINGENCIES.splice(i,1); renderContingencies(); saveContingencies(); }
 async function saveContingencies(){ await fetch('/api/transactions/'+TXN_ID+'/contingencies',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contingencies:CONTINGENCIES})}); if(typeof showToast==='function') showToast(); }
 renderContingencies();
