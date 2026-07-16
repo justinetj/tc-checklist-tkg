@@ -795,6 +795,8 @@ function showToast() {
 
 function getDashboardHTML(transactions, tc) {
   const isAdmin = !tc || tc === 'admin' || ADMIN_TCS.includes(tc);
+  // Only admin + Listing Coordinators get the aggregated task panel; others get the full-width table.
+  const showDashTasks = tc === 'admin' || LISTING_COORDS.includes(tc);
   function earliestDue(t) {
     const items = t.type === "buyer" ? BUYER_ITEMS : t.type === "buyer-new-build" ? BUYER_NEW_BUILD_ITEMS : LISTING_ITEMS;
     const fields = t.fields || {};
@@ -890,7 +892,7 @@ function getDashboardHTML(transactions, tc) {
       : mode === 'listing'
       ? `<th>Address</th><th>Client</th><th>Agent</th><th>TC</th><th>Agreement Date</th><th>Start Date</th><th>Expiration</th><th>Progress</th><th>Actions</th>`
       : `<th>Address</th><th>Client</th><th>Agent</th><th>TC</th><th>Contract Date</th><th>Close Date</th><th>Progress</th><th>Actions</th>`;
-    return `<table><thead><tr>${headers}</tr></thead><tbody>${list.map(([id,t]) => makeRow(id,t,archived,mode)).join('')}</tbody></table>`;
+    return `<div style="overflow-x:auto"><table><thead><tr>${headers}</tr></thead><tbody>${list.map(([id,t]) => makeRow(id,t,archived,mode)).join('')}</tbody></table></div>`;
   }
 
   const rows = ''; // unused placeholder
@@ -1048,14 +1050,9 @@ function getDashboardHTML(transactions, tc) {
     })()}
   </div>
 
-  <div class="task-panel">
+  <div class="task-panel"${showDashTasks ? '' : ' style="display:none"'}>
     ${(() => {
-      // Only admin (Justine) and Listing Coordinators get the aggregated dashboard task list.
-      // TCs (Joana/Ashley) and leadership (Scott/Doug) see due tasks only inside each transaction.
-      const showDashTasks = tc === 'admin' || LISTING_COORDS.includes(tc);
-      if (!showDashTasks) {
-        return '<div class="detail-sidebar-hdr">📋 Tasks</div><div class="task-panel-empty">Open a transaction to see its due tasks.</div>';
-      }
+      if (!showDashTasks) return '';
       const today = todayAZ();
       // Listing coordinators get pre-UC listings (setup phase); everyone else gets buyers + UC listings.
       const taskSource = LISTING_COORDS.includes(tc) ? [...listings] : [...active, ...listingUC];
