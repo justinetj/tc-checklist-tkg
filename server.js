@@ -386,7 +386,7 @@ function getHTML(transaction, id, tc) {
   return `<!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>${transaction.address || 'Transaction'} — TC Checklist</title>
+<title>${transaction.address || 'Transaction'} — Transaction Hub</title>
 <style>
   * { box-sizing:border-box; margin:0; padding:0; }
   body { font-family:-apple-system,Helvetica,sans-serif; background:#f5f6fa; color:#1a1a2e; }
@@ -898,7 +898,7 @@ function getDashboardHTML(transactions, tc) {
   return `<!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>TC Checklist — Kumler Group</title>
+<title>The Kumler Group — Transaction Hub</title>
 <style>
   * { box-sizing:border-box; margin:0; padding:0; }
   body { font-family:-apple-system,Helvetica,sans-serif; background:#f5f6fa; color:#1a1a2e; }
@@ -948,7 +948,7 @@ function getDashboardHTML(transactions, tc) {
   <div>
     <div style="display:flex;align-items:center;gap:10px">
       <a href="/" style="color:rgba(255,255,255,.7);text-decoration:none;font-size:12px;font-weight:600;border:1px solid rgba(255,255,255,.3);border-radius:5px;padding:3px 8px">← Back</a>
-      <h1>TC Checklist — Kumler Group</h1>
+      <h1>The Kumler Group — Transaction Hub</h1>
     </div>
     <p>${isAdmin ? 'Viewing all transactions (Admin)' : `All transactions — tasks for <strong>${tc}</strong>`}</p>
   </div>
@@ -1242,7 +1242,7 @@ function getTCSelectHTML() {
   return `<!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>TC Checklist — Kumler Group</title>
+<title>The Kumler Group — Transaction Hub</title>
 <style>
   * { box-sizing:border-box; margin:0; padding:0; }
   body { font-family:-apple-system,Helvetica,sans-serif; background:#f5f6fa; color:#1a1a2e; min-height:100vh; display:flex; flex-direction:column; }
@@ -1252,7 +1252,7 @@ function getTCSelectHTML() {
   .select-wrap { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:40px 20px; }
   .select-label { font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:#64748b; margin-bottom:24px; }
   .tc-grid { display:flex; flex-wrap:wrap; gap:16px; justify-content:center; max-width:700px; }
-  .tc-card { background:white; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,.08); padding:28px 36px; cursor:pointer; text-align:center; min-width:180px; border:2px solid transparent; transition:all .15s; text-decoration:none; color:inherit; }
+  .tc-card { background:white; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,.08); padding:28px 24px; cursor:pointer; text-align:center; width:210px; border:2px solid transparent; transition:all .15s; text-decoration:none; color:inherit; }
   .tc-card:hover { transform:translateY(-2px); box-shadow:0 6px 20px rgba(0,0,0,.12); }
   .tc-avatar { width:56px; height:56px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:22px; font-weight:800; color:white; margin:0 auto 12px; }
   .tc-name { font-size:15px; font-weight:700; color:#1e3a5f; }
@@ -1279,51 +1279,31 @@ function adminLogin() {
 </head>
 <body>
 <div class="header">
-  <h1>TC Checklist — Kumler Group</h1>
+  <h1>The Kumler Group — Transaction Hub</h1>
   <p>Select your name to view your transactions</p>
 </div>
 <div class="select-wrap">
   <div class="select-label">Who are you?</div>
-  <div class="tc-grid" style="flex-direction:column;gap:16px;">
-    <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;">
-      ${['Joana Guzman','Ashley Belliveau'].map((name) => {
-        const i = TC_NAMES.indexOf(name);
-        const initials = name.split(' ').map(w=>w[0]).join('');
-        return `<a class="tc-card" href="javascript:void(0)" onclick="tcLogin('${name.replace(/'/g,"\\'")}')">
-          <div class="tc-avatar" style="background:${TC_COLORS[i]}">${initials}</div>
-          <div class="tc-name">${name}</div>
-          <div class="tc-role">${TC_ROLES[name] || 'Transaction Coordinator'}</div>
+  <div class="tc-grid">
+    ${(() => {
+      const people = [
+        { name: 'Joana Guzman',     role: 'Transaction Coordinator', color: '#1565c0', onclick: "tcLogin('Joana Guzman')" },
+        { name: 'Ashley Belliveau', role: 'Transaction Coordinator', color: '#0d5c2e', onclick: "tcLogin('Ashley Belliveau')" },
+        { name: 'Cinnamon Kumler',  role: 'Listing Coordinator',     color: '#b45309', onclick: "tcLogin('Cinnamon Kumler')" },
+        { name: 'Justine Johnston', role: 'Director of Operations',  color: '#7e22ce', onclick: 'adminLogin()' },
+        { name: 'Scott Kumler',     role: 'Team Lead',               color: '#0f766e', onclick: "tcLogin('Scott Kumler')" },
+        { name: 'Doug Milem',       role: 'Director of Sales',       color: '#9a3412', onclick: "tcLogin('Doug Milem')" },
+      ];
+      people.sort((a, b) => a.name.split(' ')[0].localeCompare(b.name.split(' ')[0]));
+      return people.map((p) => {
+        const initials = p.name.split(' ').map(w => w[0]).join('');
+        return `<a class="tc-card" href="javascript:void(0)" onclick="${p.onclick}">
+          <div class="tc-avatar" style="background:${p.color}">${initials}</div>
+          <div class="tc-name">${p.name}</div>
+          <div class="tc-role">${p.role}</div>
         </a>`;
-      }).join('')}
-    </div>
-    <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;">
-      <a class="tc-card" href="javascript:void(0)" onclick="adminLogin()">
-        <div class="tc-avatar" style="background:#7e22ce">JJ</div>
-        <div class="tc-name">Justine Johnston</div>
-        <div class="tc-role">Director of Operations</div>
-      </a>
-      ${['Cinnamon Kumler'].map((name) => {
-        const i = TC_NAMES.indexOf(name);
-        const initials = name.split(' ').map(w=>w[0]).join('');
-        return `<a class="tc-card" href="javascript:void(0)" onclick="tcLogin('${name.replace(/'/g,"\\'")}')">
-          <div class="tc-avatar" style="background:${TC_COLORS[i]}">${initials}</div>
-          <div class="tc-name">${name}</div>
-          <div class="tc-role">${TC_ROLES[name] || 'Transaction Coordinator'}</div>
-        </a>`;
-      }).join('')}
-    </div>
-    <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;">
-      <a class="tc-card" href="javascript:void(0)" onclick="tcLogin('Scott Kumler')">
-        <div class="tc-avatar" style="background:#0f766e">SK</div>
-        <div class="tc-name">Scott Kumler</div>
-        <div class="tc-role">Team Lead</div>
-      </a>
-      <a class="tc-card" href="javascript:void(0)" onclick="tcLogin('Doug Milem')">
-        <div class="tc-avatar" style="background:#9a3412">DM</div>
-        <div class="tc-name">Doug Milem</div>
-        <div class="tc-role">Director of Sales</div>
-      </a>
-    </div>
+      }).join('');
+    })()}
   </div>
 </div>
 </body></html>`;
@@ -1648,5 +1628,5 @@ async function migrateAddresses() {
 
 initDB().then(async () => {
   await migrateAddresses();
-  server.listen(PORT, () => console.log(`TC Checklist running on port ${PORT}`));
+  server.listen(PORT, () => console.log(`Transaction Hub running on port ${PORT}`));
 }).catch(err => { console.error("DB init failed:", err); process.exit(1); });
