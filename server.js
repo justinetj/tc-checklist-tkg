@@ -795,8 +795,9 @@ function showToast() {
 
 function getDashboardHTML(transactions, tc) {
   const isAdmin = !tc || tc === 'admin' || ADMIN_TCS.includes(tc);
-  // Only admin + Listing Coordinators get the aggregated task panel; others get the full-width table.
-  const showDashTasks = tc === 'admin' || LISTING_COORDS.includes(tc);
+  // Admin + coordinators (Joana/Ashley/Cinnamon) get the right-side task panel.
+  // Leadership (Scott/Doug) don't — they get the full-width table.
+  const showDashTasks = tc === 'admin' || TC_NAMES.includes(tc);
   function earliestDue(t) {
     const items = t.type === "buyer" ? BUYER_ITEMS : t.type === "buyer-new-build" ? BUYER_NEW_BUILD_ITEMS : LISTING_ITEMS;
     const fields = t.fields || {};
@@ -837,12 +838,11 @@ function getDashboardHTML(transactions, tc) {
     const color = isBuyerT ? "#1565c0" : t.type === "listing-uc" ? "#b45309" : "#2e7d32";
     const fields = t.fields || {};
     const actionBtns = isArchived
-      ? `<button onclick="event.stopPropagation();setStatus('${id}','active')" style="background:#f0f4ff;color:#1e3a5f;border:none;padding:4px 10px;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer">Reopen</button>`
-      : `<button onclick="event.stopPropagation();setStatus('${id}','closed')" style="background:#dcfce7;color:#15803d;border:none;padding:4px 10px;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;margin-right:4px">Close</button>
-         <button onclick="event.stopPropagation();setStatus('${id}','cancelled')" style="background:#fee2e2;color:#dc2626;border:none;padding:4px 10px;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer">Cancel</button>`;
+      ? `<button title="Reopen" onclick="event.stopPropagation();setStatus('${id}','active')" style="background:#f0f4ff;color:#1e3a5f;border:none;padding:4px 9px;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer">Reopen</button>`
+      : `<button title="Mark Closed" onclick="event.stopPropagation();setStatus('${id}','closed')" style="background:#dcfce7;color:#15803d;border:none;padding:3px 8px;border-radius:5px;font-size:13px;font-weight:700;cursor:pointer;margin-right:3px">✓</button><button title="Mark Cancelled" onclick="event.stopPropagation();setStatus('${id}','cancelled')" style="background:#fee2e2;color:#dc2626;border:none;padding:3px 8px;border-radius:5px;font-size:13px;font-weight:700;cursor:pointer">⊘</button>`;
     const progColor = pct === 100 ? '#1565c0' : pct >= 66 ? '#15803d' : pct >= 34 ? '#eab308' : '#dc2626';
-    const progress = `<td><div style="display:flex;align-items:center;gap:8px"><div style="flex:1;height:7px;background:#e0e4f0;border-radius:4px;min-width:80px"><div style="width:${pct}%;height:7px;background:${progColor};border-radius:4px"></div></div><span style="font-size:12px;font-weight:600;color:${progColor};white-space:nowrap">${pct}%</span></div></td>`;
-    const actions = `<td onclick="event.stopPropagation()" style="white-space:nowrap">${actionBtns}<button onclick="event.stopPropagation();deleteTxn('${id}','${(t.address||'this transaction').replace(/'/g,"\\'")}',this)" style="background:#f5f5f5;color:#888;border:none;padding:4px 8px;border-radius:5px;font-size:11px;cursor:pointer;margin-left:4px">✕</button></td>`;
+    const progress = `<td><div style="display:flex;align-items:center;gap:6px"><div style="flex:1;height:7px;background:#e0e4f0;border-radius:4px;min-width:40px"><div style="width:${pct}%;height:7px;background:${progColor};border-radius:4px"></div></div><span style="font-size:11px;font-weight:600;color:${progColor};white-space:nowrap">${pct}%</span></div></td>`;
+    const actions = `<td onclick="event.stopPropagation()" style="white-space:nowrap;text-align:right">${actionBtns}<button title="Delete" onclick="event.stopPropagation();deleteTxn('${id}','${(t.address||'this transaction').replace(/'/g,"\\'")}',this)" style="background:#f5f5f5;color:#888;border:none;padding:3px 8px;border-radius:5px;font-size:13px;font-weight:700;cursor:pointer;margin-left:3px">✕</button></td>`;
     const base = `<td><strong>${t.address || '(no address)'}</strong></td><td>${fields.clientName || t.clientName || '—'}</td><td>${fields.agentPartner1 || '—'}</td>`;
     const ucFlag = `<span style="background:#fee2e2;color:#dc2626;border-radius:6px;padding:1px 7px;font-size:10px;font-weight:700;white-space:nowrap">⚠ Please update</span>`;
     const ucCell = (isBuyerT && !fields.contractDate) ? ucFlag : fmt(fields.contractDate);
@@ -913,7 +913,7 @@ function getDashboardHTML(transactions, tc) {
   .container { max-width:1400px; margin:14px auto; padding:0 16px; }
   .dashboard-layout { display:flex; gap:20px; align-items:flex-start; }
   .dashboard-main { flex:1; min-width:0; }
-  .task-panel { width:300px; flex-shrink:0; position:sticky; top:16px; }
+  .task-panel { width:260px; flex-shrink:0; position:sticky; top:16px; }
   .task-panel .card { padding:0; }
   .task-group { border-bottom:1px solid #f0f2f8; padding:10px 14px; }
   .task-group:last-child { border-bottom:none; }
@@ -1054,12 +1054,9 @@ function getDashboardHTML(transactions, tc) {
     ${(() => {
       if (!showDashTasks) return '';
       const today = todayAZ();
-      // Listing coordinators get pre-UC listings (setup phase); everyone else gets buyers + UC listings.
-      const taskSource = LISTING_COORDS.includes(tc) ? [...listings] : [...active, ...listingUC];
-      const allTxns = taskSource.filter(isMine);
-      let totalPast = 0, totalToday = 0;
-      const txnGroups = [];
-      for (const [id, t] of allTxns) {
+
+      // Compute one transaction's due tasks and render its block; null if nothing due.
+      function txnBlock(id, t) {
         const items = t.type === 'buyer' ? BUYER_ITEMS : t.type === 'buyer-new-build' ? BUYER_NEW_BUILD_ITEMS : LISTING_ITEMS;
         const fields = t.fields || {};
         const contractDate = fields.contractDate || '';
@@ -1079,15 +1076,51 @@ function getDashboardHTML(transactions, tc) {
           if (due < today) pastDue.push(item);
           else if (due === today) dueToday.push(item);
         }
-        if (!pastDue.length && !dueToday.length) continue;
-        totalPast += pastDue.length;
-        totalToday += dueToday.length;
+        if (!pastDue.length && !dueToday.length) return null;
         const shortAddr = (t.address || '(no address)').replace(/,.*$/, '');
         let inner = `<div class="task-group-name" style="font-size:11px;font-weight:700;color:#1e3a5f;padding:5px 0 3px;border-bottom:1px solid #e0e4f0;margin-bottom:4px">${shortAddr}</div>`;
         if (pastDue.length) inner += pastDue.map(item => `<div class="task-item"><input type="checkbox" id="dt-${id}-${item.id}" onchange="dashCheck('${id}','${item.id}',this.checked)"><label for="dt-${id}-${item.id}" style="color:#dc2626;font-weight:600">${item.label}</label></div>`).join('');
         if (dueToday.length) inner += dueToday.map(item => `<div class="task-item"><input type="checkbox" id="dt-${id}-${item.id}" onchange="dashCheck('${id}','${item.id}',this.checked)"><label for="dt-${id}-${item.id}" style="color:#15803d;font-weight:600">${item.label}</label></div>`).join('');
-        txnGroups.push(`<div style="padding:8px 12px;border-bottom:1px solid #f0f2f8">${inner}</div>`);
+        return { past: pastDue.length, todayN: dueToday.length, html: `<div style="padding:8px 12px;border-bottom:1px solid #f0f2f8">${inner}</div>` };
       }
+
+      // Render a labeled coordinator section (optionally hidden if empty).
+      function coordSection(label, txns, hideIfEmpty) {
+        let past = 0, todayN = 0; const blocks = [];
+        for (const [id, t] of txns) { const b = txnBlock(id, t); if (!b) continue; past += b.past; todayN += b.todayN; blocks.push(b.html); }
+        if (hideIfEmpty && !blocks.length) return '';
+        const badges = [
+          past ? `<span style="background:#dc2626;color:white;border-radius:10px;padding:1px 7px;font-size:10px;font-weight:700">⚠ ${past}</span>` : '',
+          todayN ? `<span style="background:#15803d;color:white;border-radius:10px;padding:1px 7px;font-size:10px;font-weight:700">✓ ${todayN}</span>` : ''
+        ].filter(Boolean).join(' ');
+        const inner = blocks.length ? blocks.join('') : '<div class="task-panel-empty" style="padding:8px 12px">Nothing due</div>';
+        const secId = 'coord-' + label.replace(/[^a-z0-9]/gi, '');
+        return `<div class="card" style="padding:0;overflow:hidden;margin-bottom:12px">
+          <div class="detail-sidebar-hdr" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;cursor:pointer;user-select:none" onclick="toggleCoord('${secId}')">
+            <span>${label} ${badges}</span><span id="${secId}-arrow">▾</span>
+          </div>
+          <div id="${secId}-body">${inner}</div>
+        </div>`;
+      }
+
+      if (tc === 'admin') {
+        const bu = [...active, ...listingUC];
+        const joana    = bu.filter(([,t]) => (t.fields?.tcName) === 'Joana Guzman');
+        const ashley   = bu.filter(([,t]) => (t.fields?.tcName) === 'Ashley Belliveau');
+        const cinnamon = [...listings]; // pre-UC listings = Cinnamon's setup phase
+        const others   = bu.filter(([,t]) => { const n = t.fields?.tcName; return n !== 'Joana Guzman' && n !== 'Ashley Belliveau'; });
+        return `<div class="detail-sidebar-hdr" style="margin-bottom:10px">📋 Tasks by Coordinator</div>`
+          + coordSection('Joana Guzman', joana)
+          + coordSection('Ashley Belliveau', ashley)
+          + coordSection('Cinnamon Kumler', cinnamon)
+          + coordSection('Unassigned', others, true);
+      }
+
+      // Each coordinator sees ONLY their own due tasks: TCs (Joana/Ashley) their assigned
+      // buyers + UC listings; the Listing Coordinator (Cinnamon) her pre-UC listing setups.
+      const taskSource = LISTING_COORDS.includes(tc) ? [...listings] : [...active, ...listingUC];
+      let totalPast = 0, totalToday = 0; const txnGroups = [];
+      for (const [id, t] of taskSource.filter(isMine)) { const b = txnBlock(id, t); if (!b) continue; totalPast += b.past; totalToday += b.todayN; txnGroups.push(b.html); }
       const hdrBadges = [
         totalPast ? `<span style="background:#dc2626;color:white;border-radius:10px;padding:2px 8px;font-size:11px;font-weight:700">⚠ ${totalPast} past due</span>` : '',
         totalToday ? `<span style="background:#15803d;color:white;border-radius:10px;padding:2px 8px;font-size:11px;font-weight:700">✓ ${totalToday} today</span>` : ''
@@ -1181,6 +1214,14 @@ async function setFsType(id, type, btn) {
     b.style.color = active ? 'white' : '#64748b';
     b.style.borderColor = active ? '#7c3aed' : '#e2e8f0';
   });
+}
+function toggleCoord(id) {
+  const body = document.getElementById(id + '-body');
+  const arrow = document.getElementById(id + '-arrow');
+  if (!body) return;
+  const open = body.style.display !== 'none';
+  body.style.display = open ? 'none' : '';
+  if (arrow) arrow.textContent = open ? '▸' : '▾';
 }
 async function setStatus(id, status) {
   await fetch('/api/transactions/' + id + '/status', {
