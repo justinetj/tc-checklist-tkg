@@ -552,6 +552,14 @@ ${(!isListing && !contractDate) ? `<div style="margin:12px 32px 0;background:#ff
 </div>
 
 <div class="container" style="padding-top:0;padding-bottom:0">
+${!tasksHidden ? `
+<div class="card" style="margin-bottom:14px;padding:0;overflow:hidden">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid #f1f1f4;background:#fff7ed">
+    <div style="font-size:13px;font-weight:800;color:#9a3412">📌 Contingencies</div>
+    <button onclick="addContingency()" style="background:#ea580c;color:white;border:none;border-radius:6px;padding:5px 12px;font-size:12px;font-weight:700;cursor:pointer">+ Add Contingency</button>
+  </div>
+  <div id="contingency-list" style="padding:4px 10px 8px"></div>
+</div>` : ''}
 <div class="detail-layout">
   <div class="detail-main">${tasksHidden
     ? `<div style="background:white;border-radius:10px;box-shadow:0 1px 4px rgba(0,0,0,.07);padding:36px 24px;text-align:center;color:#64748b;font-size:14px">🔒 This transaction's checklist is managed by <strong style="color:#1e3a5f">${assignedTC}</strong></div>`
@@ -571,23 +579,35 @@ ${(!isListing && !contractDate) ? `<div style="margin:12px 32px 0;background:#ff
         if (dueISO < today) pastDue.push(item);
         else if (dueISO === today) dueToday.push(item);
       }
+      // Contingencies with a due date show as tasks on that day.
+      const contPast = [], contDueToday = [];
+      for (const c of (transaction.contingencies || [])) {
+        if (!c.due || c.done) continue;
+        if (c.due < today) contPast.push(c);
+        else if (c.due === today) contDueToday.push(c);
+      }
+      const totalPast = pastDue.length + contPast.length;
+      const totalToday = dueToday.length + contDueToday.length;
+      const contLabel = (c) => (c.name && c.name.trim() ? c.name : 'Contingency') + ' <span style="font-size:10px;color:#9a3412;font-weight:700">· contingency</span>';
       const hdrBadges = [
-        pastDue.length ? `<span style="background:#dc2626;color:white;border-radius:10px;padding:2px 8px;font-size:11px;font-weight:700">⚠ ${pastDue.length} past due</span>` : '',
-        dueToday.length ? `<span style="background:#15803d;color:white;border-radius:10px;padding:2px 8px;font-size:11px;font-weight:700">✓ ${dueToday.length} today</span>` : ''
+        totalPast ? `<span style="background:#dc2626;color:white;border-radius:10px;padding:2px 8px;font-size:11px;font-weight:700">⚠ ${totalPast} past due</span>` : '',
+        totalToday ? `<span style="background:#15803d;color:white;border-radius:10px;padding:2px 8px;font-size:11px;font-weight:700">✓ ${totalToday} today</span>` : ''
       ].filter(Boolean).join(' ');
       const hdr = `<div class="detail-sidebar-hdr" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px">📋 Tasks ${hdrBadges}</div>`;
-      if (!pastDue.length && !dueToday.length) return hdr + '<div class="task-due-empty">No tasks due today</div>';
+      if (!totalPast && !totalToday) return hdr + '<div class="task-due-empty">No tasks due today</div>';
       let html = hdr;
-      if (pastDue.length) {
+      if (totalPast) {
         html += '<div class="task-due-group" style="background:#fff5f5">';
-        html += `<div class="task-due-label" style="color:#dc2626">⚠ Past Due <span style="font-size:11px;background:#dc2626;color:white;border-radius:10px;padding:1px 7px">${pastDue.length}</span></div>`;
+        html += `<div class="task-due-label" style="color:#dc2626">⚠ Past Due <span style="font-size:11px;background:#dc2626;color:white;border-radius:10px;padding:1px 7px">${totalPast}</span></div>`;
         html += pastDue.map(item => `<div class="task-due-item"><input type="checkbox" onchange="toggle('${item.id}', this.checked)" id="s-${item.id}"><label for="s-${item.id}" class="overdue">${item.label}</label></div>`).join('');
+        html += contPast.map(c => `<div class="task-due-item"><span style="color:#ea580c">🔶</span><label class="overdue">${contLabel(c)}</label></div>`).join('');
         html += '</div>';
       }
-      if (dueToday.length) {
+      if (totalToday) {
         html += '<div class="task-due-group" style="background:#f0fdf4">';
-        html += `<div class="task-due-label" style="color:#15803d">✓ Due Today <span style="font-size:11px;background:#15803d;color:white;border-radius:10px;padding:1px 7px">${dueToday.length}</span></div>`;
+        html += `<div class="task-due-label" style="color:#15803d">✓ Due Today <span style="font-size:11px;background:#15803d;color:white;border-radius:10px;padding:1px 7px">${totalToday}</span></div>`;
         html += dueToday.map(item => `<div class="task-due-item"><input type="checkbox" onchange="toggle('${item.id}', this.checked)" id="s-${item.id}"><label for="s-${item.id}" style="color:#15803d;font-weight:600">${item.label}</label></div>`).join('');
+        html += contDueToday.map(c => `<div class="task-due-item"><span style="color:#ea580c">🔶</span><label style="color:#15803d;font-weight:600">${contLabel(c)}</label></div>`).join('');
         html += '</div>';
       }
       return html;
@@ -774,6 +794,32 @@ async function saveField(key, val) {
   refreshDueDates();
   if (out.activated) window.location.reload();
 }
+
+// ── Contingencies (add as many as needed; each with a name + due date) ──
+let CONTINGENCIES = ${JSON.stringify(transaction.contingencies || [])};
+function contToday(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function renderContingencies(){
+  const el=document.getElementById('contingency-list'); if(!el) return;
+  if(!CONTINGENCIES.length){ el.innerHTML='<div style="padding:8px 4px;font-size:12px;color:#94a3b8">No contingencies yet. Click "+ Add Contingency", name it (e.g. Inspection), and set its due date.</div>'; return; }
+  const today=contToday();
+  el.innerHTML=CONTINGENCIES.map(function(c,i){
+    const due=c.due||''; let badge='';
+    if(c.done){ badge='<span style="font-size:10px;font-weight:700;border-radius:8px;padding:1px 7px;background:#dcfce7;color:#15803d">Done</span>'; }
+    else if(due){ const cls = due<today?['#fee2e2','#b91c1c','Past due']:due===today?['#dcfce7','#15803d','Due today']:['#eef2f7','#475569','Upcoming']; badge='<span style="font-size:10px;font-weight:700;border-radius:8px;padding:1px 7px;white-space:nowrap;background:'+cls[0]+';color:'+cls[1]+'">'+cls[2]+'</span>'; }
+    return '<div style="display:flex;align-items:center;gap:8px;padding:5px 4px;border-bottom:1px solid #f5f5f7">'+
+      '<input type="checkbox" '+(c.done?'checked':'')+' onchange="setContingency('+i+',\\'done\\',this.checked)" style="width:16px;height:16px;flex-shrink:0">'+
+      '<input type="text" value="'+String(c.name||'').replace(/"/g,'&quot;')+'" placeholder="Which contingency? (e.g. Inspection, Appraisal, Loan)" onblur="setContingency('+i+',\\'name\\',this.value)" style="flex:1;min-width:120px;border:1px solid #e2e8f0;border-radius:5px;padding:4px 8px;font-size:13px'+(c.done?';text-decoration:line-through;color:#94a3b8':'')+'">'+
+      badge+
+      '<input type="date" value="'+due+'" onchange="setContingency('+i+',\\'due\\',this.value)" style="border:1px solid #e2e8f0;border-radius:5px;padding:3px 6px;font-size:12px;flex-shrink:0">'+
+      '<button onclick="deleteContingency('+i+')" title="Remove" style="background:none;border:none;color:#cbd5e1;font-size:14px;cursor:pointer;flex-shrink:0">&#10005;</button>'+
+      '</div>';
+  }).join('');
+}
+function addContingency(){ CONTINGENCIES.push({id:Date.now().toString(),name:'',due:'',done:false}); renderContingencies(); saveContingencies(); }
+function setContingency(i,key,val){ if(!CONTINGENCIES[i])return; CONTINGENCIES[i][key]=val; if(key!=='name') renderContingencies(); saveContingencies(); }
+function deleteContingency(i){ CONTINGENCIES.splice(i,1); renderContingencies(); saveContingencies(); }
+async function saveContingencies(){ await fetch('/api/transactions/'+TXN_ID+'/contingencies',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contingencies:CONTINGENCIES})}); if(typeof showToast==='function') showToast(); }
+renderContingencies();
 function updateProgress() {
   const boxes = document.querySelectorAll('input[type=checkbox]');
   const total = boxes.length, done = [...boxes].filter(b=>b.checked).length;
@@ -884,6 +930,8 @@ function getDashboardHTML(transactions, tc) {
   const closingToday = sorted.filter(([,t]) => (!t.status || t.status === "active") && (t.fields?.closeDate === todayISO));
   const closed     = sorted.filter(([,t]) => t.status === "closed");
   const cancelled  = sorted.filter(([,t]) => t.status === "cancelled");
+  // Active transactions whose close date has already passed but aren't marked closed.
+  const needsAttention = sorted.filter(([,t]) => (!t.status || t.status === "active") && t.fields?.closeDate && t.fields.closeDate < todayISO);
 
   function makeTable(list, archived, mode) {
     if (list.length === 0) return '<div class="empty">None</div>';
@@ -959,6 +1007,11 @@ function getDashboardHTML(transactions, tc) {
 <div class="container">
 <div class="dashboard-layout">
   <div class="dashboard-main">
+    ${needsAttention.length > 0 ? `
+    <div style="background:#dc2626;color:white;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;padding:5px 12px;border-radius:7px;margin-bottom:5px">⚠️ Incomplete — Past Close Date, Not Marked Closed (${needsAttention.length})</div>
+    <div class="card" style="margin-bottom:14px;border:2px solid #dc2626">
+      ${makeTable(needsAttention, false, 'buyer')}
+    </div>` : ''}
     ${pending.length > 0 ? `
     <div style="background:#7c3aed;color:white;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;padding:5px 12px;border-radius:7px;margin-bottom:6px;display:flex;align-items:center;gap:8px">⚠️ Needs Attention — New Formstack (${pending.length})</div>
     <div style="margin-bottom:14px;display:flex;flex-direction:column;gap:6px">
@@ -1483,6 +1536,24 @@ const server = http.createServer(async (req, res) => {
       }
       res.writeHead(200, { "Content-Type": "application/json" });
       res.end(JSON.stringify({ ok: true, activated }));
+    });
+    return;
+  }
+
+  const contMatch = pathname.match(/^\/api\/transactions\/([^/]+)\/contingencies$/);
+  if (req.method === "POST" && contMatch) {
+    let body = "";
+    req.on("data", d => body += d);
+    req.on("end", async () => {
+      const data = await loadData();
+      const txId = contMatch[1];
+      const { contingencies } = JSON.parse(body);
+      if (data.transactions[txId]) {
+        data.transactions[txId].contingencies = Array.isArray(contingencies) ? contingencies : [];
+        await saveData(data);
+      }
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ ok: true }));
     });
     return;
   }
