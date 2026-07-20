@@ -910,7 +910,7 @@ function showToast() {
 </body></html>`;
 }
 
-function getDashboardHTML(transactions, tc) {
+function getDashboardHTML(transactions, tc, manualTasks) {
   const isAdmin = !tc || tc === 'admin' || ADMIN_TCS.includes(tc);
   // Admin + coordinators (Joana/Ashley/Cinnamon) get the right-side task panel.
   // Leadership (Scott/Doug) don't — they get the full-width table.
@@ -1227,13 +1227,54 @@ function getDashboardHTML(transactions, tc) {
         </div>`;
       }
 
+      // ── Manual tasks: live ONLY in this panel, never in the checklists ──
+      const escT = s => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;');
+      function manualRows(forTc) {
+        const open = (manualTasks || []).filter(m => m.tc === forTc && !m.done)
+          .sort((a, b) => ((a.due || '9999') < (b.due || '9999') ? -1 : 1));
+        return open.map(m => {
+          const color = m.due && m.due < today ? '#dc2626' : m.due === today ? '#15803d' : '#64748b';
+          const dueTag = m.due ? ` <span style="font-weight:400;font-size:10px;color:#94a3b8">${m.due.slice(5,7)}/${m.due.slice(8,10)}</span>` : '';
+          return `<div class="task-item" style="justify-content:space-between">
+            <div style="display:flex;align-items:flex-start;gap:7px;min-width:0">
+              <input type="checkbox" onchange="doneManualTask('${m.id}', this)">
+              <label style="color:${color};font-weight:600">${escT(m.text)}${dueTag}</label>
+            </div>
+            <button onclick="deleteManualTask('${m.id}')" title="Delete task" style="background:none;border:none;color:#cbd5e1;cursor:pointer;font-size:11px;flex-shrink:0">✕</button>
+          </div>`;
+        }).join('');
+      }
+      function manualAddRow(key, fixedTc, tcOptions) {
+        const picker = tcOptions
+          ? `<select id="mt-tc-${key}" style="border:1px solid #e0e4f0;border-radius:5px;padding:4px 5px;font-size:11px;max-width:90px">${tcOptions.map(([v,l]) => `<option value="${v}">${l}</option>`).join('')}</select>`
+          : '';
+        return `<div style="display:flex;gap:4px;padding:8px 12px;border-top:1px solid #f0f2f8;align-items:center">
+          <input id="mt-text-${key}" placeholder="Add a task…" onkeydown="if(event.key==='Enter')addManualTask('${key}','${fixedTc}')"
+            style="flex:1;min-width:0;border:1px solid #e0e4f0;border-radius:5px;padding:4px 8px;font-size:12px">
+          <input id="mt-due-${key}" type="date" value="${today}" style="border:1px solid #e0e4f0;border-radius:5px;padding:3px 4px;font-size:11px;max-width:112px">
+          ${picker}
+          <button onclick="addManualTask('${key}','${fixedTc}')" style="background:#2563eb;color:white;border:none;border-radius:5px;padding:4px 9px;font-size:13px;font-weight:700;cursor:pointer">+</button>
+        </div>`;
+      }
+
       if (tc === 'admin') {
         const bu = [...active, ...listingUC];
         const joana    = bu.filter(([,t]) => (t.fields?.tcName) === 'Joana Guzman');
         const ashley   = bu.filter(([,t]) => (t.fields?.tcName) === 'Ashley Belliveau');
         const cinnamon = [...listings]; // pre-UC listings = Cinnamon's setup phase
         const others   = bu.filter(([,t]) => { const n = t.fields?.tcName; return n !== 'Joana Guzman' && n !== 'Ashley Belliveau'; });
+        const mtTcs = [['admin', 'Justine'], ...TC_NAMES.map(n => [n, n.split(' ')[0]])];
+        const mtGroups = mtTcs.map(([v, l]) => {
+          const rows = manualRows(v);
+          return rows ? `<div style="padding:6px 12px;border-bottom:1px solid #f0f2f8"><div class="task-group-name">${l}</div>${rows}</div>` : '';
+        }).join('');
+        const manualCard = `<div class="card" style="padding:0;overflow:hidden;margin-bottom:12px">
+          <div class="detail-sidebar-hdr">✏️ Manual Tasks</div>
+          ${mtGroups || '<div class="task-panel-empty" style="padding:8px 12px">No manual tasks</div>'}
+          ${manualAddRow('adm', '', mtTcs)}
+        </div>`;
         return `<div class="detail-sidebar-hdr" style="margin-bottom:10px">📋 Tasks by Coordinator</div>`
+          + manualCard
           + coordSection('Joana Guzman', joana)
           + coordSection('Ashley Belliveau', ashley)
           + coordSection('Cinnamon Kumler', cinnamon)
@@ -1250,7 +1291,13 @@ function getDashboardHTML(transactions, tc) {
         totalToday ? `<span style="background:#15803d;color:white;border-radius:10px;padding:2px 8px;font-size:11px;font-weight:700">✓ ${totalToday} today</span>` : ''
       ].filter(Boolean).join(' ');
       const body = txnGroups.length ? txnGroups.join('') : '<div class="task-panel-empty">No tasks due today</div>';
-      return `<div class="detail-sidebar-hdr" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px">📋 Tasks ${hdrBadges}</div><div class="card" style="padding:0;overflow:hidden">${body}</div>`;
+      const myRows = manualRows(tc);
+      const myCard = `<div class="card" style="padding:0;overflow:hidden;margin-top:12px">
+        <div class="detail-sidebar-hdr">✏️ My Tasks</div>
+        ${myRows ? `<div style="padding:6px 12px">${myRows}</div>` : '<div class="task-panel-empty" style="padding:8px 12px">No manual tasks</div>'}
+        ${manualAddRow('self', tc)}
+      </div>`;
+      return `<div class="detail-sidebar-hdr" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px">📋 Tasks ${hdrBadges}</div><div class="card" style="padding:0;overflow:hidden">${body}</div>` + myCard;
     })()}
   </div>
 </div>
@@ -1309,6 +1356,32 @@ document.getElementById('f-linked').addEventListener('change', function() {
   const opt = this.options[this.selectedIndex];
   if (opt.value) document.getElementById('f-address').value = opt.dataset.address;
 });
+async function addManualTask(key, fixedTc) {
+  const textEl = document.getElementById('mt-text-' + key);
+  const text = textEl.value.trim();
+  if (!text) { textEl.focus(); return; }
+  const due = document.getElementById('mt-due-' + key).value;
+  const sel = document.getElementById('mt-tc-' + key);
+  const tcName = fixedTc || (sel ? sel.value : '');
+  await fetch('/api/manual-tasks', {
+    method:'POST', headers:{'Content-Type':'application/json'}, keepalive:true,
+    body: JSON.stringify({ tc: tcName, text, due })
+  });
+  location.reload();
+}
+async function doneManualTask(id, cb) {
+  await fetch('/api/manual-tasks/' + id, {
+    method:'POST', headers:{'Content-Type':'application/json'}, keepalive:true,
+    body: JSON.stringify({ done: cb.checked })
+  });
+  const item = cb.closest('.task-item');
+  if (item) { item.style.opacity = cb.checked ? '0.4' : ''; item.querySelector('label').style.textDecoration = cb.checked ? 'line-through' : ''; }
+}
+async function deleteManualTask(id) {
+  if (!confirm('Delete this task?')) return;
+  await fetch('/api/manual-tasks/' + id, { method:'DELETE' });
+  location.reload();
+}
 async function dashCheck(txnId, itemId, checked) {
   await fetch('/api/transactions/' + txnId + '/check', {
     method:'POST', headers:{'Content-Type':'application/json'},
@@ -1498,6 +1571,49 @@ const server = http.createServer(async (req, res) => {
       res.writeHead(200, { "Content-Type": "application/json" });
       res.end(JSON.stringify(txn));
     });
+    return;
+  }
+
+  // ── Manual tasks: panel-only to-dos pinned to a day, per coordinator ──
+  if (req.method === "POST" && pathname === "/api/manual-tasks") {
+    let body = "";
+    req.on("data", d => body += d);
+    req.on("end", async () => {
+      const { tc: taskTc, text, due } = JSON.parse(body);
+      const task = { id: crypto.randomBytes(5).toString("hex"), tc: taskTc || '',
+                     text: String(text || '').trim(), due: due || '', done: false, createdAt: Date.now() };
+      if (task.text) {
+        await withData(data => {
+          if (!data.manualTasks) data.manualTasks = [];
+          data.manualTasks.push(task);
+        });
+      }
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(JSON.stringify(task));
+    });
+    return;
+  }
+  const mtMatch = pathname.match(/^\/api\/manual-tasks\/([^/]+)$/);
+  if (req.method === "POST" && mtMatch) {
+    let body = "";
+    req.on("data", d => body += d);
+    req.on("end", async () => {
+      const { done } = JSON.parse(body);
+      await withData(data => {
+        const m = (data.manualTasks || []).find(x => x.id === mtMatch[1]);
+        if (m) m.done = !!done;
+      });
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ ok: true }));
+    });
+    return;
+  }
+  if (req.method === "DELETE" && mtMatch) {
+    await withData(data => {
+      data.manualTasks = (data.manualTasks || []).filter(x => x.id !== mtMatch[1]);
+    });
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ ok: true }));
     return;
   }
 
@@ -1765,7 +1881,7 @@ const server = http.createServer(async (req, res) => {
     }
     const data = await loadData();
     res.writeHead(200, { "Content-Type": "text/html" });
-    res.end(getDashboardHTML(data.transactions, tc));
+    res.end(getDashboardHTML(data.transactions, tc, data.manualTasks || []));
     return;
   }
 
