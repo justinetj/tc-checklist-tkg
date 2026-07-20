@@ -662,11 +662,13 @@ ${(!isListing && !contractDate) ? `<div style="margin:12px 32px 0;background:#ff
       const upcoming = mtUpcoming.length
         ? `<div class="task-due-group"><div class="task-due-label" style="color:#64748b">📅 Scheduled</div>${mtUpcoming.map(m => mtRow(m, 'color:#64748b;font-weight:600')).join('')}</div>`
         : '';
-      const addRow = `<div style="display:flex;gap:4px;padding:9px 10px;border-top:1px solid #f0f2f8;align-items:center">
+      const addRow = `<div style="padding:10px 12px;border-top:1px solid #f0f2f8">
         <input id="mt-text" placeholder="Add a task…" onkeydown="if(event.key==='Enter')addManualTask()"
-          style="flex:1;min-width:0;border:1px solid #e0e4f0;border-radius:5px;padding:4px 8px;font-size:12px">
-        <input id="mt-due" type="date" value="${today}" style="border:1px solid #e0e4f0;border-radius:5px;padding:3px 4px;font-size:11px;max-width:112px">
-        <button onclick="addManualTask()" title="Add task" style="background:#2563eb;color:white;border:none;border-radius:5px;padding:4px 9px;font-size:13px;font-weight:700;cursor:pointer">+</button>
+          style="width:100%;box-sizing:border-box;border:1px solid #e0e4f0;border-radius:6px;padding:8px 10px;font-size:13px;margin-bottom:7px">
+        <div style="display:flex;gap:7px;align-items:center">
+          <input id="mt-due" type="date" value="${today}" style="flex:1;box-sizing:border-box;border:1px solid #e0e4f0;border-radius:6px;padding:6px 8px;font-size:12px">
+          <button onclick="addManualTask()" style="background:#2563eb;color:white;border:none;border-radius:6px;padding:7px 18px;font-size:12px;font-weight:700;cursor:pointer">Add</button>
+        </div>
       </div>`;
       if (!totalPast && !totalToday) return hdr + '<div class="task-due-empty">No tasks due today</div>' + upcoming + addRow;
       let html = hdr;
@@ -1246,12 +1248,23 @@ function getDashboardHTML(transactions, tc) {
           if (due < today) pastDue.push(item);
           else if (due === today) dueToday.push(item);
         }
-        if (!pastDue.length && !dueToday.length) return null;
+        // This transaction's manual tasks join its block on their day
+        const escT = s => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;');
+        const mtPast = [], mtToday = [];
+        for (const m of (t.manualTasks || [])) {
+          if (m.done) continue;
+          if (m.due && m.due < today) mtPast.push(m);
+          else if (m.due === today) mtToday.push(m);
+        }
+        if (!pastDue.length && !dueToday.length && !mtPast.length && !mtToday.length) return null;
         const shortAddr = (t.address || '(no address)').replace(/,.*$/, '');
+        const mtRow = (m, color) => `<div class="task-item"><input type="checkbox" id="dm-${id}-${m.id}" onchange="dashManualDone('${id}','${m.id}',this.checked)"><label for="dm-${id}-${m.id}" style="color:${color};font-weight:600">${escT(m.text)} <span style="font-size:10px;color:#2563eb;font-weight:700">· task</span></label></div>`;
         let inner = `<div class="task-group-name" style="font-size:11px;font-weight:700;color:#1e3a5f;padding:5px 0 3px;border-bottom:1px solid #e0e4f0;margin-bottom:4px">${shortAddr}</div>`;
         if (pastDue.length) inner += pastDue.map(item => `<div class="task-item"><input type="checkbox" id="dt-${id}-${item.id}" onchange="dashCheck('${id}','${item.id}',this.checked)"><label for="dt-${id}-${item.id}" style="color:#dc2626;font-weight:600">${item.label}</label></div>`).join('');
+        inner += mtPast.map(m => mtRow(m, '#dc2626')).join('');
         if (dueToday.length) inner += dueToday.map(item => `<div class="task-item"><input type="checkbox" id="dt-${id}-${item.id}" onchange="dashCheck('${id}','${item.id}',this.checked)"><label for="dt-${id}-${item.id}" style="color:#15803d;font-weight:600">${item.label}</label></div>`).join('');
-        return { past: pastDue.length, todayN: dueToday.length, html: `<div style="padding:8px 12px;border-bottom:1px solid #f0f2f8">${inner}</div>` };
+        inner += mtToday.map(m => mtRow(m, '#15803d')).join('');
+        return { past: pastDue.length + mtPast.length, todayN: dueToday.length + mtToday.length, html: `<div style="padding:8px 12px;border-bottom:1px solid #f0f2f8">${inner}</div>` };
       }
 
       // Render a labeled coordinator section (optionally hidden if empty).
@@ -1364,6 +1377,14 @@ async function dashCheck(txnId, itemId, checked) {
     const row = document.getElementById('dt-' + txnId + '-' + itemId);
     if (row) row.closest('.task-item').style.opacity = '0.4';
   }
+}
+async function dashManualDone(txnId, mtId, checked) {
+  await fetch('/api/transactions/' + txnId + '/manual-tasks/' + mtId, {
+    method:'POST', headers:{'Content-Type':'application/json'}, keepalive:true,
+    body: JSON.stringify({ done: checked })
+  });
+  const box = document.getElementById('dm-' + txnId + '-' + mtId);
+  if (box) box.closest('.task-item').style.opacity = checked ? '0.4' : '';
 }
 function toggleM(id) {
   const el = document.getElementById(id);
