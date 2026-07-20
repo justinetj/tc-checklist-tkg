@@ -27,6 +27,22 @@ async function saveData(data) {
   await pool.query(`UPDATE store SET value = $1 WHERE key = 'data'`, [JSON.stringify(data)]);
 }
 
+// All writes go through one queue: each mutation re-reads the latest blob,
+// applies its change, and saves before the next write starts. Without this,
+// two people clicking at the same moment each load the blob and whoever saves
+// last silently erases the other's change (lost notes/checkmarks).
+let writeChain = Promise.resolve();
+function withData(mutate) {
+  const run = writeChain.then(async () => {
+    const data = await loadData();
+    const result = await mutate(data);
+    await saveData(data);
+    return result;
+  });
+  writeChain = run.catch(() => {});
+  return run;
+}
+
 // ─── CHECKLIST ITEMS ────────────────────────────────────────────────────────
 // day: "Day N" = N days after contract execution date
 //      "COE N" = N days relative to close of escrow (negative = before COE)
@@ -358,7 +374,8 @@ function getHTML(transaction, id, tc) {
         </td>
         <td class="note-cell">
           <input type="text" class="note-input" placeholder="note…"
-            value="${(itemNotes.note || '').replace(/"/g, '&quot;')}"
+            value="${(itemNotes.note || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;')}"
+            oninput="debounceNote('${item.id}', this)"
             onblur="saveItemField('${item.id}', 'note', this.value)">
         </td>
       </tr>`;
@@ -378,7 +395,7 @@ function getHTML(transaction, id, tc) {
     return `<tr class="${c.done ? 'done' : ''}${overdue ? ' row-overdue' : ''}">
       <td class="cb-cell"><input type="checkbox" ${c.done ? 'checked' : ''} onchange="toggleContingencyDone('${c.id}')"></td>
       <td class="label-cell"><label>${String(c.name || 'Contingency').replace(/</g, '&lt;')} <span style="font-size:10px;color:#ea580c;font-weight:700;background:#fff7ed;border:1px solid #fed7aa;border-radius:6px;padding:0 5px">contingency</span></label></td>
-      <td class="date-cell"><span style="color:#ccc">—</span></td>
+      <td class="date-cell"><input type="date" class="date-input due${overdue ? ' overdue' : ''}" value="${(c.due || '').replace(/"/g, '&quot;')}" onchange="setContingencyDueById('${c.id}', this.value)"></td>
       <td class="note-cell"><button onclick="deleteContingencyById('${c.id}')" style="background:none;border:none;color:#cbd5e1;font-size:12px;cursor:pointer" title="Remove contingency">✕ remove</button></td>
     </tr>`;
   };
@@ -749,7 +766,7 @@ async function saveDue(itemId, val) {
   const inp = document.querySelector('.date-input.due[data-item="' + itemId + '"]');
   if (inp) { inp.dataset.manual = val ? '1' : ''; colorDue(inp); }
   await fetch('/api/transactions/' + TXN_ID + '/note', {
-    method:'POST', headers:{'Content-Type':'application/json'},
+    method:'POST', headers:{'Content-Type':'application/json'}, keepalive:true,
     body: JSON.stringify({itemId, field: 'due', val})
   });
   showToast();
@@ -811,11 +828,18 @@ async function toggle(itemId, val) {
   showToast();
 }
 async function saveItemField(itemId, field, val) {
+  // keepalive: the save still completes even if the page reloads right after
   await fetch('/api/transactions/' + TXN_ID + '/note', {
-    method:'POST', headers:{'Content-Type':'application/json'},
+    method:'POST', headers:{'Content-Type':'application/json'}, keepalive:true,
     body: JSON.stringify({itemId, field, val})
   });
   showToast();
+}
+// Save while typing (debounced) so a note can't be lost to a reload before blur
+const noteTimers = {};
+function debounceNote(itemId, inp) {
+  clearTimeout(noteTimers[itemId]);
+  noteTimers[itemId] = setTimeout(() => saveItemField(itemId, 'note', inp.value), 600);
 }
 async function setTxnStatus(status) {
   await fetch('/api/transactions/' + TXN_ID + '/status', {
@@ -853,6 +877,7 @@ function renderContingencies(){
   }).join('');
 }
 function deleteContingencyById(id){ const idx=CONTINGENCIES.findIndex(function(x){ return x.id===id; }); if(idx<0) return; CONTINGENCIES.splice(idx,1); saveContingencies().then(function(){ location.reload(); }); }
+function setContingencyDueById(id,val){ const c=CONTINGENCIES.find(function(x){ return x.id===id; }); if(!c) return; c.due=val; saveContingencies().then(function(){ location.reload(); }); }
 function addContingency(){
   const id=Date.now().toString();
   CONTINGENCIES.push({id:id,name:'',due:'',done:false});
@@ -1464,15 +1489,14 @@ const server = http.createServer(async (req, res) => {
     let body = "";
     req.on("data", d => body += d);
     req.on("end", async () => {
-      const data = await loadData();
       const parsed = JSON.parse(body);
       const id = crypto.randomBytes(6).toString("hex");
       const fields = parsed.fields || {};
       if (parsed.address) fields.address = parsed.address;
-      data.transactions[id] = { id, ...parsed, checked: {}, notes: {}, fields, createdAt: Date.now() };
-      await saveData(data);
+      const txn = { id, ...parsed, checked: {}, notes: {}, fields, createdAt: Date.now() };
+      await withData(data => { data.transactions[id] = txn; });
       res.writeHead(200, { "Content-Type": "application/json" });
-      res.end(JSON.stringify(data.transactions[id]));
+      res.end(JSON.stringify(txn));
     });
     return;
   }
@@ -1482,10 +1506,9 @@ const server = http.createServer(async (req, res) => {
     let body = "";
     req.on("data", d => body += d);
     req.on("end", async () => {
-      const data = await loadData();
       const txId = statusMatch[1];
       const { status } = JSON.parse(body);
-      if (data.transactions[txId]) { data.transactions[txId].status = status; await saveData(data); }
+      await withData(data => { if (data.transactions[txId]) data.transactions[txId].status = status; });
       res.writeHead(200, { "Content-Type": "application/json" });
       res.end(JSON.stringify({ ok: true }));
     });
@@ -1497,10 +1520,9 @@ const server = http.createServer(async (req, res) => {
     let body = "";
     req.on("data", d => body += d);
     req.on("end", async () => {
-      const data = await loadData();
       const txId = typeMatch[1];
       const { type } = JSON.parse(body);
-      if (data.transactions[txId]) { data.transactions[txId].type = type; await saveData(data); }
+      await withData(data => { if (data.transactions[txId]) data.transactions[txId].type = type; });
       res.writeHead(200, { "Content-Type": "application/json" });
       res.end(JSON.stringify({ ok: true }));
     });
@@ -1509,16 +1531,17 @@ const server = http.createServer(async (req, res) => {
 
   const deleteMatch = pathname.match(/^\/api\/transactions\/([^/]+)$/);
   if (req.method === "DELETE" && deleteMatch) {
-    const data = await loadData();
     const delId = deleteMatch[1];
-    const linked = Object.values(data.transactions).find(t => t.linkedListingId === delId);
-    if (linked) {
+    const blocked = await withData(data => {
+      if (Object.values(data.transactions).find(t => t.linkedListingId === delId)) return true;
+      delete data.transactions[delId];
+      return false;
+    });
+    if (blocked) {
       res.writeHead(409, { "Content-Type": "application/json" });
       res.end(JSON.stringify({ ok: false, error: 'This transaction has a linked Listing UC and cannot be deleted.' }));
       return;
     }
-    delete data.transactions[delId];
-    await saveData(data);
     res.writeHead(200, { "Content-Type": "application/json" });
     res.end(JSON.stringify({ ok: true }));
     return;
@@ -1529,10 +1552,15 @@ const server = http.createServer(async (req, res) => {
     let body = "";
     req.on("data", d => body += d);
     req.on("end", async () => {
-      const data = await loadData();
       const txId = checkMatch[1];
       const { itemId, checked } = JSON.parse(body);
-      if (data.transactions[txId]) { data.transactions[txId].checked[itemId] = checked; await saveData(data); }
+      await withData(data => {
+        const t = data.transactions[txId];
+        if (t) {
+          if (!t.checked) t.checked = {};
+          t.checked[itemId] = checked;
+        }
+      });
       res.writeHead(200, { "Content-Type": "application/json" });
       res.end(JSON.stringify({ ok: true }));
     });
@@ -1544,14 +1572,18 @@ const server = http.createServer(async (req, res) => {
     let body = "";
     req.on("data", d => body += d);
     req.on("end", async () => {
-      const data = await loadData();
       const txId = noteMatch[1];
       const { itemId, field, val } = JSON.parse(body);
-      if (data.transactions[txId]) {
-        if (!data.transactions[txId].notes[itemId]) data.transactions[txId].notes[itemId] = {};
-        data.transactions[txId].notes[itemId][field] = val;
-        await saveData(data);
-      }
+      await withData(data => {
+        const t = data.transactions[txId];
+        if (t) {
+          // Older webhook-created transactions were missing the notes object
+          // entirely, which made every note save crash and vanish
+          if (!t.notes) t.notes = {};
+          if (!t.notes[itemId]) t.notes[itemId] = {};
+          t.notes[itemId][field] = val;
+        }
+      });
       res.writeHead(200, { "Content-Type": "application/json" });
       res.end(JSON.stringify({ ok: true }));
     });
@@ -1563,23 +1595,22 @@ const server = http.createServer(async (req, res) => {
     let body = "";
     req.on("data", d => body += d);
     req.on("end", async () => {
-      const data = await loadData();
       const txId = fieldMatch[1];
       const { key, val } = JSON.parse(body);
-      let activated = false;
-      if (data.transactions[txId]) {
-        if (!data.transactions[txId].fields) data.transactions[txId].fields = {};
-        data.transactions[txId].fields[key] = val;
-        if (key === 'address') data.transactions[txId].address = val;
-        // Auto-activate pending listings once agreement, start, and expiration dates are all set
+      const activated = await withData(data => {
         const t = data.transactions[txId];
+        if (!t) return false;
+        if (!t.fields) t.fields = {};
+        t.fields[key] = val;
+        if (key === 'address') t.address = val;
+        // Auto-activate pending listings once agreement, start, and expiration dates are all set
         if (t.status === 'pending' && (t.type === 'listing' || t.type === 'listing-uc') &&
             t.fields.contractDate && t.fields.listingStartDate && t.fields.listingExpDate) {
           t.status = 'active';
-          activated = true;
+          return true;
         }
-        await saveData(data);
-      }
+        return false;
+      });
       res.writeHead(200, { "Content-Type": "application/json" });
       res.end(JSON.stringify({ ok: true, activated }));
     });
@@ -1591,13 +1622,13 @@ const server = http.createServer(async (req, res) => {
     let body = "";
     req.on("data", d => body += d);
     req.on("end", async () => {
-      const data = await loadData();
       const txId = contMatch[1];
       const { contingencies } = JSON.parse(body);
-      if (data.transactions[txId]) {
-        data.transactions[txId].contingencies = Array.isArray(contingencies) ? contingencies : [];
-        await saveData(data);
-      }
+      await withData(data => {
+        if (data.transactions[txId]) {
+          data.transactions[txId].contingencies = Array.isArray(contingencies) ? contingencies : [];
+        }
+      });
       res.writeHead(200, { "Content-Type": "application/json" });
       res.end(JSON.stringify({ ok: true }));
     });
@@ -1683,28 +1714,28 @@ const server = http.createServer(async (req, res) => {
         const listingStartDate = get('What Date Do You and Your Client Want The Listing Active on the MLS?');
         const notes = get('Any other important information or notes you want/need your transaction coordinator to know?', 'Additional info (optional)', 'Long Answer');
 
-        const data = await loadData();
         const id = 'txn_' + Date.now();
-        data.transactions[id] = {
-          type,
-          address: address || '(Address pending)',
-          status: 'pending',
-          createdAt: Date.now(),
-          _rawFields: p,
-          fields: {
-            clientName,
-            tcName,
-            agentPartner1: agentName,
-            agentPartner1Email: agentEmail,
-            agentPartner1Phone: agentPhone,
-            closeDate,
-            listingStartDate,
-            notes,
-          },
-          checked: {},
-          itemNotes: {},
-        };
-        await saveData(data);
+        await withData(data => {
+          data.transactions[id] = {
+            type,
+            address: address || '(Address pending)',
+            status: 'pending',
+            createdAt: Date.now(),
+            _rawFields: p,
+            fields: {
+              clientName,
+              tcName,
+              agentPartner1: agentName,
+              agentPartner1Email: agentEmail,
+              agentPartner1Phone: agentPhone,
+              closeDate,
+              listingStartDate,
+              notes,
+            },
+            checked: {},
+            notes: {},
+          };
+        });
         res.writeHead(200, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ ok: true, id, type, address, clientName }));
       } catch(e) {
@@ -1752,6 +1783,11 @@ async function migrateAddresses() {
   const data = await loadData();
   let changed = false;
   for (const t of Object.values(data.transactions)) {
+    // Heal transactions created by the Formstack webhook before it set up the
+    // notes object (it wrote "itemNotes" instead) — without this, saving a note
+    // on them crashed and the note was lost
+    if (!t.notes) { t.notes = t.itemNotes || {}; changed = true; }
+    if (!t.checked) { t.checked = {}; changed = true; }
     const addr = t.address || '';
     if (/address\s*=/.test(addr)) {
       const a = parseSubField(addr, 'address');
