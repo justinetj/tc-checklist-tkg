@@ -299,7 +299,7 @@ function dayBadge(dayLabel, color) {
   return `<span class="day-badge" style="background:${bg}">${dayLabel}</span>`;
 }
 
-function getHTML(transaction, id, tc) {
+function getHTML(transaction, id, tc, manualTasks) {
   const items = transaction.type === "buyer" ? BUYER_ITEMS : transaction.type === "buyer-new-build" ? BUYER_NEW_BUILD_ITEMS : LISTING_ITEMS;
   const isListing = transaction.type === "listing" || transaction.type === "listing-uc";
   const checked = transaction.checked || {};
@@ -669,6 +669,44 @@ ${(!isListing && !contractDate) ? `<div style="margin:12px 32px 0;background:#ff
       }
       return html;
     })()}
+    ${(() => {
+      // Manual tasks card — same tasks as the dashboard panel, addable from any page.
+      // These live in the Tasks panel only; they never join the checklist above.
+      if (!(tc === 'admin' || TC_NAMES.includes(tc))) return '';
+      const today = todayAZ();
+      const escT = s => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;');
+      const mine = (manualTasks || []).filter(m => !m.done && (tc === 'admin' || m.tc === tc))
+        .sort((a, b) => ((a.due || '9999') < (b.due || '9999') ? -1 : 1));
+      const rows = mine.map(m => {
+        const color = m.due && m.due < today ? '#dc2626' : m.due === today ? '#15803d' : '#64748b';
+        const dueTag = m.due ? ` <span style="font-weight:400;font-size:10px;color:#94a3b8">${m.due.slice(5,7)}/${m.due.slice(8,10)}</span>` : '';
+        const who = tc === 'admin' && m.tc ? `<span style="font-weight:400;font-size:10px;color:#94a3b8">${m.tc === 'admin' ? 'Justine' : escT(m.tc.split(' ')[0])} · </span>` : '';
+        return `<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:6px;padding:3px 0">
+          <div style="display:flex;align-items:flex-start;gap:7px;min-width:0">
+            <input type="checkbox" style="margin-top:2px;flex-shrink:0;cursor:pointer" onchange="doneManualTask('${m.id}', this)">
+            <label style="font-size:12px;line-height:1.4;color:${color};font-weight:600">${who}${escT(m.text)}${dueTag}</label>
+          </div>
+          <button onclick="deleteManualTask('${m.id}')" title="Delete task" style="background:none;border:none;color:#cbd5e1;cursor:pointer;font-size:11px;flex-shrink:0">✕</button>
+        </div>`;
+      }).join('');
+      const picker = tc === 'admin'
+        ? `<select id="mt-tc-self" style="border:1px solid #e0e4f0;border-radius:5px;padding:4px 5px;font-size:11px;max-width:90px">
+            ${[['admin','Justine'], ...TC_NAMES.map(n => [n, n.split(' ')[0]])].map(([v,l]) =>
+              `<option value="${v}"${v === assignedTC ? ' selected' : ''}>${l}</option>`).join('')}
+          </select>`
+        : '';
+      return `<div style="background:white;border-radius:10px;box-shadow:0 1px 4px rgba(0,0,0,.07);margin-top:14px;overflow:hidden">
+        <div class="detail-sidebar-hdr">✏️ My Tasks</div>
+        ${rows ? `<div style="padding:6px 14px">${rows}</div>` : '<div style="padding:10px 14px;font-size:12px;color:#94a3b8">No manual tasks</div>'}
+        <div style="display:flex;gap:4px;padding:8px 12px;border-top:1px solid #f0f2f8;align-items:center">
+          <input id="mt-text-self" placeholder="Add a task…" onkeydown="if(event.key==='Enter')addManualTask('self','${tc === 'admin' ? '' : tc}')"
+            style="flex:1;min-width:0;border:1px solid #e0e4f0;border-radius:5px;padding:4px 8px;font-size:12px">
+          <input id="mt-due-self" type="date" value="${today}" style="border:1px solid #e0e4f0;border-radius:5px;padding:3px 4px;font-size:11px;max-width:112px">
+          ${picker}
+          <button onclick="addManualTask('self','${tc === 'admin' ? '' : tc}')" style="background:#2563eb;color:white;border:none;border-radius:5px;padding:4px 9px;font-size:13px;font-weight:700;cursor:pointer">+</button>
+        </div>
+      </div>`;
+    })()}
   </div>
 </div>
 </div>
@@ -840,6 +878,35 @@ const noteTimers = {};
 function debounceNote(itemId, inp) {
   clearTimeout(noteTimers[itemId]);
   noteTimers[itemId] = setTimeout(() => saveItemField(itemId, 'note', inp.value), 600);
+}
+async function addManualTask(key, fixedTc) {
+  const textEl = document.getElementById('mt-text-' + key);
+  const text = textEl.value.trim();
+  if (!text) { textEl.focus(); return; }
+  const due = document.getElementById('mt-due-' + key).value;
+  const sel = document.getElementById('mt-tc-' + key);
+  const tcName = fixedTc || (sel ? sel.value : '');
+  await fetch('/api/manual-tasks', {
+    method:'POST', headers:{'Content-Type':'application/json'}, keepalive:true,
+    body: JSON.stringify({ tc: tcName, text, due })
+  });
+  location.reload();
+}
+async function doneManualTask(id, cb) {
+  await fetch('/api/manual-tasks/' + id, {
+    method:'POST', headers:{'Content-Type':'application/json'}, keepalive:true,
+    body: JSON.stringify({ done: cb.checked })
+  });
+  const item = cb.closest('div').parentElement;
+  if (item) { item.style.opacity = cb.checked ? '0.4' : ''; }
+  const lbl = cb.parentElement.querySelector('label');
+  if (lbl) lbl.style.textDecoration = cb.checked ? 'line-through' : '';
+  showToast();
+}
+async function deleteManualTask(id) {
+  if (!confirm('Delete this task?')) return;
+  await fetch('/api/manual-tasks/' + id, { method:'DELETE' });
+  location.reload();
 }
 async function setTxnStatus(status) {
   await fetch('/api/transactions/' + TXN_ID + '/status', {
@@ -1868,7 +1935,7 @@ const server = http.createServer(async (req, res) => {
     if (!tx) { res.writeHead(404); res.end("Not found"); return; }
     const tc = url.searchParams.get('tc') || '';
     res.writeHead(200, { "Content-Type": "text/html" });
-    res.end(getHTML(tx, txMatch[1], tc));
+    res.end(getHTML(tx, txMatch[1], tc, data.manualTasks || []));
     return;
   }
 
