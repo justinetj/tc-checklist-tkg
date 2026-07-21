@@ -274,6 +274,14 @@ const LISTING_ITEMS = [
 
 // ─── HTML ────────────────────────────────────────────────────────────────────
 
+// Contract acceptance and COE can never fall on a weekend — returns the
+// offending day name, or null if the date is fine/absent.
+function weekendDayNameSrv(iso) {
+  if (!iso) return null;
+  const d = new Date(iso + "T12:00:00").getDay();
+  return d === 0 ? "Sunday" : d === 6 ? "Saturday" : null;
+}
+
 function calcDueDateISO(dayLabel, contractDate, closeDate) {
   if (!dayLabel) return "";
   if (dayLabel.startsWith("Day")) {
@@ -573,7 +581,7 @@ ${(!isListing && !contractDate) ? `<div style="margin:12px 32px 0;background:#ff
         <div class="info-label">${label}</div>
         <input class="info-input" type="${type}" placeholder="—" data-key="${key}"
           value="${(key === 'address' ? (fields.address || transaction.address || '') : (fields[key] || '')).replace(/"/g, '&quot;')}"
-          onchange="saveField('${key}', this.value)">
+          onchange="saveField('${key}', this.value, this)">
       </div>`).join('')}
     ${['agentPartner1','agentPartner2'].map((key, i) => {
       const agentNames = ['Akanksha Tomar','Alexandra Allen','Alexis Wilson','Angela Massey','Angie Rodriguez','Annie Clark','Arielle Jaime','Ashleigh DiFilippantonio','Ashton Kaufman','Benjamin Veader','Brandi Romero','Carla Balk','Chelsea Higgs','Cierra Farrow-Boyle','Darlena Barley','Dennis Sadberry','Donica Sadberry','Gabriela Crosser','Hector Torres','India Blackshear','Jenny Cohen','Jessenia Zinner','Joyce Mireault','Justine Johnston','Kahila White','Keith Glass','Kira Warrens','Kye Mingus','Kyle Olson','Lake Porter','Michael Tarver','Prakash Agrawal','Ravi Sharma','Richie Corrie','Roberta Harris','Thomas Doheny','Time Isufi','Youseff Daboul','Yuxuan Xia'];
@@ -896,12 +904,37 @@ async function setTxnStatus(status) {
   });
   location.reload();
 }
-async function saveField(key, val) {
+// Contract acceptance and COE can never fall on a weekend (title/recording
+// offices are closed). Employment agreement dates on listings are exempt.
+function weekendDayName(iso) {
+  if (!iso) return null;
+  const d = new Date(iso + 'T12:00:00').getDay();
+  return d === 0 ? 'Sunday' : d === 6 ? 'Saturday' : null;
+}
+function weekendBlockLabel(key) {
+  if (key === 'closeDate') return 'Close of Escrow (COE)';
+  if (key === 'contractDate' && !IS_LISTING) return 'The contract acceptance date';
+  if (key === 'ucDate' && IS_LISTING) return 'The Under Contract date';
+  return null;
+}
+async function saveField(key, val, el) {
+  const label = weekendBlockLabel(key);
+  const wknd = label && weekendDayName(val);
+  if (wknd) {
+    alert('⚠ ' + label + ' cannot be a weekend!\\n\\n' + val + ' is a ' + wknd + ' — please pick a weekday.');
+    if (el) el.value = el.getAttribute('value') || '';
+    return;
+  }
   const res = await fetch('/api/transactions/' + TXN_ID + '/field', {
     method:'POST', headers:{'Content-Type':'application/json'},
     body: JSON.stringify({key, val})
   });
   const out = await res.json().catch(() => ({}));
+  if (out.error) {
+    alert('⚠ ' + out.error);
+    if (el) el.value = el.getAttribute('value') || '';
+    return;
+  }
   showToast();
   refreshDueDates();
   if (out.activated) window.location.reload();
@@ -1430,9 +1463,24 @@ async function deleteTxn(id, label, btn) {
   if (!r.ok) { const j = await r.json(); alert(j.error || 'Could not delete.'); return; }
   location.reload();
 }
+function weekendDayName(iso) {
+  if (!iso) return null;
+  const d = new Date(iso + 'T12:00:00').getDay();
+  return d === 0 ? 'Sunday' : d === 6 ? 'Saturday' : null;
+}
 async function create() {
   const addr = document.getElementById('f-address').value;
   const type = document.getElementById('f-type').value;
+  const contractDate = document.getElementById('f-contract').value;
+  const closeDate = document.getElementById('f-close').value;
+  // Contract acceptance and COE can never fall on a weekend.
+  // (For listings the date field is the employment agreement — any day is fine.)
+  if (type !== 'listing') {
+    const wc = weekendDayName(contractDate);
+    if (wc) { alert('⚠ The contract acceptance date cannot be a weekend!\\n\\n' + contractDate + ' is a ' + wc + ' — please pick a weekday.'); return; }
+    const we = weekendDayName(closeDate);
+    if (we) { alert('⚠ Close of Escrow (COE) cannot be a weekend!\\n\\n' + closeDate + ' is a ' + we + ' — please pick a weekday.'); return; }
+  }
   const body = {
     type,
     address: addr,
@@ -1441,14 +1489,15 @@ async function create() {
       address: addr,
       clientName: document.getElementById('f-client').value,
       agentPartner1: document.getElementById('f-agent').value,
-      contractDate: document.getElementById('f-contract').value,
-      closeDate: document.getElementById('f-close').value,
+      contractDate,
+      closeDate,
     }
   };
   const res = await fetch('/api/transactions', {
     method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)
   });
   const t = await res.json();
+  if (t.error) { alert('⚠ ' + t.error); return; }
   window.location.href = '/t/' + t.id + '?tc=${tc}';
 }
 document.getElementById('modal').addEventListener('click', function(e) {
@@ -1557,8 +1606,19 @@ const server = http.createServer(async (req, res) => {
     req.on("data", d => body += d);
     req.on("end", async () => {
       const parsed = JSON.parse(body);
-      const id = crypto.randomBytes(6).toString("hex");
       const fields = parsed.fields || {};
+      if (parsed.type !== 'listing') {
+        const wc = weekendDayNameSrv(fields.contractDate);
+        const we = weekendDayNameSrv(fields.closeDate);
+        const err = wc ? 'The contract acceptance date cannot be a weekend — ' + fields.contractDate + ' is a ' + wc + '.'
+          : we ? 'Close of Escrow (COE) cannot be a weekend — ' + fields.closeDate + ' is a ' + we + '.' : null;
+        if (err) {
+          res.writeHead(400, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ error: err + ' Please pick a weekday.' }));
+          return;
+        }
+      }
+      const id = crypto.randomBytes(6).toString("hex");
       if (parsed.address) fields.address = parsed.address;
       const txn = { id, ...parsed, checked: {}, notes: {}, fields, createdAt: Date.now() };
       await withData(data => { data.transactions[id] = txn; });
@@ -1712,9 +1772,15 @@ const server = http.createServer(async (req, res) => {
     req.on("end", async () => {
       const txId = fieldMatch[1];
       const { key, val } = JSON.parse(body);
-      const activated = await withData(data => {
+      const result = await withData(data => {
         const t = data.transactions[txId];
-        if (!t) return false;
+        if (!t) return { ok: false };
+        const listingType = t.type === 'listing' || t.type === 'listing-uc';
+        const dateLabel = key === 'closeDate' ? 'Close of Escrow (COE)'
+          : (key === 'contractDate' && !listingType) ? 'The contract acceptance date'
+          : (key === 'ucDate' && listingType) ? 'The Under Contract date' : null;
+        const wknd = dateLabel && weekendDayNameSrv(val);
+        if (wknd) return { ok: false, error: dateLabel + ' cannot be a weekend — ' + val + ' is a ' + wknd + '. Please pick a weekday.' };
         if (!t.fields) t.fields = {};
         t.fields[key] = val;
         if (key === 'address') t.address = val;
@@ -1722,12 +1788,12 @@ const server = http.createServer(async (req, res) => {
         if (t.status === 'pending' && (t.type === 'listing' || t.type === 'listing-uc') &&
             t.fields.contractDate && t.fields.listingStartDate && t.fields.listingExpDate) {
           t.status = 'active';
-          return true;
+          return { ok: true, activated: true };
         }
-        return false;
+        return { ok: true, activated: false };
       });
       res.writeHead(200, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ ok: true, activated }));
+      res.end(JSON.stringify(result));
     });
     return;
   }
