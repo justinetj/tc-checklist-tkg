@@ -288,6 +288,7 @@ function calcDueDateISO(dayLabel, contractDate, closeDate) {
     const n = parseInt(dayLabel.split(" ")[1]);
     if (!contractDate) return "";
     const d = new Date(contractDate + "T12:00:00");
+    if (isNaN(d.getTime())) return "";   // malformed stored date must never crash a render
     d.setDate(d.getDate() + n);
     return d.toISOString().slice(0, 10);
   }
@@ -295,6 +296,7 @@ function calcDueDateISO(dayLabel, contractDate, closeDate) {
     if (!closeDate) return "";
     const offset = dayLabel === "COE" ? 0 : parseInt(dayLabel.split(" ")[1]);
     const d = new Date(closeDate + "T12:00:00");
+    if (isNaN(d.getTime())) return "";
     d.setDate(d.getDate() + (offset || 0));
     return d.toISOString().slice(0, 10);
   }
@@ -611,7 +613,7 @@ ${(!isListing && !contractDate) ? `<div style="margin:12px 32px 0;background:#ff
       <div class="info-label">BINSR Due (Day 10)</div>
       <input id="binsrDue" class="info-input" type="date" placeholder="—"
         style="color:#b45309;font-weight:600"
-        value="${(() => { if (isListing && !fields.ucDate) return ''; if (fields.binsrDue) return fields.binsrDue; const base = isListing ? fields.ucDate : fields.contractDate; if (!base) return ''; const d = new Date(base + 'T12:00:00'); d.setDate(d.getDate() + 10); return d.toISOString().slice(0,10); })()}"
+        value="${(() => { if (isListing && !fields.ucDate) return ''; if (fields.binsrDue) return fields.binsrDue; const base = isListing ? fields.ucDate : fields.contractDate; if (!base) return ''; const d = new Date(base + 'T12:00:00'); if (isNaN(d.getTime())) return ''; d.setDate(d.getDate() + 10); return d.toISOString().slice(0,10); })()}"
         onchange="saveField('binsrDue', this.value)">
     </div>` : ''}
   </div>
@@ -1890,9 +1892,22 @@ const server = http.createServer(async (req, res) => {
           clientName = [c1, c2, c3].filter(Boolean).join(' & ');
         }
 
-        // Dates
-        const closeDate = get('Estimated closing date (Month and Year OK)?', 'Estimated closing date');
-        const listingStartDate = get('What Date Do You and Your Client Want The Listing Active on the MLS?');
+        // Dates — Formstack sends whatever the agent typed ("08/28/2026",
+        // "August 2026", …). Store ISO or nothing; the raw text stays in
+        // _rawFields and a bad string here crashes every dashboard render.
+        const toISO = s => {
+          s = String(s || '').trim();
+          if (!s) return '';
+          if (/^\d{4}-\d{2}-\d{2}$/.test(s) && !isNaN(new Date(s + 'T12:00:00').getTime())) return s;
+          const m = s.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{4})$/);
+          if (m) {
+            const iso = `${m[3]}-${m[1].padStart(2, '0')}-${m[2].padStart(2, '0')}`;
+            if (!isNaN(new Date(iso + 'T12:00:00').getTime())) return iso;
+          }
+          return '';
+        };
+        const closeDate = toISO(get('Estimated closing date (Month and Year OK)?', 'Estimated closing date'));
+        const listingStartDate = toISO(get('What Date Do You and Your Client Want The Listing Active on the MLS?'));
         const notes = get('Any other important information or notes you want/need your transaction coordinator to know?', 'Additional info (optional)', 'Long Answer');
 
         const id = 'txn_' + Date.now();
