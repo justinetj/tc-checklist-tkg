@@ -309,7 +309,7 @@ function dayBadge(dayLabel, color) {
   return `<span class="day-badge" style="background:${bg}">${dayLabel}</span>`;
 }
 
-function getHTML(transaction, id, tc) {
+function getHTML(transaction, id, tc, related = []) {
   const items = transaction.type === "buyer" ? BUYER_ITEMS : transaction.type === "buyer-new-build" ? BUYER_NEW_BUILD_ITEMS : LISTING_ITEMS;
   const isListing = transaction.type === "listing" || transaction.type === "listing-uc";
   const checked = transaction.checked || {};
@@ -605,10 +605,10 @@ ${(!isListing && !contractDate) ? `<div style="margin:12px 32px 0;background:#ff
         <option value="Cinnamon Kumler"${(fields.tcName||'')==='Cinnamon Kumler'?' selected':''}>Cinnamon Kumler</option>
       </select>
     </div>
-    ${transaction.type === 'listing-uc' && transaction.linkedListingId ? `<div class="info-field" style="background:#fef3c7">
-      <div class="info-label">Linked Listing</div>
-      <a href="/t/${transaction.linkedListingId}" style="font-size:14px;color:#1e3a5f;font-weight:600;text-decoration:none">→ View Original Listing</a>
-    </div>` : ''}
+    ${(related || []).map(r => `<div class="info-field" style="background:#fef3c7">
+      <div class="info-label">${r.label}</div>
+      <a href="/t/${r.id}?tc=${encodeURIComponent(tc)}" style="font-size:14px;color:#1e3a5f;font-weight:600;text-decoration:none">→ ${r.text}</a>
+    </div>`).join('')}
     ${transaction.type !== 'buyer-new-build' ? `<div class="info-field" style="background:#fff7ed">
       <div class="info-label">BINSR Due (Day 10)</div>
       <input id="binsrDue" class="info-input" type="date" placeholder="—"
@@ -1947,8 +1947,25 @@ const server = http.createServer(async (req, res) => {
     const tx = data.transactions[txMatch[1]];
     if (!tx) { res.writeHead(404); res.end("Not found"); return; }
     const tc = url.searchParams.get('tc') || '';
+    // Cross-links between the sides of the same deal: linkedListingId points
+    // from a child file (buy side / UC file) to its listing; show chips both ways.
+    const chipFor = t => (t.type === 'buyer' || t.type === 'buyer-new-build') ? ['Linked Buy Side', 'View Buy Side']
+      : t.type === 'listing-uc' ? ['Linked UC File', 'View Under Contract File']
+      : ['Linked Listing', 'View Original Listing'];
+    const related = [];
+    const target = tx.linkedListingId && data.transactions[tx.linkedListingId];
+    if (target) {
+      const [label, text] = chipFor(target);
+      related.push({ id: tx.linkedListingId, label, text });
+    }
+    for (const [oid, o] of Object.entries(data.transactions)) {
+      if (o.linkedListingId === txMatch[1]) {
+        const [label, text] = chipFor(o);
+        related.push({ id: oid, label, text });
+      }
+    }
     res.writeHead(200, { "Content-Type": "text/html" });
-    res.end(getHTML(tx, txMatch[1], tc));
+    res.end(getHTML(tx, txMatch[1], tc, related));
     return;
   }
 
