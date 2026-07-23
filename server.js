@@ -601,8 +601,15 @@ ${(!isListing && !contractDate) ? `<div style="margin:12px 32px 0;background:#ff
         </select>
       </div>`;
     }).join('')}
+    ${isListing ? `<div class="info-field">
+      <div class="info-label">LC Name</div>
+      <select class="info-input" onchange="saveField('lcName', this.value)">
+        <option value="">—</option>
+        <option value="Cinnamon Kumler"${(fields.lcName||'')==='Cinnamon Kumler'?' selected':''}>Cinnamon Kumler</option>
+      </select>
+    </div>` : ''}
     <div class="info-field">
-      <div class="info-label">TC Name</div>
+      <div class="info-label">TC Name${isListing && !fields.ucDate ? ' <span style="font-weight:400;text-transform:none;color:#b45309">(assigned when it goes under contract)</span>' : ''}</div>
       <select class="info-input" onchange="saveField('tcName', this.value)">
         <option value="">—</option>
         <option value="Joana Guzman"${(fields.tcName||'')==='Joana Guzman'?' selected':''}>Joana Guzman</option>
@@ -1080,7 +1087,7 @@ function getDashboardHTML(transactions, tc) {
       if (dueISO < todayStr) pastDue.push(item.label);
       else if (dueISO === todayStr) dueToday.push(item.label);
     }
-    const baseCompact = `<td style="font-size:13px;white-space:nowrap"><strong>${(t.address || '(no address)').replace(/,.*$/, '')}</strong></td><td style="font-size:12px;white-space:nowrap">${fields.clientName || t.clientName || '—'}</td><td style="font-size:12px;white-space:nowrap">${fields.agentPartner1 || '—'}</td><td style="font-size:12px;white-space:nowrap">${fields.tcName || '—'}</td>`;
+    const baseCompact = `<td style="font-size:13px;white-space:nowrap"><strong>${(t.address || '(no address)').replace(/,.*$/, '')}</strong></td><td style="font-size:12px;white-space:nowrap">${fields.clientName || t.clientName || '—'}</td><td style="font-size:12px;white-space:nowrap">${fields.agentPartner1 || '—'}</td><td style="font-size:12px;white-space:nowrap">${fields.tcName || fields.lcName || '—'}</td>`;
     const rowStyle = dueToday.length && !pastDue.length
       ? 'border-left:4px solid #16a34a;background:#f0fdf4;'
       : pastDue.length ? 'border-left:4px solid #dc2626;' : '';
@@ -1797,6 +1804,13 @@ const server = http.createServer(async (req, res) => {
         if (!t.fields) t.fields = {};
         t.fields[key] = val;
         if (key === 'address') t.address = val;
+        // A listing going Under Contract hands off to the TC doing the contract:
+        // if a buy-side file is linked to this listing, take its TC.
+        if (key === 'ucDate' && val && listingType && !t.fields.tcName) {
+          for (const other of Object.values(data.transactions)) {
+            if (other.linkedListingId === txId && other.fields?.tcName) { t.fields.tcName = other.fields.tcName; break; }
+          }
+        }
         // Auto-activate pending listings once agreement, start, and expiration dates are all set
         if (t.status === 'pending' && (t.type === 'listing' || t.type === 'listing-uc') &&
             t.fields.contractDate && t.fields.listingStartDate && t.fields.listingExpDate) {
@@ -1921,10 +1935,33 @@ const server = http.createServer(async (req, res) => {
         const listingStartDate = toISO(get('What Date Do You and Your Client Want The Listing Active on the MLS?'));
         const notes = get('Any other important information or notes you want/need your transaction coordinator to know?', 'Additional info (optional)', 'Long Answer');
 
+        // If an escrow comes in for a property we already have a listing for,
+        // link the new buy-side file to that listing automatically.
+        // Match on house number + first street-name word, ignoring punctuation
+        // and directionals (N/S/E/W), so formatting differences still match.
+        const addrKey = a => {
+          const s = String(a || '').toLowerCase().replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim();
+          const m = s.match(/^(\d+)\s+(.*)$/);
+          if (!m) return null;
+          const words = m[2].split(' ').filter(w => !['n','s','e','w','north','south','east','west'].includes(w));
+          return words[0] ? m[1] + '|' + words[0] : null;
+        };
+
         const id = 'txn_' + Date.now();
         await withData(data => {
+          let linkedListingId = null;
+          if (type === 'buyer') {
+            const key = addrKey(address);
+            if (key) {
+              for (const [oid, o] of Object.entries(data.transactions)) {
+                if ((o.type === 'listing' || o.type === 'listing-uc') && o.status !== 'cancelled' &&
+                    addrKey(o.address || o.fields?.address) === key) { linkedListingId = oid; break; }
+              }
+            }
+          }
           data.transactions[id] = {
             type,
+            ...(linkedListingId ? { linkedListingId } : {}),
             address: address || '(Address pending)',
             status: 'pending',
             createdAt: Date.now(),
@@ -2036,6 +2073,15 @@ async function migrateAddresses() {
       const last  = parseSubField(cl, 'last');
       t.fields.clientName = [first, last].filter(Boolean).join(' ') || cl;
       changed = true;
+    }
+    // Listings carry an LC (Listing Coordinator); the TC slot stays blank until
+    // the listing goes Under Contract, then belongs to whoever runs the contract.
+    if (t.type === 'listing' || t.type === 'listing-uc') {
+      if (!t.fields.lcName) { t.fields.lcName = 'Cinnamon Kumler'; changed = true; }
+      if (t.type === 'listing' && !t.fields.ucDate && t.fields.tcName === 'Cinnamon Kumler') {
+        t.fields.tcName = '';
+        changed = true;
+      }
     }
   }
   if (changed) await saveData(data);
