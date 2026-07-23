@@ -1161,10 +1161,10 @@ function getDashboardHTML(transactions, tc) {
   .task-group { border-bottom:1px solid #f0f2f8; padding:10px 14px; }
   .task-group:last-child { border-bottom:none; }
   .task-group-name { font-size:11px; font-weight:700; color:#1e3a5f; margin-bottom:6px; text-transform:uppercase; letter-spacing:.3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .task-item { display:flex; align-items:flex-start; gap:7px; padding:3px 0; }
+  .task-item { display:flex; align-items:flex-start; gap:6px; padding:2px 0; }
   .task-item input[type=checkbox] { margin-top:2px; flex-shrink:0; cursor:pointer; }
-  .task-item label { font-size:12px; color:#333; line-height:1.4; cursor:pointer; }
-  .task-item label.overdue { color:#dc2626; font-weight:600; }
+  .task-item label { font-size:11.5px; color:#333; line-height:1.3; cursor:pointer; }
+  .task-item label.overdue { color:#dc2626; }
   .task-panel-empty { padding:24px 14px; text-align:center; color:#888; font-size:12px; }
   @media(max-width:900px) { .dashboard-layout { flex-direction:column; } .task-panel { width:100%; position:static; } }
   .card { background:white; border-radius:10px; box-shadow:0 1px 4px rgba(0,0,0,.07); overflow:hidden; }
@@ -1334,11 +1334,11 @@ function getDashboardHTML(transactions, tc) {
         }
         if (!pastDue.length && !dueToday.length && !mtPast.length && !mtToday.length) return null;
         const shortAddr = (t.address || '(no address)').replace(/,.*$/, '');
-        const mtRow = (m, color) => `<div class="task-item"><input type="checkbox" id="dm-${id}-${m.id}" onchange="dashManualDone('${id}','${m.id}',this.checked)"><label for="dm-${id}-${m.id}" style="color:${color};font-weight:600">${escT(m.text)} <span style="font-size:10px;color:#2563eb;font-weight:700">· task</span></label></div>`;
+        const mtRow = (m, color) => `<div class="task-item"><input type="checkbox" id="dm-${id}-${m.id}" onchange="dashManualDone('${id}','${m.id}',this.checked)"><label for="dm-${id}-${m.id}" style="color:${color}">${escT(m.text)} <span style="font-size:10px;color:#2563eb;font-weight:700">· task</span></label></div>`;
         let inner = `<div class="task-group-name" style="font-size:11px;font-weight:700;color:#1e3a5f;padding:5px 0 3px;border-bottom:1px solid #e0e4f0;margin-bottom:4px">${shortAddr}</div>`;
-        if (pastDue.length) inner += pastDue.map(item => `<div class="task-item"><input type="checkbox" id="dt-${id}-${item.id}" onchange="dashCheck('${id}','${item.id}',this.checked)"><label for="dt-${id}-${item.id}" style="color:#dc2626;font-weight:600">${item.label}</label></div>`).join('');
+        if (pastDue.length) inner += pastDue.map(item => `<div class="task-item"><input type="checkbox" id="dt-${id}-${item.id}" onchange="dashCheck('${id}','${item.id}',this.checked)"><label for="dt-${id}-${item.id}" style="color:#dc2626">${item.label}</label></div>`).join('');
         inner += mtPast.map(m => mtRow(m, '#dc2626')).join('');
-        if (dueToday.length) inner += dueToday.map(item => `<div class="task-item"><input type="checkbox" id="dt-${id}-${item.id}" onchange="dashCheck('${id}','${item.id}',this.checked)"><label for="dt-${id}-${item.id}" style="color:#15803d;font-weight:600">${item.label}</label></div>`).join('');
+        if (dueToday.length) inner += dueToday.map(item => `<div class="task-item"><input type="checkbox" id="dt-${id}-${item.id}" onchange="dashCheck('${id}','${item.id}',this.checked)"><label for="dt-${id}-${item.id}" style="color:#15803d">${item.label}</label></div>`).join('');
         inner += mtToday.map(m => mtRow(m, '#15803d')).join('');
         return { past: pastDue.length + mtPast.length, todayN: dueToday.length + mtToday.length, html: `<div style="padding:8px 12px;border-bottom:1px solid #f0f2f8">${inner}</div>` };
       }
