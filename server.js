@@ -581,9 +581,14 @@ ${(!isListing && !contractDate) ? `<div style="margin:12px 32px 0;background:#ff
     ]).map(([label, key, type, hi]) => `
       <div class="info-field${hi ? ' highlight' : ''}">
         <div class="info-label">${label}</div>
-        <input class="info-input" type="${type}" placeholder="—" data-key="${key}"
-          value="${(key === 'address' ? (fields.address || transaction.address || '') : (fields[key] || '')).replace(/"/g, '&quot;')}"
-          onchange="saveField('${key}', this.value, this)">
+        ${key === 'address'
+          ? `<textarea class="info-input" rows="2" placeholder="—" data-key="address"
+              style="resize:none;overflow:hidden;line-height:1.35"
+              oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"
+              onchange="saveField('address', this.value, this)">${(fields.address || transaction.address || '').replace(/&/g, '&amp;').replace(/</g, '&lt;')}</textarea>`
+          : `<input class="info-input" type="${type}" placeholder="—" data-key="${key}"
+              value="${(fields[key] || '').replace(/"/g, '&quot;')}"
+              onchange="saveField('${key}', this.value, this)">`}
       </div>`).join('')}
     ${['agentPartner1','agentPartner2'].map((key, i) => {
       const agentNames = ['Akanksha Tomar','Alexandra Allen','Alexis Wilson','Angela Massey','Angie Rodriguez','Annie Clark','Arielle Jaime','Ashleigh DiFilippantonio','Ashton Kaufman','Benjamin Veader','Brandi Romero','Carla Balk','Chelsea Higgs','Cierra Farrow-Boyle','Darlena Barley','Dennis Sadberry','Donica Sadberry','Gabriela Crosser','Hector Torres','India Blackshear','Jenny Cohen','Jessenia Zinner','Joyce Mireault','Justine Johnston','Kahila White','Keith Glass','Kira Warrens','Kye Mingus','Kyle Olson','Lake Porter','Michael Tarver','Prakash Agrawal','Ravi Sharma','Richie Corrie','Roberta Harris','Thomas Doheny','Time Isufi','Youseff Daboul','Yuxuan Xia'];
@@ -971,6 +976,12 @@ function addContingency(){
 }
 function setContingency(i,key,val){ if(!CONTINGENCIES[i])return; CONTINGENCIES[i][key]=val; if(key!=='name') renderContingencies(); saveContingencies().then(function(){ if(key==='due'||key==='done') location.reload(); }); }
 function deleteContingency(i){ CONTINGENCIES.splice(i,1); renderContingencies(); saveContingencies().then(function(){ location.reload(); }); }
+
+// size the wrapping address box to its content on load
+(function(){
+  const a = document.querySelector('textarea[data-key="address"]');
+  if (a) { a.style.height = 'auto'; a.style.height = a.scrollHeight + 'px'; }
+})();
 function toggleContingencyDone(id){ const c=CONTINGENCIES.find(function(x){ return x.id===id; }); if(!c) return; c.done=!c.done; saveContingencies().then(function(){ location.reload(); }); }
 async function saveContingencies(){ await fetch('/api/transactions/'+TXN_ID+'/contingencies',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contingencies:CONTINGENCIES})}); if(typeof showToast==='function') showToast(); }
 renderContingencies();
