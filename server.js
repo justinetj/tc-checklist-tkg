@@ -376,7 +376,7 @@ function getHTML(transaction, id, tc, related = []) {
           <input type="checkbox" id="${item.id}" ${isChecked ? 'checked' : ''}
             onchange="toggle('${item.id}', this.checked)">
         </td>
-        <td class="label-cell" style="${item.indent ? 'color:#64748b;font-size:13px' : ''}"><label for="${item.id}">${item.indent ? '↳ ' : ''}${item.label}</label></td>
+        <td class="label-cell" style="${item.indent ? 'color:#64748b;font-size:11.5px' : ''}"><label for="${item.id}">${item.indent ? '↳ ' : ''}${item.label}</label></td>
         <td class="date-cell">${item.hasDue ? `
           <input type="date" class="date-input due${dueCls}" data-item="${item.id}" data-auto="${autoISO}"
             value="${dueVal.replace(/"/g, '&quot;')}"
@@ -496,7 +496,7 @@ function getHTML(transaction, id, tc, related = []) {
   tr:hover { background:#fafbff; }
   .cb-cell { width:40px; padding:10px 6px 10px 16px; }
   .cb-cell input[type=checkbox] { width:16px; height:16px; cursor:pointer; accent-color:${color}; }
-  .label-cell { padding:10px 8px; font-size:14px; }
+  .label-cell { padding:5px 8px; font-size:12.5px; }
   .label-cell label { cursor:pointer; }
   .day-cell { padding:6px 4px; width:80px; }
   .day-badge { display:inline-block; padding:2px 7px; border-radius:10px; font-size:10px;
@@ -504,7 +504,7 @@ function getHTML(transaction, id, tc, related = []) {
   .date-input.due { border-color:#d1fae5; color:#15803d; font-weight:600; background:#f0fdf4; }
   .date-input.due.overdue { border-color:#fecaca; color:#dc2626; background:#fff5f5; }
   tr.row-overdue { background:#fff5f5; }
-  tr.row-overdue .label-cell label { color:#dc2626; font-weight:600; }
+  tr.row-overdue .label-cell label { color:#dc2626; }
   .date-input.due:focus { border-color:#16a34a; }
   .date-input.due.overdue:focus { border-color:#dc2626; }
   .date-cell { padding:6px 4px; width:150px; }
@@ -527,9 +527,9 @@ function getHTML(transaction, id, tc, related = []) {
   .task-due-group { border-bottom:1px solid #f0f2f8; padding:10px 14px; }
   .task-due-group:last-child { border-bottom:none; }
   .task-due-label { font-size:11px; font-weight:700; color:#1e3a5f; margin-bottom:6px; text-transform:uppercase; }
-  .task-due-item { display:flex; align-items:flex-start; gap:7px; padding:3px 0; font-size:12px; color:#333; }
+  .task-due-item { display:flex; align-items:flex-start; gap:6px; padding:2px 0; font-size:11.5px; color:#333; }
   .task-due-item input { margin-top:2px; flex-shrink:0; }
-  .task-due-item label.overdue { color:#dc2626; font-weight:600; }
+  .task-due-item label.overdue { color:#dc2626; }
   .task-due-empty { padding:18px 14px; font-size:12px; color:#94a3b8; text-align:center; }
 </style></head>
 <body>
