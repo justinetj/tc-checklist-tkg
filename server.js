@@ -471,12 +471,12 @@ function getHTML(transaction, id, tc, related = []) {
 
   .info-card { background:white; margin:20px auto; max-width:1100px; padding:0 16px; }
   .info-grid { background:white; border-radius:10px; box-shadow:0 1px 4px rgba(0,0,0,.07);
-               display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:0;
+               display:grid; grid-template-columns:repeat(auto-fill,minmax(165px,1fr)); gap:0;
                overflow:hidden; border:1px solid #e0e4f0; }
-  .info-field { padding:12px 16px; border-right:1px solid #e0e4f0; border-bottom:1px solid #e0e4f0; }
+  .info-field { padding:7px 11px; border-right:1px solid #e0e4f0; border-bottom:1px solid #e0e4f0; }
   .info-field.highlight { background:#f0f4ff; }
-  .info-label { font-size:10px; font-weight:700; text-transform:uppercase; color:#888; margin-bottom:4px; }
-  .info-input { width:100%; border:none; font-size:13px; color:#1a1a2e; background:transparent;
+  .info-label { font-size:9px; font-weight:700; text-transform:uppercase; color:#888; margin-bottom:2px; }
+  .info-input { width:100%; border:none; font-size:12.5px; color:#1a1a2e; background:transparent;
                 outline:none; font-family:inherit; }
   .info-input:focus { color:#1565c0; }
 
@@ -629,6 +629,29 @@ ${(!isListing && !contractDate) ? `<div style="margin:12px 32px 0;background:#ff
         onchange="saveField('binsrDue', this.value)">
     </div>` : ''}
   </div>
+  ${isListing ? `
+  <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#2e7d32;letter-spacing:.5px;margin:10px 0 4px">🏷️ Listing Info</div>
+  <div class="info-grid">
+    ${[["MLS#", "mlsNum"], ["Lockbox#", "lockboxNum"], ["Shackle Code", "shackleCode"], ["CBS Code", "cbsCode"]].map(([label, key]) => `
+    <div class="info-field">
+      <div class="info-label">${label}</div>
+      <input class="info-input" type="text" placeholder="—" data-key="${key}"
+        value="${(fields[key] || '').replace(/"/g, '&quot;')}"
+        onchange="saveField('${key}', this.value, this)">
+    </div>`).join('')}
+    <div class="info-field">
+      <div class="info-label">Sign</div>
+      <select class="info-input" onchange="saveField('signStatus', this.value)">
+        ${['', 'Yes', 'No', 'Agents', 'Removed'].map(o => `<option value="${o}"${(fields.signStatus||'')===o?' selected':''}>${o || '—'}</option>`).join('')}
+      </select>
+    </div>
+    <div class="info-field">
+      <div class="info-label">Status</div>
+      <select class="info-input" onchange="saveField('listingStatus', this.value)">
+        ${['', 'Coming Soon', 'Active', 'Pending', 'Expired', 'Cancelled', 'Temp Off Mkt', 'Closed'].map(o => `<option value="${o}"${(fields.listingStatus||'')===o?' selected':''}>${o || '—'}</option>`).join('')}
+      </select>
+    </div>
+  </div>` : ''}
   <div style="border-top:1px solid #f1f1f4;margin-top:6px;padding-top:10px">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
       <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#9a3412;letter-spacing:.5px">📌 Contingencies</div>
