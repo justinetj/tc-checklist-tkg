@@ -65,6 +65,7 @@ const BUYER_ITEMS = [
   { id: "b7",   day: "Day 0",   label: "Order home / termite inspection (if applicable)" },
   // Day 1
   { id: "b61",  day: "Day 1",   label: "Confirm inspection has been scheduled" },
+  { id: "b70",  day: "Day 1",   label: "Change FUB status to Inspection Contingency", indent: true },
   { id: "b13",  day: "Day 1",   label: "Earnest money received by title" },
   { id: "b14",  day: "Day 1",   label: "Create SkySlope transaction" },
   { id: "b15",  day: "Day 1",   label: "Notify agent of missing docs / send missing items checklist" },
@@ -90,6 +91,7 @@ const BUYER_ITEMS = [
   // Day 15
   { id: "b29",  day: "Day 15",  label: "Appraisal ordered", hasDue: true },
   { id: "b64",  day: "Day 15",  label: "Follow up with agent regarding BINSR #3" },
+  { id: "b71",  day: "Day 15",  label: "Change FUB status to Appraisal Contingency", indent: true },
   // Day 17
   { id: "b25b", day: "Day 17",  label: "Request LSU #2", hasDue: true },
   { id: "b65",  day: "Day 17",  label: "BINSR #4 due (5 days after BINSR #2)", hasDue: true },
@@ -97,6 +99,7 @@ const BUYER_ITEMS = [
   { id: "b18c", day: "Day 19",  label: "Update client" },
   // Day 22
   { id: "b34",  day: "Day 22",  label: "Appraisal received — confirm value" },
+  { id: "b72",  day: "Day 22",  label: "Change FUB status to Loan Contingency", indent: true },
   // Day 24
   { id: "b35",  day: "Day 24",  label: "Request LSU #3", hasDue: true },
   // Day 26
@@ -148,6 +151,7 @@ const BUYER_NEW_BUILD_ITEMS = [
   { id: "b6",   day: "Day 0",   label: "Send buyer intro email (if applicable)" },
   // Day 1
   { id: "b61",  day: "Day 1",   label: "Confirm inspection has been scheduled" },
+  { id: "b70",  day: "Day 1",   label: "Change FUB status to Inspection Contingency", indent: true },
   { id: "b13",  day: "Day 1",   label: "Earnest money received by title" },
   { id: "b14",  day: "Day 1",   label: "Create SkySlope transaction" },
   { id: "b15",  day: "Day 1",   label: "Notify agent of missing docs / send missing items checklist" },
