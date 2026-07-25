@@ -752,6 +752,7 @@ ${(!isListing && !contractDate) ? `<div style="margin:12px 32px 0;background:#ff
 <script>
 const TXN_ID = '${id}';
 const IS_LISTING = ${JSON.stringify(isListing)};
+const IS_ADMIN = ${JSON.stringify(!tc || tc === 'admin' || ADMIN_TCS.includes(tc))};
 const ITEMS = ${JSON.stringify((() => { let u = false; return items.map(i => { if (i.section === "Under Contract") u = true; return { id: i.id, day: i.day, uc: u }; }); })())};
 
 function addDays(dateStr, n) {
@@ -943,11 +944,17 @@ async function deleteManualTask(id) {
   await fetch('/api/transactions/' + TXN_ID + '/manual-tasks/' + id, { method:'DELETE' });
   location.reload();
 }
-async function setTxnStatus(status) {
-  await fetch('/api/transactions/' + TXN_ID + '/status', {
+async function setTxnStatus(status, force) {
+  const res = await fetch('/api/transactions/' + TXN_ID + '/status', {
     method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({status})
+    body: JSON.stringify({status, force: !!force})
   });
+  const out = await res.json().catch(function(){ return {}; });
+  if (out.error) {
+    if (IS_ADMIN && confirm('⚠ ' + out.error + '\\n\\nClose it anyway (admin override)?')) return setTxnStatus(status, true);
+    if (!IS_ADMIN) alert('⚠ ' + out.error);
+    return;
+  }
   location.reload();
 }
 // Contract acceptance and COE can never fall on a weekend (title/recording
@@ -1442,6 +1449,7 @@ function getDashboardHTML(transactions, tc) {
   </div>
 </div>
 <script>
+const IS_ADMIN = ${JSON.stringify(isAdmin)};
 function onTypeChange(val) {
   const isListing = val === 'listing';
   const isUC = val === 'listing-uc';
@@ -1499,11 +1507,17 @@ function toggleCoord(id) {
   body.style.display = open ? 'none' : '';
   if (arrow) arrow.textContent = open ? '▸' : '▾';
 }
-async function setStatus(id, status) {
-  await fetch('/api/transactions/' + id + '/status', {
+async function setStatus(id, status, force) {
+  const res = await fetch('/api/transactions/' + id + '/status', {
     method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({status})
+    body: JSON.stringify({status, force: !!force})
   });
+  const out = await res.json().catch(function(){ return {}; });
+  if (out.error) {
+    if (IS_ADMIN && confirm('⚠ ' + out.error + '\\n\\nClose it anyway (admin override)?')) return setStatus(id, status, true);
+    if (!IS_ADMIN) alert('⚠ ' + out.error);
+    return;
+  }
   location.reload();
 }
 async function deleteTxn(id, label, btn) {
@@ -1734,10 +1748,25 @@ const server = http.createServer(async (req, res) => {
     req.on("data", d => body += d);
     req.on("end", async () => {
       const txId = statusMatch[1];
-      const { status } = JSON.parse(body);
-      await withData(data => { if (data.transactions[txId]) data.transactions[txId].status = status; });
+      const { status, force } = JSON.parse(body);
+      let result = { ok: true };
+      await withData(data => {
+        const t = data.transactions[txId];
+        if (!t) { result = { ok: false }; return; }
+        // A file can't be closed until its whole checklist is checked off
+        // (admins may force after an explicit confirm).
+        if (status === 'closed' && !force) {
+          const items = t.type === 'buyer' ? BUYER_ITEMS : t.type === 'buyer-new-build' ? BUYER_NEW_BUILD_ITEMS : LISTING_ITEMS;
+          const remaining = items.filter(i => !(t.checked || {})[i.id]).length;
+          if (remaining > 0) {
+            result = { ok: false, remaining, error: remaining + " checklist item(s) are still unchecked — a file can't be closed until everything is complete." };
+            return;
+          }
+        }
+        t.status = status;
+      });
       res.writeHead(200, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ ok: true }));
+      res.end(JSON.stringify(result));
     });
     return;
   }
