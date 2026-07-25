@@ -380,7 +380,12 @@ function getHTML(transaction, id, tc, related = []) {
           <input type="checkbox" id="${item.id}" ${isChecked ? 'checked' : ''}
             onchange="toggle('${item.id}', this.checked)">
         </td>
-        <td class="label-cell" style="${item.indent ? 'color:#64748b;font-size:11.5px' : ''}"><label for="${item.id}">${item.indent ? '↳ ' : ''}${item.label}</label></td>
+        <td class="label-cell" style="${item.indent ? 'color:#64748b;font-size:11.5px' : ''}"><label for="${item.id}"${(() => {
+          // oversight logins can hover a checked item to see when it was ticked
+          const canSeeDates = !tc || tc === 'admin' || ADMIN_TCS.includes(tc);
+          const ts = isChecked && canSeeDates && (transaction.checkedAt || {})[item.id];
+          return ts ? ` title="Checked off ${new Date(ts).toLocaleString('en-US', { timeZone: 'America/Phoenix', month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' })}"` : '';
+        })()}>${item.indent ? '↳ ' : ''}${item.label}</label></td>
         <td class="date-cell">${item.hasDue ? `
           <input type="date" class="date-input due${dueCls}" data-item="${item.id}" data-auto="${autoISO}"
             value="${dueVal.replace(/"/g, '&quot;')}"
@@ -1781,6 +1786,10 @@ const server = http.createServer(async (req, res) => {
         if (t) {
           if (!t.checked) t.checked = {};
           t.checked[itemId] = checked;
+          // remember when each item was ticked, so oversight can hover for the date
+          if (!t.checkedAt) t.checkedAt = {};
+          if (checked) t.checkedAt[itemId] = Date.now();
+          else delete t.checkedAt[itemId];
         }
       });
       res.writeHead(200, { "Content-Type": "application/json" });
