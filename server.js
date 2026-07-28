@@ -1139,10 +1139,6 @@ function getDashboardHTML(transactions, tc) {
   const listings    = sorted.filter(([,t]) => (!t.status || t.status === "active") && t.type === "listing" && !t.fields?.ucDate);
   const listingUC   = sorted.filter(([,t]) => (!t.status || t.status === "active") && (t.type === "listing-uc" || (t.type === "listing" && t.fields?.ucDate)));
   const closingToday = sorted.filter(([,t]) => (!t.status || t.status === "active") && (t.fields?.closeDate === todayISO));
-  const monthPrefix = todayISO.slice(0, 7);
-  const monthName = new Date(todayISO + 'T12:00:00').toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-  const closingThisMonth = sorted.filter(([,t]) => (!t.status || t.status === "active") && (t.fields?.closeDate || '').startsWith(monthPrefix))
-    .sort((x, y) => (x[1].fields.closeDate < y[1].fields.closeDate ? -1 : 1));
   const closed     = sorted.filter(([,t]) => t.status === "closed");
   const cancelled  = sorted.filter(([,t]) => t.status === "cancelled");
   // Active transactions whose close date has already passed but aren't marked closed.
@@ -1278,24 +1274,6 @@ function getDashboardHTML(transactions, tc) {
           <td style="padding:7px 8px;font-size:12px;color:#166534">${fields.clientName || t.clientName || '—'}</td>
           <td style="padding:7px 8px;font-size:11px"><span style="background:#dcfce7;color:#15803d;border-radius:8px;padding:2px 8px;font-weight:700">${label}</span></td>
           <td style="padding:7px 8px;font-size:12px;color:#166534">${fields.agentPartner1 || '—'}</td>
-        </tr>`;
-      }).join('')}</tbody></table>
-    </div>` : ''}
-    ${closingThisMonth.length > 0 ? `
-    <div style="background:#1e3a5f;color:white;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;padding:5px 12px;border-radius:7px;margin-bottom:5px">📅 Closing This Month — ${monthName} (${closingThisMonth.length})</div>
-    <div class="card" style="margin-bottom:14px;border-top:3px solid #1e3a5f">
-      <table><tbody>${closingThisMonth.map(([id, t]) => {
-        const fields = t.fields || {};
-        const cd = fields.closeDate;
-        const [y, m, dd] = cd.split('-');
-        const side = t.type === 'listing' || t.type === 'listing-uc' ? '🏡 Seller' : '🔑 Buyer';
-        const dateColor = cd < todayISO ? '#dc2626' : cd === todayISO ? '#15803d' : '#1e3a5f';
-        return `<tr onclick="window.location='/t/${id}?tc=${tc}'" style="cursor:pointer">
-          <td style="padding:6px 14px;font-size:12px;font-weight:800;color:${dateColor};white-space:nowrap">${+m}/${+dd}${cd === todayISO ? ' · TODAY' : cd < todayISO ? ' · PAST' : ''}</td>
-          <td style="padding:6px 8px;font-size:13px;font-weight:600">${t.address || '(no address)'}</td>
-          <td style="padding:6px 8px;font-size:12px;color:#555">${fields.clientName || '—'}</td>
-          <td style="padding:6px 8px;font-size:11px"><span style="background:#f0f4ff;color:#1e3a5f;border-radius:8px;padding:2px 8px;font-weight:700">${side}</span></td>
-          <td style="padding:6px 8px;font-size:12px;color:#555">${fields.tcName || '—'}</td>
         </tr>`;
       }).join('')}</tbody></table>
     </div>` : ''}
