@@ -192,7 +192,6 @@ const LISTING_ITEMS = [
   { id: "l3",  section: "Day 0 — Listing Setup",       day: "Day 0",  label: "Create Deal in FUB" },
   { id: "l3a", section: "Day 0 — Listing Setup",       day: "Day 0",  label: "Accurate stage", indent: true },
   { id: "l3b", section: "Day 0 — Listing Setup",       day: "Day 0",  label: "Accurate source", indent: true },
-  { id: "l6",  section: "Day 0 — Listing Setup",       day: "Day 0",  label: "Create Zillow Payment Form (if applicable)" },
   { id: "l4",  section: "Day 0 — Listing Setup",       day: "Day 0",  label: "Update Kumler Group Workbook" },
   { id: "l7",  section: "Day 0 — Listing Setup",       day: "Day 0",  label: "SPDS completed by seller — on file" },
   { id: "l7b", section: "Day 0 — Listing Setup",       day: "Day 0",  label: "CLUE report received" },
