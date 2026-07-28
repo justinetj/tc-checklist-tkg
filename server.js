@@ -1199,8 +1199,10 @@ function getDashboardHTML(transactions, tc) {
   .tab-btn:hover { color:#16324f; }
   .tab-btn.on { background:#16324f; color:white; }
   .tab-badge { background:#dc2626; color:white; border-radius:999px; padding:1px 8px; font-size:11px; margin-left:4px; }
-  .shd { display:flex; align-items:center; gap:9px; background:white; border:1px solid #e5eaf1; border-bottom:none; border-radius:14px 14px 0 0; padding:10px 16px; font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:.05em; color:#16324f; }
-  .shd .dot { width:8px; height:8px; border-radius:99px; flex-shrink:0; }
+  .shd { display:flex; align-items:center; gap:9px; border-radius:10px; margin-bottom:6px; padding:9px 16px; font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:.06em; color:white; }
+  .shd:has(+ .card) { border-radius:14px 14px 0 0; margin-bottom:0; }
+  .shd-purple { background:#7c3aed; } .shd-red { background:#dc2626; } .shd-green { background:#15803d; }
+  .shd-blue { background:#2456d6; } .shd-gray { background:#6b7280; }
   .dashboard-layout { display:flex; gap:20px; align-items:flex-start; }
   .dashboard-main { flex:1; min-width:0; }
   .task-panel { width:260px; flex-shrink:0; position:sticky; top:16px; }
@@ -1258,17 +1260,17 @@ function getDashboardHTML(transactions, tc) {
     <div data-tab="dash">
     ${needsAttention.length + pending.length + closingToday.length === 0 ? '<div class="card" style="padding:22px;text-align:center;color:#15803d;font-weight:700;margin-bottom:14px">✅ Nothing needs attention today — no pending intakes, no closings due</div>' : ''}
     ${needsAttention.length > 0 ? `
-    <div class="shd"><span class="dot" style="background:#dc2626"></span>⚠️ Incomplete — Past Close Date, Not Marked Closed (${needsAttention.length})</div>
+    <div class="shd shd-red">⚠️ Incomplete — Past Close Date, Not Marked Closed (${needsAttention.length})</div>
     <div class="card" style="margin-bottom:14px;border-left:4px solid #dc2626">
       ${makeTable(needsAttention, false, 'buyer')}
     </div>` : ''}
     ${pending.length > 0 ? `
-    <div class="shd"><span class="dot" style="background:#7c3aed"></span>⚠️ Needs Attention — New Formstack (${pending.length})</div>
+    <div class="shd shd-purple">⚠️ Needs Attention — New Formstack (${pending.length})</div>
     <div style="margin-bottom:14px;display:flex;flex-direction:column;gap:6px">
       ${pending.map(pendingCard).join('')}
     </div>` : ''}
     ${closingToday.length > 0 ? `
-    <div class="shd"><span class="dot" style="background:#15803d"></span>🎉 Closings Today — ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})} (${closingToday.length})</div>
+    <div class="shd shd-green">🎉 Closings Today — ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})} (${closingToday.length})</div>
     <div class="card" style="margin-bottom:14px;border-left:4px solid #15803d">
       <table><tbody>${closingToday.map(([id,t]) => {
         const fields = t.fields || {};
@@ -1283,19 +1285,19 @@ function getDashboardHTML(transactions, tc) {
     </div>` : ''}
     </div>
     <div data-tab="buyers">
-    ${(() => { const pb = pending.filter(([,t]) => t.type === 'buyer' || t.type === 'buyer-new-build'); return pb.length ? `<div class="shd"><span class="dot" style="background:#7c3aed"></span>⚠️ Needs Setup (${pb.length})</div><div style="margin-bottom:14px;display:flex;flex-direction:column;gap:6px">${pb.map(pendingCard).join('')}</div>` : ''; })()}
-    <div class="shd"><span class="dot" style="background:#1565c0"></span>🏠 Active Transactions — Buyers</div>
+    ${(() => { const pb = pending.filter(([,t]) => t.type === 'buyer' || t.type === 'buyer-new-build'); return pb.length ? `<div class="shd shd-purple">⚠️ Needs Setup (${pb.length})</div><div style="margin-bottom:14px;display:flex;flex-direction:column;gap:6px">${pb.map(pendingCard).join('')}</div>` : ''; })()}
+    <div class="shd shd-blue">🏠 Active Transactions — Buyers</div>
     <div class="card" style="margin-bottom:14px">
       ${active.length === 0 ? '<div class="empty">No active transactions.</div>' : makeTable([...active].sort((a,b) => { const da = a[1].fields?.closeDate || '9999-99-99', db = b[1].fields?.closeDate || '9999-99-99'; return da < db ? -1 : da > db ? 1 : 0; }), false, 'buyer')}
     </div>
-    <div class="shd"><span class="dot" style="background:#1565c0"></span>📝 Active Transactions — Sellers</div>
+    <div class="shd shd-blue">📝 Active Transactions — Sellers</div>
     <div class="card" style="margin-bottom:14px">
       ${listingUC.length === 0 ? '<div class="empty">No listings under contract.</div>' : makeTable(listingUC, false, 'buyer')}
     </div>
     </div>
     <div data-tab="listings">
-    ${(() => { const pl = pending.filter(([,t]) => t.type === 'listing' || t.type === 'listing-uc'); return pl.length ? `<div class="shd"><span class="dot" style="background:#7c3aed"></span>⚠️ Needs Setup (${pl.length})</div><div style="margin-bottom:14px;display:flex;flex-direction:column;gap:6px">${pl.map(pendingCard).join('')}</div>` : ''; })()}
-    <div class="shd"><span class="dot" style="background:#1565c0"></span>📋 Active Listings</div>
+    ${(() => { const pl = pending.filter(([,t]) => t.type === 'listing' || t.type === 'listing-uc'); return pl.length ? `<div class="shd shd-purple">⚠️ Needs Setup (${pl.length})</div><div style="margin-bottom:14px;display:flex;flex-direction:column;gap:6px">${pl.map(pendingCard).join('')}</div>` : ''; })()}
+    <div class="shd shd-blue">📋 Active Listings</div>
     <div class="card" style="margin-bottom:14px">
       ${listings.length === 0 ? '<div class="empty">No active listings.</div>' : makeTable(listings, false, 'listing')}
     </div>
@@ -1333,7 +1335,7 @@ function getDashboardHTML(transactions, tc) {
             <div id="${mId}" style="display:none">${makeTable(groups[month], true, 'buyer')}</div>
           </div>`;
         }).join('');
-        return `<div class="shd"><span class="dot" style="background:#6b7280"></span>${icon} ${sectionLabel}</div>
+        return `<div class="shd shd-gray">${icon} ${sectionLabel}</div>
         <div style="margin-bottom:24px">${rows}</div>`;
       }
       return makeMonthGroups(closed,'Closed Transactions','✓') + makeMonthGroups(cancelled,'Cancelled Transactions','✕');
