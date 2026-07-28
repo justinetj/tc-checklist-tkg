@@ -90,15 +90,15 @@ const BUYER_ITEMS = [
   { id: "b18b", day: "Day 12",  label: "Update client" },
   // Day 15
   { id: "b29",  day: "Day 15",  label: "Appraisal ordered", hasDue: true },
-  { id: "b64",  day: "Day 15",  label: "Follow up with agent regarding BINSR #3" },
+  { id: "b64",  day: "Day 15",  label: "Follow up with agent regarding BINSR #3", hasDue: true },
   { id: "b71",  day: "Day 15",  label: "Change FUB status to Appraisal Contingency", indent: true },
   // Day 17
   { id: "b25b", day: "Day 17",  label: "Request LSU #2", hasDue: true },
-  { id: "b65",  day: "Day 17",  label: "BINSR #4 due (5 days after BINSR #2)", hasDue: true },
+  { id: "b65",  day: "Day 17",  label: "BINSR #3 due (5 days after BINSR #2)", hasDue: true },
   // Day 19
   { id: "b18c", day: "Day 19",  label: "Update client" },
   // Day 22
-  { id: "b34",  day: "Day 22",  label: "Appraisal received — confirm value" },
+  { id: "b34",  day: "Day 22",  label: "Appraisal received — confirm value", hasDue: true },
   { id: "b72",  day: "Day 22",  label: "Change FUB status to Loan Contingency", indent: true },
   // Day 24
   { id: "b35",  day: "Day 24",  label: "Request LSU #3", hasDue: true },
