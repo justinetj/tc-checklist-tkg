@@ -1170,6 +1170,11 @@ function getDashboardHTML(transactions, tc) {
          font-size:13px; font-weight:600; cursor:pointer; }
   .btn:hover { background:#1d4ed8; }
   .container { max-width:1400px; margin:14px auto; padding:0 16px; }
+  .tab-bar { display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap; }
+  .tab-btn { background:white; border:2px solid #d0d7e8; color:#4b5563; font-weight:800; font-size:13px; padding:9px 18px; border-radius:9px; cursor:pointer; }
+  .tab-btn:hover { border-color:#1e3a5f; }
+  .tab-btn.on { background:#1e3a5f; border-color:#1e3a5f; color:white; }
+  .tab-badge { background:#dc2626; color:white; border-radius:999px; padding:1px 8px; font-size:11px; margin-left:4px; }
   .dashboard-layout { display:flex; gap:20px; align-items:flex-start; }
   .dashboard-main { flex:1; min-width:0; }
   .task-panel { width:260px; flex-shrink:0; position:sticky; top:16px; }
@@ -1218,6 +1223,13 @@ function getDashboardHTML(transactions, tc) {
 <div class="container">
 <div class="dashboard-layout">
   <div class="dashboard-main">
+    <div class="tab-bar">
+      <button class="tab-btn" data-for="dash" onclick="showTab('dash')">⚡ Dashboard${needsAttention.length + pending.length ? ` <span class="tab-badge">${needsAttention.length + pending.length}</span>` : ''}</button>
+      <button class="tab-btn" data-for="buyers" onclick="showTab('buyers')">🏠 Buyers (${active.length + listingUC.length})</button>
+      <button class="tab-btn" data-for="listings" onclick="showTab('listings')">🏷️ Listings (${listings.length})</button>
+    </div>
+    <div data-tab="dash">
+    ${needsAttention.length + pending.length + closingToday.length === 0 ? '<div class="card" style="padding:22px;text-align:center;color:#15803d;font-weight:700;margin-bottom:14px">✅ Nothing needs attention today — no pending intakes, no closings due</div>' : ''}
     ${needsAttention.length > 0 ? `
     <div style="background:#dc2626;color:white;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;padding:5px 12px;border-radius:7px;margin-bottom:5px">⚠️ Incomplete — Past Close Date, Not Marked Closed (${needsAttention.length})</div>
     <div class="card" style="margin-bottom:14px;border:2px solid #dc2626">
@@ -1263,6 +1275,8 @@ function getDashboardHTML(transactions, tc) {
         </tr>`;
       }).join('')}</tbody></table>
     </div>` : ''}
+    </div>
+    <div data-tab="buyers">
     <div style="background:#1565c0;color:white;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;padding:5px 12px;border-radius:7px;margin-bottom:5px">🏠 Active Transactions — Buyers</div>
     <div class="card" style="margin-bottom:14px;border-top:3px solid #1565c0">
       ${active.length === 0 ? '<div class="empty">No active transactions.</div>' : makeTable([...active].sort((a,b) => { const da = a[1].fields?.closeDate || '9999-99-99', db = b[1].fields?.closeDate || '9999-99-99'; return da < db ? -1 : da > db ? 1 : 0; }), false, 'buyer')}
@@ -1271,10 +1285,14 @@ function getDashboardHTML(transactions, tc) {
     <div class="card" style="margin-bottom:14px;border-top:3px solid #1565c0">
       ${listingUC.length === 0 ? '<div class="empty">No listings under contract.</div>' : makeTable(listingUC, false, 'buyer')}
     </div>
+    </div>
+    <div data-tab="listings">
     <div style="background:#1565c0;color:white;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;padding:5px 12px;border-radius:7px;margin-bottom:5px">📋 Active Listings</div>
     <div class="card" style="margin-bottom:14px;border-top:3px solid #1565c0">
       ${listings.length === 0 ? '<div class="empty">No active listings.</div>' : makeTable(listings, false, 'listing')}
     </div>
+    </div>
+    <div data-tab="dash">
     ${(() => {
       function monthLabel(t) {
         const d = t.fields?.closeDate || t.fields?.contractDate;
@@ -1312,6 +1330,7 @@ function getDashboardHTML(transactions, tc) {
       }
       return makeMonthGroups(closed,'Closed Transactions','✓') + makeMonthGroups(cancelled,'Cancelled Transactions','✕');
     })()}
+    </div>
   </div>
 
   <div class="task-panel"${showDashTasks ? '' : ' style="display:none"'}>
@@ -1450,6 +1469,12 @@ function getDashboardHTML(transactions, tc) {
 </div>
 <script>
 const IS_ADMIN = ${JSON.stringify(isAdmin)};
+function showTab(name) {
+  document.querySelectorAll('[data-tab]').forEach(el => el.style.display = el.dataset.tab === name ? '' : 'none');
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('on', b.dataset.for === name));
+  try { localStorage.tcTab = name; } catch(e) {}
+}
+showTab((function(){ try { return localStorage.tcTab || 'dash'; } catch(e) { return 'dash'; } })());
 function onTypeChange(val) {
   const isListing = val === 'listing';
   const isUC = val === 'listing-uc';
