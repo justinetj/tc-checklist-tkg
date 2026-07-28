@@ -1161,14 +1161,14 @@ function getDashboardHTML(transactions, tc) {
         const receivedAt = t.createdAt ? new Date(t.createdAt).toLocaleString('en-US', { timeZone: 'America/Phoenix', month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true }) : '—';
         const curType = (t.type && t.type !== '') ? t.type : 'buyer';
         const typeOpts = [['buyer','Buyer — Resale'],['buyer-new-build','Buyer — New Build'],['listing','Listing'],['listing-uc','Listing Escrow']];
-        return `<div style="background:white;border:2px solid #7c3aed;border-radius:8px;padding:8px 12px">
+        return `<div style="background:white;border:1px solid #e5eaf1;border-left:4px solid #7c3aed;border-radius:10px;padding:10px 14px;box-shadow:0 1px 3px rgba(22,50,79,.05)">
           <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
             <div style="flex:1;min-width:180px">
               <div style="font-weight:700;font-size:14px;color:#1e293b">${addr}</div>
               <div style="font-size:12px;color:#64748b;margin-top:2px">${client && client !== '—' ? `Client: <b style="color:#1e293b">${client}</b> &nbsp;·&nbsp; ` : ''}Agent: <b style="color:#1e293b">${agent}</b></div>
               <div style="font-size:11px;color:#94a3b8;margin-top:3px">Received: ${receivedAt}</div>
             </div>
-            <a href="/t/${id}?tc=${tc}" style="background:#7c3aed;color:white;text-decoration:none;font-size:12px;font-weight:700;padding:7px 14px;border-radius:6px;white-space:nowrap">Open →</a>
+            <a href="/t/${id}?tc=${tc}" style="background:#16324f;color:white;text-decoration:none;font-size:12px;font-weight:700;padding:7px 14px;border-radius:8px;white-space:nowrap">Open →</a>
           </div>
           <div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap;align-items:center">
             <span style="font-size:11px;color:#94a3b8;font-weight:600;margin-right:2px">TYPE:</span>
@@ -1183,9 +1183,10 @@ function getDashboardHTML(transactions, tc) {
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>The Kumler Group — Transaction Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
   * { box-sizing:border-box; margin:0; padding:0; }
-  body { font-family:-apple-system,Helvetica,sans-serif; background:#f5f6fa; color:#1a1a2e; }
+  body { font-family:'Inter',-apple-system,Helvetica,sans-serif; background:#f2f5f9; color:#1c2733; }
   .header { background:#1e3a5f; color:white; padding:18px 32px; display:flex; align-items:center; justify-content:space-between; }
   .header h1 { font-size:20px; font-weight:700; }
   .header p { font-size:13px; color:#a8c4e0; margin-top:2px; }
@@ -1193,11 +1194,13 @@ function getDashboardHTML(transactions, tc) {
          font-size:13px; font-weight:600; cursor:pointer; }
   .btn:hover { background:#1d4ed8; }
   .container { max-width:1400px; margin:14px auto; padding:0 16px; }
-  .tab-bar { display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap; }
-  .tab-btn { background:white; border:2px solid #d0d7e8; color:#4b5563; font-weight:800; font-size:13px; padding:9px 18px; border-radius:9px; cursor:pointer; }
-  .tab-btn:hover { border-color:#1e3a5f; }
-  .tab-btn.on { background:#1e3a5f; border-color:#1e3a5f; color:white; }
+  .tab-bar { display:flex; gap:6px; background:white; border:1px solid #e5eaf1; padding:5px; border-radius:12px; width:fit-content; margin-bottom:16px; box-shadow:0 1px 3px rgba(22,50,79,.06); flex-wrap:wrap; }
+  .tab-btn { background:transparent; border:none; color:#5b6b7f; font-weight:700; font-family:inherit; font-size:13px; padding:8px 18px; border-radius:8px; cursor:pointer; }
+  .tab-btn:hover { color:#16324f; }
+  .tab-btn.on { background:#16324f; color:white; }
   .tab-badge { background:#dc2626; color:white; border-radius:999px; padding:1px 8px; font-size:11px; margin-left:4px; }
+  .shd { display:flex; align-items:center; gap:9px; background:white; border:1px solid #e5eaf1; border-bottom:none; border-radius:14px 14px 0 0; padding:10px 16px; font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:.05em; color:#16324f; }
+  .shd .dot { width:8px; height:8px; border-radius:99px; flex-shrink:0; }
   .dashboard-layout { display:flex; gap:20px; align-items:flex-start; }
   .dashboard-main { flex:1; min-width:0; }
   .task-panel { width:260px; flex-shrink:0; position:sticky; top:16px; }
@@ -1211,10 +1214,11 @@ function getDashboardHTML(transactions, tc) {
   .task-item label.overdue { color:#dc2626; }
   .task-panel-empty { padding:24px 14px; text-align:center; color:#888; font-size:12px; }
   @media(max-width:900px) { .dashboard-layout { flex-direction:column; } .task-panel { width:100%; position:static; } }
-  .card { background:white; border-radius:10px; box-shadow:0 1px 4px rgba(0,0,0,.07); overflow:hidden; }
+  .card { background:white; border:1px solid #e5eaf1; border-radius:14px; box-shadow:0 1px 3px rgba(22,50,79,.05); overflow:hidden; }
+  .shd + .card { border-top-left-radius:0; border-top-right-radius:0; }
   table { width:100%; border-collapse:collapse; }
-  th { text-align:left; padding:6px 12px; background:#f0f4ff; font-size:10px; color:#555;
-       font-weight:700; text-transform:uppercase; letter-spacing:.4px; border-bottom:2px solid #e0e4f0; }
+  th { text-align:left; padding:7px 14px; background:#fafbfd; font-size:10px; color:#5b6b7f;
+       font-weight:700; text-transform:uppercase; letter-spacing:.05em; border-bottom:1px solid #e5eaf1; }
   td { padding:5px 12px; border-bottom:1px solid #f0f2f8; font-size:13px; }
   tr:last-child td { border-bottom:none; }
   tr:hover td { background:#f7f9ff; }
@@ -1254,18 +1258,18 @@ function getDashboardHTML(transactions, tc) {
     <div data-tab="dash">
     ${needsAttention.length + pending.length + closingToday.length === 0 ? '<div class="card" style="padding:22px;text-align:center;color:#15803d;font-weight:700;margin-bottom:14px">✅ Nothing needs attention today — no pending intakes, no closings due</div>' : ''}
     ${needsAttention.length > 0 ? `
-    <div style="background:#dc2626;color:white;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;padding:5px 12px;border-radius:7px;margin-bottom:5px">⚠️ Incomplete — Past Close Date, Not Marked Closed (${needsAttention.length})</div>
-    <div class="card" style="margin-bottom:14px;border:2px solid #dc2626">
+    <div class="shd"><span class="dot" style="background:#dc2626"></span>⚠️ Incomplete — Past Close Date, Not Marked Closed (${needsAttention.length})</div>
+    <div class="card" style="margin-bottom:14px;border-left:4px solid #dc2626">
       ${makeTable(needsAttention, false, 'buyer')}
     </div>` : ''}
     ${pending.length > 0 ? `
-    <div style="background:#7c3aed;color:white;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;padding:5px 12px;border-radius:7px;margin-bottom:6px;display:flex;align-items:center;gap:8px">⚠️ Needs Attention — New Formstack (${pending.length})</div>
+    <div class="shd"><span class="dot" style="background:#7c3aed"></span>⚠️ Needs Attention — New Formstack (${pending.length})</div>
     <div style="margin-bottom:14px;display:flex;flex-direction:column;gap:6px">
       ${pending.map(pendingCard).join('')}
     </div>` : ''}
     ${closingToday.length > 0 ? `
-    <div style="background:#15803d;color:white;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;padding:5px 12px;border-radius:7px;margin-bottom:5px">🎉 Closings Today — ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})} (${closingToday.length})</div>
-    <div class="card" style="margin-bottom:14px;border:2px solid #15803d;background:#f0fdf4">
+    <div class="shd"><span class="dot" style="background:#15803d"></span>🎉 Closings Today — ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})} (${closingToday.length})</div>
+    <div class="card" style="margin-bottom:14px;border-left:4px solid #15803d">
       <table><tbody>${closingToday.map(([id,t]) => {
         const fields = t.fields || {};
         const label = t.type === 'listing' || t.type === 'listing-uc' ? '🏡 Seller' : '🔑 Buyer';
@@ -1279,20 +1283,20 @@ function getDashboardHTML(transactions, tc) {
     </div>` : ''}
     </div>
     <div data-tab="buyers">
-    ${(() => { const pb = pending.filter(([,t]) => t.type === 'buyer' || t.type === 'buyer-new-build'); return pb.length ? `<div style="background:#7c3aed;color:white;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;padding:5px 12px;border-radius:7px;margin-bottom:6px">⚠️ Needs Setup (${pb.length})</div><div style="margin-bottom:14px;display:flex;flex-direction:column;gap:6px">${pb.map(pendingCard).join('')}</div>` : ''; })()}
-    <div style="background:#1565c0;color:white;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;padding:5px 12px;border-radius:7px;margin-bottom:5px">🏠 Active Transactions — Buyers</div>
-    <div class="card" style="margin-bottom:14px;border-top:3px solid #1565c0">
+    ${(() => { const pb = pending.filter(([,t]) => t.type === 'buyer' || t.type === 'buyer-new-build'); return pb.length ? `<div class="shd"><span class="dot" style="background:#7c3aed"></span>⚠️ Needs Setup (${pb.length})</div><div style="margin-bottom:14px;display:flex;flex-direction:column;gap:6px">${pb.map(pendingCard).join('')}</div>` : ''; })()}
+    <div class="shd"><span class="dot" style="background:#1565c0"></span>🏠 Active Transactions — Buyers</div>
+    <div class="card" style="margin-bottom:14px">
       ${active.length === 0 ? '<div class="empty">No active transactions.</div>' : makeTable([...active].sort((a,b) => { const da = a[1].fields?.closeDate || '9999-99-99', db = b[1].fields?.closeDate || '9999-99-99'; return da < db ? -1 : da > db ? 1 : 0; }), false, 'buyer')}
     </div>
-    <div style="background:#1565c0;color:white;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;padding:5px 12px;border-radius:7px;margin-bottom:5px">📝 Active Transactions — Sellers</div>
-    <div class="card" style="margin-bottom:14px;border-top:3px solid #1565c0">
+    <div class="shd"><span class="dot" style="background:#1565c0"></span>📝 Active Transactions — Sellers</div>
+    <div class="card" style="margin-bottom:14px">
       ${listingUC.length === 0 ? '<div class="empty">No listings under contract.</div>' : makeTable(listingUC, false, 'buyer')}
     </div>
     </div>
     <div data-tab="listings">
-    ${(() => { const pl = pending.filter(([,t]) => t.type === 'listing' || t.type === 'listing-uc'); return pl.length ? `<div style="background:#7c3aed;color:white;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;padding:5px 12px;border-radius:7px;margin-bottom:6px">⚠️ Needs Setup (${pl.length})</div><div style="margin-bottom:14px;display:flex;flex-direction:column;gap:6px">${pl.map(pendingCard).join('')}</div>` : ''; })()}
-    <div style="background:#1565c0;color:white;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;padding:5px 12px;border-radius:7px;margin-bottom:5px">📋 Active Listings</div>
-    <div class="card" style="margin-bottom:14px;border-top:3px solid #1565c0">
+    ${(() => { const pl = pending.filter(([,t]) => t.type === 'listing' || t.type === 'listing-uc'); return pl.length ? `<div class="shd"><span class="dot" style="background:#7c3aed"></span>⚠️ Needs Setup (${pl.length})</div><div style="margin-bottom:14px;display:flex;flex-direction:column;gap:6px">${pl.map(pendingCard).join('')}</div>` : ''; })()}
+    <div class="shd"><span class="dot" style="background:#1565c0"></span>📋 Active Listings</div>
+    <div class="card" style="margin-bottom:14px">
       ${listings.length === 0 ? '<div class="empty">No active listings.</div>' : makeTable(listings, false, 'listing')}
     </div>
     </div>
@@ -1329,7 +1333,7 @@ function getDashboardHTML(transactions, tc) {
             <div id="${mId}" style="display:none">${makeTable(groups[month], true, 'buyer')}</div>
           </div>`;
         }).join('');
-        return `<div style="background:#6b7280;color:white;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;padding:5px 12px;border-radius:7px;margin-bottom:5px">${icon} ${sectionLabel}</div>
+        return `<div class="shd"><span class="dot" style="background:#6b7280"></span>${icon} ${sectionLabel}</div>
         <div style="margin-bottom:24px">${rows}</div>`;
       }
       return makeMonthGroups(closed,'Closed Transactions','✓') + makeMonthGroups(cancelled,'Cancelled Transactions','✕');
