@@ -1183,6 +1183,21 @@ function getDashboardHTML(transactions, tc) {
         </div>`;
       };
 
+  const closingsTodaySection = closingToday.length > 0 ? `
+    <div class="shd shd-green">🎉 Closings Today — ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})} (${closingToday.length})</div>
+    <div class="card" style="margin-bottom:14px;border-left:4px solid #15803d">
+      <table><tbody>${closingToday.map(([id,t]) => {
+        const fields = t.fields || {};
+        const label = t.type === 'listing' || t.type === 'listing-uc' ? '🏡 Seller' : '🔑 Buyer';
+        return `<tr onclick="window.location='/t/${id}?tc=${tc}'" style="cursor:pointer">
+          <td style="padding:7px 14px;font-size:13px;font-weight:700;color:#14532d">${t.address || '(no address)'}</td>
+          <td style="padding:7px 8px;font-size:12px;color:#166534">${fields.clientName || t.clientName || '—'}</td>
+          <td style="padding:7px 8px;font-size:11px"><span style="background:#dcfce7;color:#15803d;border-radius:8px;padding:2px 8px;font-weight:700">${label}</span></td>
+          <td style="padding:7px 8px;font-size:12px;color:#166534">${fields.agentPartner1 || '—'}</td>
+        </tr>`;
+      }).join('')}</tbody></table>
+    </div>` : '';
+
   const rows = ''; // unused placeholder
 
   return `<!DOCTYPE html>
@@ -1275,23 +1290,11 @@ function getDashboardHTML(transactions, tc) {
     <div style="margin-bottom:14px;display:flex;flex-direction:column;gap:6px">
       ${pending.map(pendingCard).join('')}
     </div>` : ''}
-    ${closingToday.length > 0 ? `
-    <div class="shd shd-green">🎉 Closings Today — ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})} (${closingToday.length})</div>
-    <div class="card" style="margin-bottom:14px;border-left:4px solid #15803d">
-      <table><tbody>${closingToday.map(([id,t]) => {
-        const fields = t.fields || {};
-        const label = t.type === 'listing' || t.type === 'listing-uc' ? '🏡 Seller' : '🔑 Buyer';
-        return `<tr onclick="window.location='/t/${id}?tc=${tc}'" style="cursor:pointer">
-          <td style="padding:7px 14px;font-size:13px;font-weight:700;color:#14532d">${t.address || '(no address)'}</td>
-          <td style="padding:7px 8px;font-size:12px;color:#166534">${fields.clientName || t.clientName || '—'}</td>
-          <td style="padding:7px 8px;font-size:11px"><span style="background:#dcfce7;color:#15803d;border-radius:8px;padding:2px 8px;font-weight:700">${label}</span></td>
-          <td style="padding:7px 8px;font-size:12px;color:#166534">${fields.agentPartner1 || '—'}</td>
-        </tr>`;
-      }).join('')}</tbody></table>
-    </div>` : ''}
+    ${closingsTodaySection}
     </div>
     <div data-tab="buyers">
     ${(() => { const pb = pending.filter(([,t]) => t.type === 'buyer' || t.type === 'buyer-new-build'); return pb.length ? `<div class="shd shd-purple">⚠️ Needs Setup (${pb.length})</div><div style="margin-bottom:14px;display:flex;flex-direction:column;gap:6px">${pb.map(pendingCard).join('')}</div>` : ''; })()}
+    ${closingsTodaySection}
     <div class="shd shd-blue">🏠 Active Transactions — Buyers</div>
     <div class="card" style="margin-bottom:14px">
       ${active.length === 0 ? '<div class="empty">No active transactions.</div>' : makeTable([...active].sort((a,b) => { const da = a[1].fields?.closeDate || '9999-99-99', db = b[1].fields?.closeDate || '9999-99-99'; return da < db ? -1 : da > db ? 1 : 0; }), false, 'buyer')}
