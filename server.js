@@ -1123,8 +1123,7 @@ function getDashboardHTML(transactions, tc) {
     let dateCols = '';
     if (mode === 'uc') {
       const ucd = fields.ucDate ? fmt(fields.ucDate) : ucFlag;
-      const price = fields.salesPrice ? String(fields.salesPrice).replace(/^(?=[0-9])/, '$') : '—';
-      dateCols = `<td>${ucd}</td><td>${fmt(fields.closeDate)}</td><td>${price}</td>`;
+      dateCols = `<td>${ucd}</td><td>${fmt(fields.closeDate)}</td>`;
     } else if (mode === 'buyer') {
       dateCols = `<td>${ucCell}</td><td>${fmt(fields.closeDate)}</td>`;
     } else if (mode === 'listing') {
@@ -1168,7 +1167,7 @@ function getDashboardHTML(transactions, tc) {
   function makeTable(list, archived, mode) {
     if (list.length === 0) return '<div class="empty">None</div>';
     const headers = mode === 'uc'
-      ? `<th>Address</th><th>Client</th><th>Agent</th><th>TC</th><th>Under Contract</th><th>Closing Date</th><th>Price</th><th>Progress</th><th>Actions</th>`
+      ? `<th>Address</th><th>Client</th><th>Agent</th><th>TC</th><th>Under Contract</th><th>Closing Date</th><th>Progress</th><th>Actions</th>`
       : mode === 'buyer'
       ? `<th>Address</th><th>Client</th><th>Agent</th><th>TC</th><th>Under Contract</th><th>Closing Date</th><th>Progress</th><th>Actions</th>`
       : mode === 'listing'
