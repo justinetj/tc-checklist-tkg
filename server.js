@@ -488,7 +488,7 @@ function getHTML(transaction, id, tc, related = []) {
   .progress-label { background:white; padding:8px 32px; font-size:13px; color:#555;
                     border-bottom:1px solid #e0e4f0; }
 
-  .info-card { background:white; margin:16px auto; max-width:1440px; padding:0 16px; }
+  .info-card { background:white; margin:20px auto; max-width:1100px; padding:0 16px; }
   .info-grid { background:white; border-radius:10px; box-shadow:0 1px 4px rgba(0,0,0,.07);
                display:grid; grid-template-columns:repeat(auto-fill,minmax(165px,1fr)); gap:0;
                overflow:hidden; border:1px solid #e0e4f0; }
@@ -499,7 +499,7 @@ function getHTML(transaction, id, tc, related = []) {
                 outline:none; font-family:inherit; }
   .info-input:focus { color:#1565c0; }
 
-  .container { max-width:1440px; margin:16px auto; padding:0 16px; }
+  .container { max-width:1100px; margin:16px auto; padding:0 16px; }
   .section { background:white; border-radius:10px; margin-bottom:14px;
              box-shadow:0 1px 4px rgba(0,0,0,.07); overflow:hidden; }
   .section-header { display:flex; justify-content:space-between; align-items:center;
