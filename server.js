@@ -411,7 +411,7 @@ function getHTML(transaction, id, tc, related = []) {
     }).join('');
     const lockedBanner = locked && !lockBannerShown ? (lockBannerShown = true, `<tr style="background:#fef9c3"><td colspan="4" style="padding:6px 12px;font-size:11px;color:#92400e;font-weight:600">🔒 Enter Under Contract Date above to unlock the sections below</td></tr>`) : '';
     const tbodyId = 'day-' + g.day.replace(/[^a-z0-9]/gi, '-');
-    const header = g.day ? `<tr class="day-header" id="hdr-${tbodyId}" style="background:#f8fafc;${locked?'opacity:0.4':''}cursor:pointer;" onclick="toggleDay('${tbodyId}',this)"><td colspan="4" style="padding:8px 12px;font-size:12px;font-weight:700;letter-spacing:.5px;border-bottom:1px solid #e2e8f0"><span class="day-badge" style="background:${headerBg};color:white;padding:2px 9px;border-radius:10px;font-size:11px">${g.day}</span>${dateDisplay} <span class="collapse-arrow" style="float:right;font-size:10px;color:#94a3b8">▲</span></td></tr>` : '';
+    const header = g.day ? `<tr class="day-header" id="hdr-${tbodyId}" style="background:#f8fafc;${locked?'opacity:0.4':''}cursor:pointer;" onclick="toggleDay('${tbodyId}',this)"><td colspan="4" style="padding:5px 10px;font-size:11px;font-weight:700;letter-spacing:.5px;border-bottom:1px solid #e2e8f0"><span class="day-badge" style="background:${headerBg};color:white;padding:2px 9px;border-radius:10px;font-size:11px">${g.day}</span>${dateDisplay} <span class="collapse-arrow" style="float:right;font-size:10px;color:#94a3b8">▲</span></td></tr>` : '';
     const rowsOut = locked ? rows.replace(/<input type="checkbox"/g, '<input type="checkbox" disabled').replace(/<input type="date"/g, '<input type="date" disabled').replace(/<input type="text"/g, '<input type="text" disabled') : rows;
     return lockedBanner + header + `<tbody id="${tbodyId}" style="${locked?'opacity:0.4;pointer-events:none':''}">${rowsOut}${extraRows || ''}</tbody>`;
   };
@@ -492,10 +492,10 @@ function getHTML(transaction, id, tc, related = []) {
   .info-grid { background:white; border-radius:10px; box-shadow:0 1px 4px rgba(0,0,0,.07);
                display:grid; grid-template-columns:repeat(auto-fill,minmax(165px,1fr)); gap:0;
                overflow:hidden; border:1px solid #e0e4f0; }
-  .info-field { padding:7px 11px; border-right:1px solid #e0e4f0; border-bottom:1px solid #e0e4f0; }
+  .info-field { padding:4px 10px; border-right:1px solid #e0e4f0; border-bottom:1px solid #e0e4f0; }
   .info-field.highlight { background:#f0f4ff; }
-  .info-label { font-size:9px; font-weight:700; text-transform:uppercase; color:#888; margin-bottom:2px; }
-  .info-input { width:100%; border:none; font-size:12.5px; color:#1a1a2e; background:transparent;
+  .info-label { font-size:8.5px; font-weight:700; text-transform:uppercase; color:#888; margin-bottom:1px; }
+  .info-input { width:100%; border:none; font-size:12px; color:#1a1a2e; background:transparent;
                 outline:none; font-family:inherit; }
   .info-input:focus { color:#1565c0; }
 
@@ -513,9 +513,9 @@ function getHTML(transaction, id, tc, related = []) {
   tr:last-child { border-bottom:none; }
   tr.done .label-cell label { color:#bbb; text-decoration:line-through; }
   tr:hover { background:#fafbff; }
-  .cb-cell { width:40px; padding:10px 6px 10px 16px; }
-  .cb-cell input[type=checkbox] { width:16px; height:16px; cursor:pointer; accent-color:${color}; }
-  .label-cell { padding:5px 8px; font-size:12.5px; }
+  .cb-cell { width:34px; padding:4px 4px 4px 14px; }
+  .cb-cell input[type=checkbox] { width:14px; height:14px; cursor:pointer; accent-color:${color}; }
+  .label-cell { padding:2px 8px; font-size:11.5px; }
   .label-cell label { cursor:pointer; }
   .day-cell { padding:6px 4px; width:80px; }
   .day-badge { display:inline-block; padding:2px 7px; border-radius:10px; font-size:10px;
@@ -527,11 +527,11 @@ function getHTML(transaction, id, tc, related = []) {
   .date-input.due:focus { border-color:#16a34a; }
   .date-input.due.overdue:focus { border-color:#dc2626; }
   .date-cell { padding:6px 4px; width:150px; }
-  .date-input { width:100%; border:1px solid #e0e4f0; border-radius:5px; padding:4px 6px;
+  .date-input { width:100%; border:1px solid #e0e4f0; border-radius:5px; padding:2px 5px;
                 font-size:12px; color:#555; outline:none; background:#fafbff; font-family:inherit; }
   .date-input:focus { border-color:${color}; background:white; }
   .note-cell { padding:6px 16px 6px 0; width:300px; }
-  .note-input { width:100%; border:1px solid #e0e4f0; border-radius:5px; padding:4px 8px;
+  .note-input { width:100%; border:1px solid #e0e4f0; border-radius:5px; padding:2px 7px;
                 font-size:12px; color:#555; outline:none; background:#fafbff; }
   .note-input:focus { border-color:${color}; background:white; }
   .toast { position:fixed; bottom:20px; right:20px; background:#2e7d32; color:white;
@@ -1278,7 +1278,7 @@ function getDashboardHTML(transactions, tc) {
   table { width:100%; border-collapse:collapse; }
   th { text-align:left; padding:7px 14px; background:#fafbfd; font-size:10px; color:#5b6b7f;
        font-weight:700; text-transform:uppercase; letter-spacing:.05em; border-bottom:1px solid #e5eaf1; }
-  td { padding:5px 12px; border-bottom:1px solid #f0f2f8; font-size:13px; }
+  td { padding:3px 10px; border-bottom:1px solid #f0f2f8; font-size:12px; }
   tr:last-child td { border-bottom:none; }
   tr:hover td { background:#f7f9ff; }
   .empty { padding:14px; text-align:center; color:#888; font-size:13px; }
