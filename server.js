@@ -1342,10 +1342,19 @@ function getDashboardHTML(transactions, tc) {
     </div>
     <div data-tab="listings">
     ${(() => { const pl = pending.filter(([,t]) => t.type === 'listing' || t.type === 'listing-uc'); return pl.length ? `<div class="shd shd-purple">⚠️ Needs Setup (${pl.length})</div><div style="margin-bottom:14px;display:flex;flex-direction:column;gap:6px">${pl.map(pendingCard).join('')}</div>` : ''; })()}
-    <div class="shd shd-blue">📋 Active Listings</div>
+    ${(() => {
+      const resi = listings.filter(([, t]) => (t.fields?.propertyType) !== 'Land');
+      const land = listings.filter(([, t]) => (t.fields?.propertyType) === 'Land');
+      return `
+    <div class="shd shd-blue">📋 Listings — Residential (${resi.length})</div>
     <div class="card" style="margin-bottom:14px">
-      ${listings.length === 0 ? '<div class="empty">No active listings.</div>' : makeTable(listings, false, 'listing')}
+      ${resi.length === 0 ? '<div class="empty">No residential listings.</div>' : makeTable(resi, false, 'listing')}
     </div>
+    <div class="shd shd-green">🌵 Listings — Land (${land.length})</div>
+    <div class="card" style="margin-bottom:14px">
+      ${land.length === 0 ? '<div class="empty">No land listings.</div>' : makeTable(land, false, 'listing')}
+    </div>`;
+    })()}
     </div>
     <div data-tab="dash">
     ${(() => {
