@@ -1154,6 +1154,20 @@ function getDashboardHTML(transactions, tc) {
   }
 
   const todayISO   = todayAZ();
+  // Manual reminder tasks due today or overdue for THIS TC — greets them in a
+  // popup when they open the dashboard (admins skip it; they see everything).
+  const popupTasks = [];
+  if (!isAdmin) {
+    for (const [pid, t] of allEntries) {
+      if ((t.fields?.tcName) !== tc || t.status === 'closed' || t.status === 'cancelled') continue;
+      for (const mtk of (t.manualTasks || [])) {
+        if (!mtk.done && mtk.due && mtk.due <= todayAZ()) {
+          popupTasks.push({ id: pid, address: t.address || '(no address)', text: mtk.text, due: mtk.due });
+        }
+      }
+    }
+    popupTasks.sort((x, y) => x.due < y.due ? -1 : 1);
+  }
   const pending     = sorted.filter(([,t]) => t.status === "pending");
   const active      = sorted.filter(([,t]) => (!t.status || t.status === "active") && (t.type === "buyer" || t.type === "buyer-new-build"));
   const listings    = sorted.filter(([,t]) => (!t.status || t.status === "active") && t.type === "listing" && !t.fields?.ucDate);
@@ -1461,6 +1475,20 @@ function getDashboardHTML(transactions, tc) {
 </div>
 </div>
 
+${popupTasks.length ? `
+<div class="modal-bg open" id="task-popup" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal" style="width:470px">
+    <h2>⚠️ ${tc.split(' ')[0]} — please update! ${popupTasks.length} item${popupTasks.length > 1 ? 's need' : ' needs'} you today:</h2>
+    ${popupTasks.map(x => `
+    <a href="/t/${x.id}?tc=${encodeURIComponent(tc)}" style="display:block;text-decoration:none;border:1px solid #e5eaf1;border-left:4px solid ${x.due < todayAZ() ? '#dc2626' : '#15803d'};border-radius:9px;padding:9px 12px;margin-bottom:8px">
+      <div style="font-weight:700;font-size:13px;color:#16324f">${x.text}</div>
+      <div style="font-size:11.5px;color:#5b6b7f;margin-top:2px">${x.address} · due ${x.due === todayAZ() ? 'today' : x.due}</div>
+    </a>`).join('')}
+    <div class="modal-actions" style="margin-top:10px">
+      <button class="btn" onclick="document.getElementById('task-popup').classList.remove('open')">Got it</button>
+    </div>
+  </div>
+</div>` : ''}
 <div class="modal-bg" id="modal">
   <div class="modal">
     <h2>New Transaction</h2>
