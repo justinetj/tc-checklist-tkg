@@ -201,13 +201,12 @@ const LISTING_ITEMS = [
   { id: "l60", section: "Day 0 — Listing Setup",       day: "Day 0",  label: "Input MLS listing" },
   { id: "l60a", section: "Day 0 — Listing Setup",      day: "Day 0",  label: "All information correct", indent: true },
   { id: "l60b", section: "Day 0 — Listing Setup",      day: "Day 0",  label: "Photos uploaded", indent: true },
-  { id: "l60c", section: "Day 0 — Listing Setup",      day: "Day 0",  label: "Status updated", indent: true },
   { id: "l12", section: "Day 0 — Listing Setup",       day: "Day 0",  label: "Send intro email to all parties" },
   // Day 1
   { id: "l13", section: "Day 1",                       day: "Day 1",  label: "Photos received & approved" },
   { id: "l14", section: "Day 1",                       day: "Day 1",  label: "MLS listing entered & active" },
   { id: "l15", section: "Day 1",                       day: "Day 1",  label: "Update Zillow status → Active" },
-  { id: "l16", section: "Day 1",                       day: "Day 1",  label: "Update FUB status → Active Listing" },
+  { id: "l16", section: "Day 1",                       day: "Day 1",  label: "Update FUB status → Listed" },
   { id: "l17", section: "Day 1",                       day: "Day 1",  label: "Lockbox installed" },
   { id: "l18", section: "Day 1",                       day: "Day 1",  label: "Yard sign installed" },
   { id: "l19", section: "Day 1",                       day: "Day 1",  label: "Notify agent of any missing docs" },
@@ -281,6 +280,14 @@ const LISTING_ITEMS = [
 
 // ─── HTML ────────────────────────────────────────────────────────────────────
 
+// Listing Escrow (listing-uc) files are escrow intakes: they carry only the
+// Under Contract phases, never the pre-UC listing-input tasks.
+const UC_START = LISTING_ITEMS.findIndex(i => i.section === "Under Contract");
+const LISTING_UC_ITEMS = LISTING_ITEMS.slice(UC_START);
+const txnItems = t => t.type === "buyer" ? BUYER_ITEMS
+  : t.type === "buyer-new-build" ? BUYER_NEW_BUILD_ITEMS
+  : t.type === "listing-uc" ? LISTING_UC_ITEMS : LISTING_ITEMS;
+
 // Contract acceptance and COE can never fall on a weekend — returns the
 // offending day name, or null if the date is fine/absent.
 function weekendDayNameSrv(iso) {
@@ -317,7 +324,7 @@ function dayBadge(dayLabel, color) {
 }
 
 function getHTML(transaction, id, tc, related = []) {
-  const items = transaction.type === "buyer" ? BUYER_ITEMS : transaction.type === "buyer-new-build" ? BUYER_NEW_BUILD_ITEMS : LISTING_ITEMS;
+  const items = txnItems(transaction);
   const isListing = transaction.type === "listing" || transaction.type === "listing-uc";
   const checked = transaction.checked || {};
   const notes = transaction.notes || {};
@@ -1066,7 +1073,7 @@ function getDashboardHTML(transactions, tc) {
   // Leadership (Scott/Doug) don't — they get the full-width table.
   const showDashTasks = tc === 'admin' || TC_NAMES.includes(tc);
   function earliestDue(t) {
-    const items = t.type === "buyer" ? BUYER_ITEMS : t.type === "buyer-new-build" ? BUYER_NEW_BUILD_ITEMS : LISTING_ITEMS;
+    const items = txnItems(t);
     const fields = t.fields || {};
     const contractDate = fields.contractDate || '';
     const closeDate = fields.closeDate || '';
@@ -1098,7 +1105,7 @@ function getDashboardHTML(transactions, tc) {
 
   function fmt(dateStr) { if (!dateStr) return '—'; const [y,m,d] = dateStr.split('-'); return `${m}/${d}/${y}`; }
   function makeRow(id, t, isArchived, mode) {
-    const items = t.type === "buyer" ? BUYER_ITEMS : t.type === "buyer-new-build" ? BUYER_NEW_BUILD_ITEMS : LISTING_ITEMS;
+    const items = txnItems(t);
     const isBuyerT = t.type === "buyer" || t.type === "buyer-new-build";
     const done = items.filter(i => (t.checked || {})[i.id]).length;
     const pct = Math.round((done / items.length) * 100);
@@ -1114,7 +1121,11 @@ function getDashboardHTML(transactions, tc) {
     const ucFlag = `<span style="background:#fee2e2;color:#dc2626;border-radius:6px;padding:1px 7px;font-size:10px;font-weight:700;white-space:nowrap">⚠ Please update</span>`;
     const ucCell = (isBuyerT && !fields.contractDate) ? ucFlag : fmt(fields.contractDate);
     let dateCols = '';
-    if (mode === 'buyer') {
+    if (mode === 'uc') {
+      const ucd = fields.ucDate ? fmt(fields.ucDate) : ucFlag;
+      const price = fields.salesPrice ? String(fields.salesPrice).replace(/^(?=[0-9])/, '$') : '—';
+      dateCols = `<td>${ucd}</td><td>${fmt(fields.closeDate)}</td><td>${price}</td>`;
+    } else if (mode === 'buyer') {
       dateCols = `<td>${ucCell}</td><td>${fmt(fields.closeDate)}</td>`;
     } else if (mode === 'listing') {
       dateCols = `<td>${fmt(fields.contractDate)}</td><td>${fmt(fields.listingStartDate)}</td><td>${fmt(fields.listingExpDate)}</td>`;
@@ -1156,7 +1167,9 @@ function getDashboardHTML(transactions, tc) {
 
   function makeTable(list, archived, mode) {
     if (list.length === 0) return '<div class="empty">None</div>';
-    const headers = mode === 'buyer'
+    const headers = mode === 'uc'
+      ? `<th>Address</th><th>Client</th><th>Agent</th><th>TC</th><th>Under Contract</th><th>Closing Date</th><th>Price</th><th>Progress</th><th>Actions</th>`
+      : mode === 'buyer'
       ? `<th>Address</th><th>Client</th><th>Agent</th><th>TC</th><th>Under Contract</th><th>Closing Date</th><th>Progress</th><th>Actions</th>`
       : mode === 'listing'
       ? `<th>Address</th><th>Client</th><th>Agent</th><th>TC</th><th>Agreement Date</th><th>Start Date</th><th>Expiration</th><th>Progress</th><th>Actions</th>`
@@ -1305,7 +1318,7 @@ function getDashboardHTML(transactions, tc) {
     </div>
     <div class="shd shd-blue">📝 Active Transactions — Sellers</div>
     <div class="card" style="margin-bottom:14px">
-      ${listingUC.length === 0 ? '<div class="empty">No listings under contract.</div>' : makeTable(listingUC, false, 'buyer')}
+      ${listingUC.length === 0 ? '<div class="empty">No listings under contract.</div>' : makeTable(listingUC, false, 'uc')}
     </div>
     </div>
     <div data-tab="listings">
@@ -1363,7 +1376,7 @@ function getDashboardHTML(transactions, tc) {
 
       // Compute one transaction's due tasks and render its block; null if nothing due.
       function txnBlock(id, t) {
-        const items = t.type === 'buyer' ? BUYER_ITEMS : t.type === 'buyer-new-build' ? BUYER_NEW_BUILD_ITEMS : LISTING_ITEMS;
+        const items = txnItems(t);
         const fields = t.fields || {};
         const contractDate = fields.contractDate || '';
         const closeDate = fields.closeDate || '';
@@ -1810,7 +1823,7 @@ const server = http.createServer(async (req, res) => {
         // A file can't be closed until its whole checklist is checked off
         // (admins may force after an explicit confirm).
         if (status === 'closed' && !force) {
-          const items = t.type === 'buyer' ? BUYER_ITEMS : t.type === 'buyer-new-build' ? BUYER_NEW_BUILD_ITEMS : LISTING_ITEMS;
+          const items = txnItems(t);
           const remaining = items.filter(i => !(t.checked || {})[i.id]).length;
           if (remaining > 0) {
             result = { ok: false, remaining, error: remaining + " checklist item(s) are still unchecked — a file can't be closed until everything is complete." };
