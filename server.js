@@ -1671,7 +1671,7 @@ const TC_NAMES = ["Joana Guzman", "Ashley Belliveau", "Cinnamon Kumler"];
 const TC_COLORS = ["#1565c0", "#0d5c2e", "#b45309"];
 const TC_ROLES = { "Cinnamon Kumler": "Listing Coordinator" };
 // People with full admin-level access (see all transactions AND all tasks)
-const ADMIN_TCS = ["Scott Kumler", "Doug Milem"];
+const ADMIN_TCS = ["Scott Kumler"];
 // Listing Coordinators: own the listing-INPUT (pre–Under Contract) tasks only.
 // The moment a listing goes Under Contract, its tasks hand off to the assigned TC.
 const LISTING_COORDS = ["Cinnamon Kumler"];
@@ -1700,7 +1700,7 @@ function getTCSelectHTML() {
   .admin-card .tc-role { color:#a8c4e0; }
 </style>
 <script>
-const TC_PASSCODES = { 'Joana Guzman': '5211', 'Cinnamon Kumler': '0007', 'Scott Kumler': '0070', 'Doug Milem': '0002' };
+const TC_PASSCODES = { 'Joana Guzman': '5211', 'Cinnamon Kumler': '0007', 'Scott Kumler': '0070' };
 function tcLogin(name) {
   const required = TC_PASSCODES[name];
   if (!required) { window.location.href = '/?tc=' + encodeURIComponent(name); return; }
@@ -1730,7 +1730,6 @@ function adminLogin() {
         { name: 'Cinnamon Kumler',  role: 'Listing Coordinator',     color: '#b45309', onclick: "tcLogin('Cinnamon Kumler')" },
         { name: 'Justine Johnston', role: 'Director of Operations',  color: '#7e22ce', onclick: 'adminLogin()' },
         { name: 'Scott Kumler',     role: 'Team Lead',               color: '#0f766e', onclick: "tcLogin('Scott Kumler')" },
-        { name: 'Doug Milem',       role: 'Director of Sales',       color: '#9a3412', onclick: "tcLogin('Doug Milem')" },
       ];
       people.sort((a, b) => a.name.split(' ')[0].localeCompare(b.name.split(' ')[0]));
       return people.map((p) => {
