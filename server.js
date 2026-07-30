@@ -599,7 +599,7 @@ ${(!isListing && !contractDate) ? `<div style="margin:12px 32px 0;background:#ff
       ["Close of Escrow Date (COE)", "closeDate", "date", true],
       ["Client Name", "clientName", "text", false],
     ]).map(([label, key, type, hi]) => `
-      <div class="info-field${hi ? ' highlight' : ''}">
+      <div class="info-field${hi ? ' highlight' : ''}"${key === 'address' ? ' style="grid-column:span 2"' : ''}>
         <div class="info-label">${label}</div>
         ${key === 'address'
           ? `<textarea class="info-input" rows="2" placeholder="—" data-key="address"
