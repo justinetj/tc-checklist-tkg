@@ -599,10 +599,10 @@ ${(!isListing && !contractDate) ? `<div style="margin:12px 32px 0;background:#ff
       ["Close of Escrow Date (COE)", "closeDate", "date", true],
       ["Client Name", "clientName", "text", false],
     ]).map(([label, key, type, hi]) => `
-      <div class="info-field${hi ? ' highlight' : ''}">
+      <div class="info-field${hi ? ' highlight' : ''}"${key === 'address' ? ' style="grid-column:1/-1"' : ''}>
         <div class="info-label">${label}</div>
         ${key === 'address'
-          ? `<textarea class="info-input" rows="2" placeholder="—" data-key="address"
+          ? `<textarea class="info-input" rows="1" placeholder="—" data-key="address"
               style="resize:none;overflow:hidden;line-height:1.35"
               oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"
               onchange="saveField('address', this.value, this)">${(fields.address || transaction.address || '').replace(/&/g, '&amp;').replace(/</g, '&lt;')}</textarea>`
