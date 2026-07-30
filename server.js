@@ -660,6 +660,12 @@ ${(!isListing && !contractDate) ? `<div style="margin:12px 32px 0;background:#ff
         onchange="saveField('${key}', this.value, this)">
     </div>`).join('')}
     <div class="info-field">
+      <div class="info-label">Land or Resale</div>
+      <select class="info-input" onchange="saveField('propertyType', this.value)">
+        ${['', 'Resale', 'Land'].map(o => `<option value="${o}"${(fields.propertyType||'')===o?' selected':''}>${o || '—'}</option>`).join('')}
+      </select>
+    </div>
+    <div class="info-field">
       <div class="info-label">Sign</div>
       <select class="info-input" onchange="saveField('signStatus', this.value)">
         ${['', 'Yes', 'No', 'Agents', 'Removed'].map(o => `<option value="${o}"${(fields.signStatus||'')===o?' selected':''}>${o || '—'}</option>`).join('')}
