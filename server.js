@@ -1511,8 +1511,8 @@ ${todayAZ() === '2026-07-31' && ['Ashley Belliveau','Joana Guzman','Cinnamon Kum
       There is no path to Love. Love is the path.<br>
       There is no path to Peace. Peace is the path."
     </div>
-    <div style="font-size:11.5px;color:#8896a5;margin-top:8px">— Way of the Peaceful Warrior</div>
-    <div style="font-size:15px;color:#16324f;font-weight:800;letter-spacing:.04em;margin-top:16px">HAPPY FRIDAY ☀️</div>
+    <div style="font-size:11.5px;color:#8896a5;margin-top:8px">— Way of the Peaceful Warrior (one of my favorite books)</div>
+    <div style="font-size:15px;color:#16324f;font-weight:800;letter-spacing:.04em;margin-top:16px">HAPPY FRIDAY ☀️ — Justine</div>
     <div class="modal-actions" style="justify-content:center;margin-top:14px">
       <button class="btn" onclick="document.getElementById('jnote').classList.remove('open')">💛</button>
     </div>
