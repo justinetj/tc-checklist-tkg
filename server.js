@@ -48,6 +48,8 @@ function withData(mutate) {
 //      "COE N" = N days relative to close of escrow (negative = before COE)
 //      "COE"   = day of close of escrow
 
+const fmtMoneySrv = v => { const n = parseFloat(String(v || "").replace(/[^0-9.]/g, "")); return isNaN(n) ? "" : "$" + n.toLocaleString("en-US", { maximumFractionDigits: 2 }); };
+
 const BUYER_ITEMS = [
   // Day 0
   { id: "b60",  day: "Day 0",   label: "Review Formstack" },
@@ -608,8 +610,8 @@ ${(!isListing && !contractDate) ? `<div style="margin:12px 32px 0;background:#ff
               oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"
               onchange="saveField('address', this.value, this)">${(fields.address || transaction.address || '').replace(/&/g, '&amp;').replace(/</g, '&lt;')}</textarea>`
           : `<input class="info-input" type="${type}" placeholder="—" data-key="${key}"
-              value="${(fields[key] || '').replace(/"/g, '&quot;')}"
-              onchange="saveField('${key}', this.value, this)">`}
+              value="${(key === 'salesPrice' ? fmtMoneySrv(fields[key]) : (fields[key] || '')).replace(/"/g, '&quot;')}"
+              onchange="saveField('${key}', ${key === 'salesPrice' ? 'fmtMoney(this)' : 'this.value'}, this)">`}
       </div>`).join('')}
     ${['agentPartner1','agentPartner2'].map((key, i) => {
       const agentNames = ['Akanksha Tomar','Alexandra Allen','Alexis Wilson','Angela Massey','Angie Rodriguez','Annie Clark','Arielle Jaime','Ashleigh DiFilippantonio','Ashton Kaufman','Benjamin Veader','Brandi Romero','Carla Balk','Chelsea Higgs','Cierra Farrow-Boyle','Darlena Barley','Dennis Sadberry','Donica Sadberry','Gabriela Crosser','Hector Torres','India Blackshear','Jenny Cohen','Jessenia Zinner','Joyce Mireault','Justine Johnston','Kahila White','Keith Glass','Kira Warrens','Kye Mingus','Kyle Olson','Lake Porter','Michael Tarver','Prakash Agrawal','Ravi Sharma','Richie Corrie','Roberta Harris','Thomas Doheny','Time Isufi','Youseff Daboul','Yuxuan Xia'];
@@ -993,6 +995,11 @@ function weekendBlockLabel(key) {
   if (key === 'contractDate' && !IS_LISTING) return 'The contract acceptance date';
   if (key === 'ucDate' && IS_LISTING) return 'The Under Contract date';
   return null;
+}
+function fmtMoney(inp) {
+  const n = parseFloat(String(inp.value).replace(/[^0-9.]/g, ''));
+  inp.value = isNaN(n) ? '' : '$' + n.toLocaleString('en-US', { maximumFractionDigits: 2 });
+  return inp.value;
 }
 async function saveField(key, val, el) {
   const label = weekendBlockLabel(key);
