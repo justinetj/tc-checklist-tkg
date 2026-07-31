@@ -1505,10 +1505,15 @@ function getDashboardHTML(transactions, tc) {
 
 ${todayAZ() === '2026-07-31' && ['Ashley Belliveau','Joana Guzman','Cinnamon Kumler'].includes(tc) ? `
 <div class="modal-bg" id="jnote" onclick="if(event.target===this)this.classList.remove('open')">
-  <div class="modal" style="width:430px;text-align:center">
-    <div style="font-size:34px;margin-bottom:8px">🌸☀️</div>
-    <h2 style="margin-bottom:8px">Good morning ladies — happy Friday!</h2>
-    <div style="font-size:13.5px;color:#3d4a59;line-height:1.5">Sending good vibes for the weekend<br><b>xo Justine</b></div>
+  <div class="modal" style="width:460px;text-align:center">
+    <div style="font-size:32px;margin-bottom:10px">🌸☀️</div>
+    <div style="font-size:14px;color:#16324f;line-height:1.7;font-style:italic">
+      "There is no path to Happiness. Happiness is the path.<br>
+      There is no path to Love. Love is the path.<br>
+      There is no path to Peace. Peace is the path."
+    </div>
+    <div style="font-size:11.5px;color:#8896a5;margin-top:8px">— Way of the Peaceful Warrior</div>
+    <div style="font-size:13.5px;color:#3d4a59;line-height:1.6;margin-top:14px">Happy Friday ladies — grateful for each of you.<br>Have a beautiful weekend! <b>xo Justine</b></div>
     <div class="modal-actions" style="justify-content:center;margin-top:14px">
       <button class="btn" onclick="document.getElementById('jnote').classList.remove('open')">💛</button>
     </div>
