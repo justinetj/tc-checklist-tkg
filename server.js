@@ -1118,6 +1118,12 @@ function getDashboardHTML(transactions, tc) {
   };
 
   function fmt(dateStr) { if (!dateStr) return '—'; const [y,m,d] = dateStr.split('-'); return `${m}/${d}/${y}`; }
+  function streetOnly(a) {
+    if (!a) return a;
+    const x = String(a).split(',')[0].trim();
+    const m = x.match(/^(.*?\b(?:St|Street|Ave|Avenue|Dr|Drive|Rd|Road|Ln|Lane|Ct|Court|Pl|Place|Way|Blvd|Boulevard|Cir|Circle|Trl|Trail|Pkwy|Parkway|Ter|Terrace|Loop|Hwy)\b\.?)(?=\s|$)/i);
+    return m ? m[1] : x;
+  }
   function makeRow(id, t, isArchived, mode) {
     const items = txnItems(t);
     const isBuyerT = t.type === "buyer" || t.type === "buyer-new-build";
@@ -1160,7 +1166,7 @@ function getDashboardHTML(transactions, tc) {
       if (dueISO < todayStr) pastDue.push(item.label);
       else if (dueISO === todayStr) dueToday.push(item.label);
     }
-    const baseCompact = `<td style="font-size:12.5px;white-space:nowrap"><strong>${(t.address || '(no address)').replace(/,.*$/, '')}</strong></td><td style="font-size:11.5px;white-space:nowrap">${fields.clientName || t.clientName || '—'}</td><td style="font-size:11.5px;white-space:nowrap">${fields.agentPartner1 || '—'}</td><td style="font-size:11.5px;white-space:nowrap">${(fields.tcName || fields.lcName || '—').split(' ')[0]}</td>`;
+    const baseCompact = `<td style="font-size:12.5px;white-space:nowrap"><strong>${streetOnly(t.address) || '(no address)'}</strong></td><td style="font-size:11.5px;white-space:nowrap">${fields.clientName || t.clientName || '—'}</td><td style="font-size:11.5px;white-space:nowrap">${fields.agentPartner1 || '—'}</td><td style="font-size:11.5px;white-space:nowrap">${(fields.tcName || fields.lcName || '—').split(' ')[0]}</td>`;
     const rowStyle = dueToday.length && !pastDue.length
       ? 'border-left:4px solid #16a34a;background:#f0fdf4;'
       : pastDue.length ? 'border-left:4px solid #dc2626;' : '';
