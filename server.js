@@ -1127,10 +1127,10 @@ function getDashboardHTML(transactions, tc) {
     const fields = t.fields || {};
     const actionBtns = isArchived
       ? `<button title="Reopen" onclick="event.stopPropagation();setStatus('${id}','active')" style="background:#f0f4ff;color:#1e3a5f;border:none;padding:4px 9px;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer">Reopen</button>`
-      : `<button title="Mark Closed" onclick="event.stopPropagation();setStatus('${id}','closed')" style="background:#dcfce7;color:#15803d;border:none;padding:3px 8px;border-radius:5px;font-size:13px;font-weight:700;cursor:pointer;margin-right:3px">✓</button><button title="Mark Cancelled" onclick="event.stopPropagation();setStatus('${id}','cancelled')" style="background:#fee2e2;color:#dc2626;border:none;padding:3px 8px;border-radius:5px;font-size:13px;font-weight:700;cursor:pointer">⊘</button>`;
+      : `<button title="Mark Closed" onclick="event.stopPropagation();setStatus('${id}','closed')" style="background:#dcfce7;color:#15803d;border:none;padding:2px 6px;border-radius:5px;font-size:12px;font-weight:700;cursor:pointer;margin-right:2px">✓</button><button title="Mark Cancelled" onclick="event.stopPropagation();setStatus('${id}','cancelled')" style="background:#fee2e2;color:#dc2626;border:none;padding:2px 6px;border-radius:5px;font-size:12px;font-weight:700;cursor:pointer">⊘</button>`;
     const progColor = pct === 100 ? '#1565c0' : pct >= 66 ? '#15803d' : pct >= 34 ? '#eab308' : '#dc2626';
-    const progress = `<td><div style="display:flex;align-items:center;gap:6px"><div style="flex:1;height:7px;background:#e0e4f0;border-radius:4px;min-width:40px"><div style="width:${pct}%;height:7px;background:${progColor};border-radius:4px"></div></div><span style="font-size:11px;font-weight:600;color:${progColor};white-space:nowrap">${pct}%</span></div></td>`;
-    const actions = `<td onclick="event.stopPropagation()" style="white-space:nowrap;text-align:right">${actionBtns}<button title="Delete" onclick="event.stopPropagation();deleteTxn('${id}','${(t.address||'this transaction').replace(/'/g,"\\'")}',this)" style="background:#f5f5f5;color:#888;border:none;padding:3px 8px;border-radius:5px;font-size:13px;font-weight:700;cursor:pointer;margin-left:3px">✕</button></td>`;
+    const progress = `<td><div style="display:flex;align-items:center;gap:6px"><div style="flex:1;height:6px;background:#e0e4f0;border-radius:4px;min-width:28px"><div style="width:${pct}%;height:7px;background:${progColor};border-radius:4px"></div></div><span style="font-size:11px;font-weight:600;color:${progColor};white-space:nowrap">${pct}%</span></div></td>`;
+    const actions = `<td onclick="event.stopPropagation()" style="white-space:nowrap;text-align:right">${actionBtns}<button title="Delete" onclick="event.stopPropagation();deleteTxn('${id}','${(t.address||'this transaction').replace(/'/g,"\\'")}',this)" style="background:#f5f5f5;color:#888;border:none;padding:2px 6px;border-radius:5px;font-size:12px;font-weight:700;cursor:pointer;margin-left:2px">✕</button></td>`;
     const base = `<td><strong>${t.address || '(no address)'}</strong></td><td>${fields.clientName || t.clientName || '—'}</td><td>${fields.agentPartner1 || '—'}</td>`;
     const ucFlag = `<span style="background:#fee2e2;color:#dc2626;border-radius:6px;padding:1px 7px;font-size:10px;font-weight:700;white-space:nowrap">⚠ Please update</span>`;
     const ucCell = (isBuyerT && !fields.contractDate) ? ucFlag : fmt(fields.contractDate);
@@ -1141,7 +1141,7 @@ function getDashboardHTML(transactions, tc) {
     } else if (mode === 'buyer') {
       dateCols = `<td>${ucCell}</td><td>${fmt(fields.closeDate)}</td>`;
     } else if (mode === 'listing') {
-      dateCols = `<td>${fmt(fields.contractDate)}</td><td>${fmt(fields.listingStartDate)}</td><td>${fmt(fields.listingExpDate)}</td>`;
+      dateCols = `<td style="font-size:11px;white-space:nowrap">${fmt(fields.contractDate)}</td><td style="font-size:11px;white-space:nowrap">${fmt(fields.listingStartDate)}</td><td style="font-size:11px;white-space:nowrap">${fmt(fields.listingExpDate)}</td>`;
     } else {
       dateCols = `<td>${fmt(fields.contractDate)}</td><td>${fmt(fields.closeDate)}</td>`;
     }
@@ -1160,7 +1160,7 @@ function getDashboardHTML(transactions, tc) {
       if (dueISO < todayStr) pastDue.push(item.label);
       else if (dueISO === todayStr) dueToday.push(item.label);
     }
-    const baseCompact = `<td style="font-size:13px;white-space:nowrap"><strong>${(t.address || '(no address)').replace(/,.*$/, '')}</strong></td><td style="font-size:12px;white-space:nowrap">${fields.clientName || t.clientName || '—'}</td><td style="font-size:12px;white-space:nowrap">${fields.agentPartner1 || '—'}</td><td style="font-size:12px;white-space:nowrap">${fields.tcName || fields.lcName || '—'}</td>`;
+    const baseCompact = `<td style="font-size:12.5px;white-space:nowrap"><strong>${(t.address || '(no address)').replace(/,.*$/, '')}</strong></td><td style="font-size:11.5px;white-space:nowrap">${fields.clientName || t.clientName || '—'}</td><td style="font-size:11.5px;white-space:nowrap">${fields.agentPartner1 || '—'}</td><td style="font-size:11.5px;white-space:nowrap">${(fields.tcName || fields.lcName || '—').split(' ')[0]}</td>`;
     const rowStyle = dueToday.length && !pastDue.length
       ? 'border-left:4px solid #16a34a;background:#f0fdf4;'
       : pastDue.length ? 'border-left:4px solid #dc2626;' : '';
@@ -1199,7 +1199,7 @@ function getDashboardHTML(transactions, tc) {
       : mode === 'buyer'
       ? `<th>Address</th><th>Client</th><th>Agent</th><th>TC</th><th>Under Contract</th><th>Closing Date</th><th>Progress</th><th>Actions</th>`
       : mode === 'listing'
-      ? `<th>Address</th><th>Client</th><th>Agent</th><th>TC</th><th>Agreement Date</th><th>Start Date</th><th>Expiration</th><th>Progress</th><th>Actions</th>`
+      ? `<th>Address</th><th>Client</th><th>Agent</th><th>TC</th><th>Agreement</th><th>Start</th><th>Exp</th><th>Progress</th><th></th>`
       : `<th>Address</th><th>Client</th><th>Agent</th><th>TC</th><th>Contract Date</th><th>Close Date</th><th>Progress</th><th>Actions</th>`;
     return `<div style="overflow-x:auto"><table><thead><tr>${headers}</tr></thead><tbody>${list.map(([id,t]) => makeRow(id,t,archived,mode)).join('')}</tbody></table></div>`;
   }
