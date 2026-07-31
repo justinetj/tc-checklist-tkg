@@ -1503,6 +1503,20 @@ function getDashboardHTML(transactions, tc) {
 </div>
 </div>
 
+${todayAZ() === '2026-07-31' && ['Ashley Belliveau','Joana Guzman','Cinnamon Kumler'].includes(tc) ? `
+<div class="modal-bg" id="jnote" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal" style="width:430px;text-align:center">
+    <div style="font-size:34px;margin-bottom:8px">🌸☀️</div>
+    <h2 style="margin-bottom:8px">Good morning ladies — happy Friday!</h2>
+    <div style="font-size:13.5px;color:#3d4a59;line-height:1.5">Sending good vibes for the weekend<br><b>xo Justine</b></div>
+    <div class="modal-actions" style="justify-content:center;margin-top:14px">
+      <button class="btn" onclick="document.getElementById('jnote').classList.remove('open')">💛</button>
+    </div>
+  </div>
+</div>
+<script>
+  try { if (!localStorage.jnote20260731) { document.getElementById('jnote').classList.add('open'); localStorage.jnote20260731 = '1'; } } catch (e) { document.getElementById('jnote').classList.add('open'); }
+</script>` : ''}
 ${popupTasks.length ? `
 <div class="modal-bg open" id="task-popup" onclick="if(event.target===this)this.classList.remove('open')">
   <div class="modal" style="width:470px">
