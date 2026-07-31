@@ -574,7 +574,7 @@ ${(!isListing && !contractDate) ? `<div style="margin:12px 32px 0;background:#ff
       ${transaction.status !== 'closed' && transaction.status !== 'pending' ? `<button onclick="setTxnStatus('closed')" style="background:#dcfce7;color:#15803d;border:1px solid #bbf7d0;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer">Mark Closed</button>` : ''}
       ${transaction.status !== 'cancelled' && transaction.status !== 'pending' ? `<button onclick="setTxnStatus('cancelled')" style="background:#fee2e2;color:#dc2626;border:1px solid #fecaca;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer">Mark Cancelled</button>` : ''}
       ${transaction.status && transaction.status !== 'active' && transaction.status !== 'pending' ? `<button onclick="setTxnStatus('active')" style="background:#f0f4ff;color:#1e3a5f;border:1px solid #c7d2fe;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer">Reopen</button>` : ''}
-      ${(!tc || tc === 'admin' || ADMIN_TCS.includes(tc)) ? `<button onclick="adminDeleteTxn()" title="Delete this entire file (admin only)" style="background:#fee2e2;color:#dc2626;border:1px solid #fecaca;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer">🗑 Delete</button>` : ''}
+      <button onclick="adminDeleteTxn()" title="Delete this entire file" style="background:#fee2e2;color:#dc2626;border:1px solid #fecaca;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer">🗑 Delete</button>
     </div>
   </div>
   <div class="info-grid">
@@ -1210,7 +1210,7 @@ function getDashboardHTML(transactions, tc) {
               <div style="font-size:12px;color:#64748b;margin-top:2px">${client && client !== '—' ? `Client: <b style="color:#1e293b">${client}</b> &nbsp;·&nbsp; ` : ''}Agent: <b style="color:#1e293b">${agent}</b></div>
               <div style="font-size:11px;color:#94a3b8;margin-top:3px">Received: ${receivedAt}</div>
             </div>
-            <a href="/t/${id}?tc=${tc}" style="background:#16324f;color:white;text-decoration:none;font-size:12px;font-weight:700;padding:7px 14px;border-radius:8px;white-space:nowrap">Open →</a>${isAdmin ? `<button onclick="adminDelete('${id}')" title="Delete this file (admin)" style="background:#fee2e2;color:#dc2626;border:1px solid #fecaca;font-size:13px;font-weight:700;padding:7px 11px;border-radius:8px;cursor:pointer">🗑</button>` : ''}
+            <a href="/t/${id}?tc=${tc}" style="background:#16324f;color:white;text-decoration:none;font-size:12px;font-weight:700;padding:7px 14px;border-radius:8px;white-space:nowrap">Open →</a><button onclick="adminDelete('${id}')" title="Delete this file" style="background:#fee2e2;color:#dc2626;border:1px solid #fecaca;font-size:13px;font-weight:700;padding:7px 11px;border-radius:8px;cursor:pointer">🗑</button>
           </div>
           <div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap;align-items:center">
             <span style="font-size:11px;color:#94a3b8;font-weight:600;margin-right:2px">TYPE:</span>
@@ -1630,9 +1630,6 @@ async function setStatus(id, status, force) {
   location.reload();
 }
 async function deleteTxn(id, label, btn) {
-  const code = prompt('Enter passcode to delete "' + label + '":');
-  if (code === null) return;
-  if (code !== '3315') { alert('Incorrect passcode.'); return; }
   if (!confirm('Delete "' + label + '"? This cannot be undone.')) return;
   const r = await fetch('/api/transactions/' + id, { method:'DELETE' });
   if (!r.ok) { const j = await r.json(); alert(j.error || 'Could not delete.'); return; }
