@@ -1120,7 +1120,9 @@ function getDashboardHTML(transactions, tc) {
   function fmt(dateStr) { if (!dateStr) return '—'; const [y,m,d] = dateStr.split('-'); return `${m}/${d}/${y}`; }
   function streetOnly(a) {
     if (!a) return a;
-    const x = String(a).split(',')[0].trim();
+    const parts = String(a).split(',').map(v => v.trim());
+    let x = parts[0];
+    if (parts[1] && /^(?:Unit|Apt|Apartment|Suite|Ste|Lot|#)\.?\s*[A-Za-z0-9-]+$/i.test(parts[1])) x += ' ' + parts[1];
     const m = x.match(/^(.*?\b(?:St|Street|Ave|Avenue|Dr|Drive|Rd|Road|Ln|Lane|Ct|Court|Pl|Place|Way|Blvd|Boulevard|Cir|Circle|Trl|Trail|Pkwy|Parkway|Ter|Terrace|Loop|Hwy)\b\.?(?:\s+(?:Unit|Apt|Apartment|Suite|Ste|Lot)\.?\s*[A-Za-z0-9-]+|\s*#\s*[A-Za-z0-9-]+)?)(?=\s|$)/i);
     return m ? m[1] : x;
   }
