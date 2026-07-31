@@ -1121,7 +1121,7 @@ function getDashboardHTML(transactions, tc) {
   function streetOnly(a) {
     if (!a) return a;
     const x = String(a).split(',')[0].trim();
-    const m = x.match(/^(.*?\b(?:St|Street|Ave|Avenue|Dr|Drive|Rd|Road|Ln|Lane|Ct|Court|Pl|Place|Way|Blvd|Boulevard|Cir|Circle|Trl|Trail|Pkwy|Parkway|Ter|Terrace|Loop|Hwy)\b\.?)(?=\s|$)/i);
+    const m = x.match(/^(.*?\b(?:St|Street|Ave|Avenue|Dr|Drive|Rd|Road|Ln|Lane|Ct|Court|Pl|Place|Way|Blvd|Boulevard|Cir|Circle|Trl|Trail|Pkwy|Parkway|Ter|Terrace|Loop|Hwy)\b\.?(?:\s+(?:Unit|Apt|Apartment|Suite|Ste|Lot)\.?\s*[A-Za-z0-9-]+|\s*#\s*[A-Za-z0-9-]+)?)(?=\s|$)/i);
     return m ? m[1] : x;
   }
   function makeRow(id, t, isArchived, mode) {
