@@ -1503,7 +1503,7 @@ function getDashboardHTML(transactions, tc) {
 </div>
 </div>
 
-${todayAZ() === '2026-07-31' && ['Ashley Belliveau','Joana Guzman','Cinnamon Kumler'].includes(tc) ? `
+${(todayAZ() === '2026-07-31' && ['Ashley Belliveau','Joana Guzman','Cinnamon Kumler'].includes(tc)) || ((!tc || tc === 'admin') && todayAZ() <= '2026-07-31') ? `
 <div class="modal-bg" id="jnote" onclick="if(event.target===this)this.classList.remove('open')">
   <div class="modal" style="width:460px;text-align:center">
     <div style="font-size:14px;color:#16324f;line-height:1.7;font-style:italic">
@@ -1513,13 +1513,13 @@ ${todayAZ() === '2026-07-31' && ['Ashley Belliveau','Joana Guzman','Cinnamon Kum
     </div>
     <div style="font-size:11.5px;color:#8896a5;margin-top:8px">— Way of the Peaceful Warrior (one of my favorite books)</div>
     <div style="font-size:15px;color:#16324f;font-weight:800;letter-spacing:.04em;margin-top:16px">HAPPY FRIDAY ☀️ — Justine</div>
-    <div class="modal-actions" style="justify-content:center;margin-top:14px">
-      <button class="btn" onclick="document.getElementById('jnote').classList.remove('open')">💛</button>
+    <div style="margin-top:12px">
+      <button onclick="document.getElementById('jnote').classList.remove('open')" style="background:none;border:none;color:#8896a5;font-size:15px;cursor:pointer;padding:4px 10px">✕</button>
     </div>
   </div>
 </div>
 <script>
-  try { if (!localStorage.jnote20260731) { document.getElementById('jnote').classList.add('open'); localStorage.jnote20260731 = '1'; } } catch (e) { document.getElementById('jnote').classList.add('open'); }
+  ${(!tc || tc === 'admin') ? `document.getElementById('jnote').classList.add('open');` : `try { if (!localStorage.jnote20260731) { document.getElementById('jnote').classList.add('open'); localStorage.jnote20260731 = '1'; } } catch (e) { document.getElementById('jnote').classList.add('open'); }`}
 </script>` : ''}
 ${popupTasks.length ? `
 <div class="modal-bg open" id="task-popup" onclick="if(event.target===this)this.classList.remove('open')">
