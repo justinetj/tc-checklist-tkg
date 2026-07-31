@@ -1381,16 +1381,20 @@ function getDashboardHTML(transactions, tc) {
         const rows = sortedMonths.map((month, i) => {
           const mId = `m-${sectionLabel.replace(/\s/g,'')}-${i}`;
           const count = groups[month].length;
-          return `<div style="margin-bottom:6px;border:1px solid #e0e4f0;border-radius:8px;overflow:hidden">
-            <div onclick="toggleM('${mId}')" style="display:flex;justify-content:space-between;align-items:center;padding:8px 14px;background:#f8fafc;cursor:pointer;font-size:12px;font-weight:700;color:#4b5563">
-              <span>${month} <span style="background:#e5e7eb;color:#6b7280;border-radius:8px;padding:1px 8px;font-size:11px;margin-left:6px">${count}</span></span>
-              <span id="arr-${mId}">▼</span>
+          return `<div style="margin-bottom:4px;border:1px solid #e8ecf3;border-radius:7px;overflow:hidden">
+            <div onclick="toggleM('${mId}')" style="display:flex;justify-content:space-between;align-items:center;padding:4px 11px;background:#fafbfd;cursor:pointer;font-size:11.5px;font-weight:400;color:#4b5563">
+              <span>${month} <span style="background:#eef1f6;color:#8896a5;border-radius:8px;padding:0 7px;font-size:10.5px;margin-left:6px">${count}</span></span>
+              <span id="arr-${mId}" style="font-size:10px;color:#9aa6b5">▼</span>
             </div>
             <div id="${mId}" style="display:none">${makeTable(groups[month], true, 'buyer')}</div>
           </div>`;
         }).join('');
-        return `<div class="shd shd-gray">${icon} ${sectionLabel}</div>
-        <div style="margin-bottom:24px">${rows}</div>`;
+        const secId = `sec-${sectionLabel.replace(/\s/g,'')}`;
+        return `<div class="shd shd-gray" onclick="toggleM('${secId}')" style="cursor:pointer;justify-content:space-between;font-weight:600">
+          <span>${icon} ${sectionLabel} <span style="background:rgba(255,255,255,.22);border-radius:8px;padding:0 8px;font-size:11px;margin-left:4px">${list.length}</span></span>
+          <span id="arr-${secId}" style="font-size:11px">▼</span>
+        </div>
+        <div id="${secId}" style="display:none;margin-bottom:20px;margin-top:6px">${rows}</div>`;
       }
       return makeMonthGroups(closed,'Closed Transactions','✓') + makeMonthGroups(cancelled,'Cancelled Transactions','✕');
     })()}
