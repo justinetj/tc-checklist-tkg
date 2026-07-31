@@ -1513,7 +1513,7 @@ ${todayAZ() === '2026-07-31' && ['Ashley Belliveau','Joana Guzman','Cinnamon Kum
       There is no path to Peace. Peace is the path."
     </div>
     <div style="font-size:11.5px;color:#8896a5;margin-top:8px">— Way of the Peaceful Warrior</div>
-    <div style="font-size:13.5px;color:#3d4a59;line-height:1.6;margin-top:14px">Happy Friday ladies — grateful for each of you.<br>Have a beautiful weekend! <b>xo Justine</b></div>
+    <div style="font-size:15px;color:#16324f;font-weight:800;letter-spacing:.04em;margin-top:16px">HAPPY FRIDAY — Justine</div>
     <div class="modal-actions" style="justify-content:center;margin-top:14px">
       <button class="btn" onclick="document.getElementById('jnote').classList.remove('open')">💛</button>
     </div>
