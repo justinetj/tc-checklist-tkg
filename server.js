@@ -613,6 +613,12 @@ ${(!isListing && !contractDate) ? `<div style="margin:12px 32px 0;background:#ff
               value="${(key === 'salesPrice' ? fmtMoneySrv(fields[key]) : (fields[key] || '')).replace(/"/g, '&quot;')}"
               onchange="saveField('${key}', ${key === 'salesPrice' ? 'fmtMoney(this)' : 'this.value'}, this)">`}
       </div>`).join('')}
+    <div class="info-field">
+      <div class="info-label">Transaction Type</div>
+      <select class="info-input" data-orig="${transaction.type || 'buyer'}" onchange="changeTxnType(this)">
+        ${[['buyer','Buyer — Resale'],['buyer-new-build','Buyer — New Build'],['listing','Listing'],['listing-uc','Listing Escrow']].map(([v,l]) => `<option value="${v}"${(transaction.type||'buyer')===v?' selected':''}>${l}</option>`).join('')}
+      </select>
+    </div>
     ${['agentPartner1','agentPartner2'].map((key, i) => {
       const agentNames = ['Akanksha Tomar','Alexandra Allen','Alexis Wilson','Angela Massey','Angie Rodriguez','Annie Clark','Arielle Jaime','Ashleigh DiFilippantonio','Ashton Kaufman','Benjamin Veader','Brandi Romero','Carla Balk','Chelsea Higgs','Cierra Farrow-Boyle','Darlena Barley','Dennis Sadberry','Donica Sadberry','Gabriela Crosser','Hector Torres','India Blackshear','Jenny Cohen','Jessenia Zinner','Joyce Mireault','Justine Johnston','Kahila White','Keith Glass','Kira Warrens','Kye Mingus','Kyle Olson','Lake Porter','Michael Tarver','Prakash Agrawal','Ravi Sharma','Richie Corrie','Roberta Harris','Thomas Doheny','Time Isufi','Youseff Daboul','Yuxuan Xia'];
       const val = fields[key] || '';
@@ -995,6 +1001,11 @@ function weekendBlockLabel(key) {
   if (key === 'contractDate' && !IS_LISTING) return 'The contract acceptance date';
   if (key === 'ucDate' && IS_LISTING) return 'The Under Contract date';
   return null;
+}
+async function changeTxnType(sel) {
+  if (!confirm('Change this file to "' + sel.options[sel.selectedIndex].text + '"? The checklist will switch to that type\'s items (checked-off items for the new type are kept).')) { sel.value = sel.dataset.orig; return; }
+  await fetch('/api/transactions/' + TXN_ID + '/type', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ type: sel.value }) });
+  location.reload();
 }
 function fmtMoney(inp) {
   const n = parseFloat(String(inp.value).replace(/[^0-9.]/g, ''));
