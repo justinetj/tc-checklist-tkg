@@ -1359,8 +1359,8 @@ function getDashboardHTML(transactions, tc) {
     ${closingsTodaySection}
     </div>
     <div data-tab="buyers">
-    ${(() => { const pb = pending.filter(([,t]) => t.type === 'buyer' || t.type === 'buyer-new-build'); return pb.length ? `<div class="shd shd-purple">⚠️ Needs Setup (${pb.length})</div><div style="margin-bottom:14px;display:flex;flex-direction:column;gap:6px">${pb.map(pendingCard).join('')}</div>` : ''; })()}
     ${(() => { const nb = needsAttention.filter(([,t]) => t.type === 'buyer' || t.type === 'buyer-new-build'); return nb.length ? `<div class="shd shd-red">⚠️ Incomplete — Past Close Date, Not Marked Closed (${nb.length})</div><div class="card" style="margin-bottom:14px;border-left:4px solid #dc2626">${makeTable(nb, false, 'buyer')}</div>` : ''; })()}
+    ${(() => { const pb = pending.filter(([,t]) => t.type === 'buyer' || t.type === 'buyer-new-build'); return pb.length ? `<div class="shd shd-purple">⚠️ Needs Setup (${pb.length})</div><div style="margin-bottom:14px;display:flex;flex-direction:column;gap:6px">${pb.map(pendingCard).join('')}</div>` : ''; })()}
     ${closingsTodaySection}
     <div class="shd shd-blue">🏠 Active Transactions — Buyers</div>
     <div class="card" style="margin-bottom:14px">
