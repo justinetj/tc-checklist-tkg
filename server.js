@@ -998,8 +998,6 @@ function weekendDayName(iso) {
 }
 function weekendBlockLabel(key) {
   if (key === 'closeDate') return 'Close of Escrow (COE)';
-  if (key === 'contractDate' && !IS_LISTING) return 'The contract acceptance date';
-  if (key === 'ucDate' && IS_LISTING) return 'The Under Contract date';
   return null;
 }
 async function changeTxnType(sel) {
@@ -1698,11 +1696,8 @@ async function create() {
   const type = document.getElementById('f-type').value;
   const contractDate = document.getElementById('f-contract').value;
   const closeDate = document.getElementById('f-close').value;
-  // Contract acceptance and COE can never fall on a weekend.
-  // (For listings the date field is the employment agreement — any day is fine.)
+  // Only COE can never fall on a weekend (title/recording are closed).
   if (type !== 'listing') {
-    const wc = weekendDayName(contractDate);
-    if (wc) { alert('⚠ The contract acceptance date cannot be a weekend!\\n\\n' + contractDate + ' is a ' + wc + ' — please pick a weekday.'); return; }
     const we = weekendDayName(closeDate);
     if (we) { alert('⚠ Close of Escrow (COE) cannot be a weekend!\\n\\n' + closeDate + ' is a ' + we + ' — please pick a weekday.'); return; }
   }
@@ -1833,10 +1828,8 @@ const server = http.createServer(async (req, res) => {
       const parsed = JSON.parse(body);
       const fields = parsed.fields || {};
       if (parsed.type !== 'listing') {
-        const wc = weekendDayNameSrv(fields.contractDate);
         const we = weekendDayNameSrv(fields.closeDate);
-        const err = wc ? 'The contract acceptance date cannot be a weekend — ' + fields.contractDate + ' is a ' + wc + '.'
-          : we ? 'Close of Escrow (COE) cannot be a weekend — ' + fields.closeDate + ' is a ' + we + '.' : null;
+        const err = we ? 'Close of Escrow (COE) cannot be a weekend — ' + fields.closeDate + ' is a ' + we + '.' : null;
         if (err) {
           res.writeHead(400, { "Content-Type": "application/json" });
           res.end(JSON.stringify({ error: err + ' Please pick a weekday.' }));
@@ -2020,9 +2013,7 @@ const server = http.createServer(async (req, res) => {
         const t = data.transactions[txId];
         if (!t) return { ok: false };
         const listingType = t.type === 'listing' || t.type === 'listing-uc';
-        const dateLabel = key === 'closeDate' ? 'Close of Escrow (COE)'
-          : (key === 'contractDate' && !listingType) ? 'The contract acceptance date'
-          : (key === 'ucDate' && listingType) ? 'The Under Contract date' : null;
+        const dateLabel = key === 'closeDate' ? 'Close of Escrow (COE)' : null;
         const wknd = dateLabel && weekendDayNameSrv(val);
         if (wknd) return { ok: false, error: dateLabel + ' cannot be a weekend — ' + val + ' is a ' + wknd + '. Please pick a weekday.' };
         if (!t.fields) t.fields = {};
