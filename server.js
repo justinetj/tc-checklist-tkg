@@ -1259,7 +1259,6 @@ function getDashboardHTML(transactions, tc) {
           <td style="padding:7px 8px;font-size:12px;color:#166534">${fields.clientName || t.clientName || '—'}</td>
           <td style="padding:7px 8px;font-size:11px"><span style="background:#dcfce7;color:#15803d;border-radius:8px;padding:2px 8px;font-weight:700">${label}</span></td>
           <td style="padding:7px 8px;font-size:12px;color:#166534">${fields.agentPartner1 || '—'}</td>
-          <td style="padding:7px 8px;white-space:nowrap" onclick="event.stopPropagation()" title="Close of Escrow date"><input type="date" value="${fields.closeDate || ''}" onchange="dashSetClose('${id}', this.value)" style="border:1px solid #bbf7d0;border-radius:6px;padding:2px 6px;font-size:11.5px;font-family:inherit;color:#166534;background:white"></td>
         </tr>`;
       }).join('')}</tbody></table>
     </div>` : '';
@@ -1681,12 +1680,6 @@ async function setStatus(id, status, force) {
     if (!IS_ADMIN) alert('⚠ ' + out.error);
     return;
   }
-  location.reload();
-}
-async function dashSetClose(id, val) {
-  const r = await fetch('/api/transactions/' + id + '/field', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ key:'closeDate', val: val }) });
-  const j = await r.json().catch(function(){ return {}; });
-  if (j && j.error) { alert('⚠ ' + j.error); return; }
   location.reload();
 }
 async function deleteTxn(id, label, btn) {
