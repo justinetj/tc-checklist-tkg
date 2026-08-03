@@ -1003,7 +1003,7 @@ function weekendBlockLabel(key) {
   return null;
 }
 async function changeTxnType(sel) {
-  if (!confirm('Change this file to "' + sel.options[sel.selectedIndex].text + '"? The checklist will switch to that type\'s items (checked-off items for the new type are kept).')) { sel.value = sel.dataset.orig; return; }
+  if (!confirm('Change this file to "' + sel.options[sel.selectedIndex].text + '"? The checklist will switch to the new type.')) { sel.value = sel.dataset.orig; return; }
   await fetch('/api/transactions/' + TXN_ID + '/type', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ type: sel.value }) });
   location.reload();
 }
