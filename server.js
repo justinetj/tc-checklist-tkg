@@ -974,7 +974,14 @@ async function deleteManualTask(id) {
   location.reload();
 }
 async function adminDeleteTxn() {
-  if (!confirm('Permanently delete this entire file? This cannot be undone.')) return;
+function delGate(label) {
+  if (!confirm('Do you want to delete ' + label + '? This cannot be undone.')) return false;
+  const code = prompt('Enter your passcode to confirm:');
+  if (code === null) return false;
+  if (!['5211','0007','0070','0001','3315'].includes(code)) { alert('Incorrect passcode.'); return false; }
+  return true;
+}
+  if (!delGate('this file')) return;
   const r = await fetch('/api/transactions/' + TXN_ID, { method:'DELETE' });
   if (!r.ok) { const j = await r.json().catch(function(){ return {}; }); alert(j.error || 'Could not delete.'); return; }
   window.location = '/?tc=' + encodeURIComponent(${JSON.stringify(tc)});
@@ -1602,8 +1609,15 @@ ${popupTasks.length ? `
 </div>
 <script>
 const IS_ADMIN = ${JSON.stringify(isAdmin)};
+function delGate(label) {
+  if (!confirm('Do you want to delete ' + label + '? This cannot be undone.')) return false;
+  const code = prompt('Enter your passcode to confirm:');
+  if (code === null) return false;
+  if (!['5211','0007','0070','0001','3315'].includes(code)) { alert('Incorrect passcode.'); return false; }
+  return true;
+}
 async function adminDelete(id) {
-  if (!confirm('Permanently delete this file? This cannot be undone.')) return;
+  if (!delGate('this file')) return;
   const r = await fetch('/api/transactions/' + id, { method:'DELETE' });
   if (!r.ok) { const j = await r.json().catch(function(){ return {}; }); alert(j.error || 'Could not delete.'); return; }
   location.reload();
@@ -1685,7 +1699,7 @@ async function setStatus(id, status, force) {
   location.reload();
 }
 async function deleteTxn(id, label, btn) {
-  if (!confirm('Delete "' + label + '"? This cannot be undone.')) return;
+  if (!delGate('"' + label + '"')) return;
   const r = await fetch('/api/transactions/' + id, { method:'DELETE' });
   if (!r.ok) { const j = await r.json(); alert(j.error || 'Could not delete.'); return; }
   location.reload();
