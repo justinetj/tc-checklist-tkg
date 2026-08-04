@@ -1802,7 +1802,7 @@ function adminLogin() {
       }).join('');
     })()}
   </div>
-  <a href="https://kumler-hub.onrender.com" style="margin-top:30px;font-size:12px;font-weight:600;color:#66187E;text-decoration:none;border:1px solid #eadef0;border-radius:99px;padding:8px 20px;background:white">← Kumler Hub</a>
+  <a href="https://kumler-hub.onrender.com" style="margin-top:30px;font-size:12px;font-weight:600;color:#66187E;text-decoration:none;border:1px solid #eadef0;border-radius:99px;padding:8px 20px;background:white">← THE HUB</a>
 </div>
 </body></html>`;
 }
@@ -1842,7 +1842,7 @@ const server = http.createServer(async (req, res) => {
         }
       }
       const id = crypto.randomBytes(6).toString("hex");
-      if (parsed.address) fields.address = parsed.address;
+      if (parsed.address) { parsed.address = String(parsed.address).toUpperCase(); fields.address = parsed.address; }
       const txn = { id, ...parsed, checked: {}, notes: {}, fields, createdAt: Date.now() };
       await withData(data => { data.transactions[id] = txn; });
       res.writeHead(200, { "Content-Type": "application/json" });
@@ -2022,6 +2022,7 @@ const server = http.createServer(async (req, res) => {
         const wknd = dateLabel && weekendDayNameSrv(val);
         if (wknd) return { ok: false, error: dateLabel + ' cannot be a weekend — ' + val + ' is a ' + wknd + '. Please pick a weekday.' };
         if (!t.fields) t.fields = {};
+        if (key === 'address') val = String(val || '').toUpperCase();
         t.fields[key] = val;
         if (key === 'address') t.address = val;
         // A listing going Under Contract hands off to the TC doing the contract:
@@ -2182,7 +2183,7 @@ const server = http.createServer(async (req, res) => {
           data.transactions[id] = {
             type,
             ...(linkedListingId ? { linkedListingId } : {}),
-            address: address || '(Address pending)',
+            address: (address || '(Address pending)').toUpperCase(),
             status: 'pending',
             createdAt: Date.now(),
             _rawFields: p,
