@@ -1182,7 +1182,7 @@ function getDashboardHTML(transactions, tc) {
       if (dueISO < todayStr) pastDue.push(item.label);
       else if (dueISO === todayStr) dueToday.push(item.label);
     }
-    const baseCompact = `<td style="font-size:12.5px;white-space:nowrap"><strong>${streetOnly(t.address) || '(no address)'}</strong></td><td style="font-size:11.5px;white-space:nowrap">${fields.clientName || t.clientName || '—'}</td><td style="font-size:11.5px;white-space:nowrap">${fields.agentPartner1 || '—'}</td><td style="font-size:11.5px;white-space:nowrap">${(fields.tcName || fields.lcName || '—').split(' ')[0]}</td>`;
+    const baseCompact = `<td style="font-size:12.5px;white-space:nowrap;font-weight:600;color:#1c1524">${streetOnly(t.address) || '(no address)'}</td><td style="font-size:11.5px;white-space:nowrap">${fields.clientName || t.clientName || '—'}</td><td style="font-size:11.5px;white-space:nowrap">${fields.agentPartner1 || '—'}</td><td style="font-size:11.5px;white-space:nowrap">${(fields.tcName || fields.lcName || '—').split(' ')[0]}</td>`;
     const rowStyle = dueToday.length && !pastDue.length
       ? 'border-left:4px solid #16a34a;background:#f0fdf4;'
       : pastDue.length ? 'border-left:4px solid #dc2626;' : '';
@@ -1256,7 +1256,7 @@ function getDashboardHTML(transactions, tc) {
         const fields = t.fields || {};
         const label = t.type === 'listing' || t.type === 'listing-uc' ? '🏡 Seller' : '🔑 Buyer';
         return `<tr onclick="window.location='/t/${id}?tc=${tc}'" style="cursor:pointer">
-          <td style="padding:3px 13px;font-size:12.5px;font-weight:700;color:#14532d">${t.address || '(no address)'}</td>
+          <td style="padding:3px 13px;font-size:12.5px;font-weight:600;color:#14532d">${t.address || '(no address)'}</td>
           <td style="padding:3px 8px;font-size:11.5px;color:#166534">${fields.clientName || t.clientName || '—'}</td>
           <td style="padding:3px 8px;font-size:10.5px"><span style="background:#dcfce7;color:#15803d;border-radius:8px;padding:1px 7px;font-weight:700">${label}</span></td>
           <td style="padding:3px 8px;font-size:11.5px;color:#166534">${fields.agentPartner1 || '—'}</td>
@@ -1287,7 +1287,7 @@ function getDashboardHTML(transactions, tc) {
   .tab-btn:hover { color:#66187E; }
   .tab-btn.on { background:#66187E; color:white; }
   .tab-badge { background:#dc2626; color:white; border-radius:999px; padding:1px 8px; font-size:11px; margin-left:4px; }
-  .shd { display:flex; align-items:center; gap:9px; border-radius:10px; margin-bottom:6px; padding:9px 16px; font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:.06em; color:white; }
+  .shd { display:flex; align-items:center; gap:9px; border-radius:10px; margin-bottom:6px; padding:7px 14px; font-size:11.5px; font-weight:600; text-transform:uppercase; letter-spacing:.06em; color:white; }
   .shd:has(+ .card) { border-radius:14px 14px 0 0; margin-bottom:0; }
   .shd-purple { background:#CB2CFB; } .shd-red { background:#dc2626; } .shd-green { background:#15803d; }
   .shd-blue { background:#66187E; } .shd-gray { background:#6b7280; }
@@ -1308,8 +1308,8 @@ function getDashboardHTML(transactions, tc) {
   .card { background:white; border:1px solid #e5eaf1; border-radius:14px; box-shadow:0 1px 3px rgba(22,50,79,.05); overflow:hidden; }
   .shd + .card { border-top-left-radius:0; border-top-right-radius:0; }
   table { width:100%; border-collapse:collapse; }
-  th { text-align:left; padding:7px 14px; background:#fafbfd; font-size:10px; color:#5b6b7f;
-       font-weight:700; text-transform:uppercase; letter-spacing:.05em; border-bottom:1px solid #e5eaf1; }
+  th { text-align:left; padding:5px 14px; background:#fafbfd; font-size:10px; color:#5b6b7f;
+       font-weight:600; text-transform:uppercase; letter-spacing:.05em; border-bottom:1px solid #e5eaf1; }
   td { padding:3px 10px; border-bottom:1px solid #f0f2f8; font-size:12px; }
   tr:last-child td { border-bottom:none; }
   tr:hover td { background:#f7f9ff; }
