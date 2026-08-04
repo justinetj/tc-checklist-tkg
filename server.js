@@ -1240,7 +1240,7 @@ function getDashboardHTML(transactions, tc) {
               <div style="font-size:12px;color:#64748b;margin-top:2px">${client && client !== '—' ? `Client: <b style="color:#1e293b">${client}</b> &nbsp;·&nbsp; ` : ''}Agent: <b style="color:#1e293b">${agent}</b></div>
               <div style="font-size:11px;color:#94a3b8;margin-top:3px">Received: ${receivedAt}</div>
             </div>
-            <a href="/t/${id}?tc=${tc}" style="background:#66187E;color:white;text-decoration:none;font-size:12px;font-weight:700;padding:7px 14px;border-radius:8px;white-space:nowrap">Open →</a><button onclick="adminDelete('${id}')" title="Delete this file" style="background:#fee2e2;color:#dc2626;border:1px solid #fecaca;font-size:13px;font-weight:700;padding:7px 11px;border-radius:8px;cursor:pointer">🗑</button>
+            <a href="/t/${id}?tc=${tc}" style="background:#66187E;color:white;text-decoration:none;font-size:12px;font-weight:700;padding:7px 14px;border-radius:8px;white-space:nowrap">Open →</a><button onclick="adminDelete('${id}')" title="Delete this file" style="background:white;color:#8a7d95;border:1.5px solid #eadef0;font-size:12px;font-weight:600;width:32px;height:32px;border-radius:8px;cursor:pointer;line-height:1" onmouseover="this.style.borderColor='#CB2CFB';this.style.color='#CB2CFB'" onmouseout="this.style.borderColor='#eadef0';this.style.color='#8a7d95'">✕</button>
           </div>
           <div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap;align-items:center">
             <span style="font-size:11px;color:#94a3b8;font-weight:600;margin-right:2px">TYPE:</span>
