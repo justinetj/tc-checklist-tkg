@@ -5,6 +5,8 @@ import { fileURLToPath } from "url";
 import crypto from "crypto";
 import pg from "pg";
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
 // Arizona is UTC-7 with no DST
 function todayAZ() {
   return new Date().toLocaleDateString('en-CA', { timeZone: 'America/Phoenix' });
