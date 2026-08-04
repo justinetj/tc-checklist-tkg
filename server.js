@@ -1,4 +1,5 @@
 import http from "http";
+import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import crypto from "crypto";
@@ -1742,23 +1743,21 @@ function getTCSelectHTML() {
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>The Kumler Group — Transaction Hub</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27><text y=%27.9em%27 font-size=%2790%27>🏠</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
   * { box-sizing:border-box; margin:0; padding:0; }
-  body { font-family:-apple-system,Helvetica,sans-serif; background:#f5f6fa; color:#1a1a2e; min-height:100vh; display:flex; flex-direction:column; }
-  .header { background:#4a1160; color:white; padding:24px 32px; text-align:center; }
-  .header h1 { font-size:24px; font-weight:800; }
-  .header p { font-size:14px; color:#cba8e0; margin-top:4px; }
-  .select-wrap { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:40px 20px; }
-  .select-label { font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:#64748b; margin-bottom:24px; }
-  .tc-grid { display:flex; flex-wrap:wrap; gap:16px; justify-content:center; max-width:700px; }
-  .tc-card { background:white; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,.08); padding:28px 24px; cursor:pointer; text-align:center; width:210px; border:2px solid transparent; transition:all .15s; text-decoration:none; color:inherit; }
-  .tc-card:hover { transform:translateY(-2px); box-shadow:0 6px 20px rgba(0,0,0,.12); }
-  .tc-avatar { width:56px; height:56px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:22px; font-weight:800; color:white; margin:0 auto 12px; }
-  .tc-name { font-size:15px; font-weight:700; color:#4a1160; }
-  .tc-role { font-size:12px; color:#94a3b8; margin-top:3px; }
-  .admin-card { background:#4a1160; color:white; }
-  .admin-card .tc-name { color:white; }
-  .admin-card .tc-role { color:#cba8e0; }
+  body { font-family:'Inter',-apple-system,Helvetica,sans-serif; background:#fdfbfe; color:#1c1524; min-height:100vh; display:flex; flex-direction:column; }
+  .logo { text-align:center; padding:48px 20px 0; }
+  .logo img { max-width:min(380px,84vw); height:auto; }
+  .sub { text-align:center; font-size:14px; font-weight:400; color:#7a6d85; margin-top:22px; }
+  .select-wrap { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; padding:26px 20px 46px; }
+  .tc-grid { display:flex; flex-wrap:wrap; gap:16px; justify-content:center; max-width:760px; }
+  .tc-card { background:white; border-radius:16px; box-shadow:0 2px 10px rgba(102,24,126,.06); padding:26px 24px; cursor:pointer; text-align:center; width:210px; border:1.5px solid #eadef0; transition:all .15s; text-decoration:none; color:inherit; }
+  .tc-card:hover { transform:translateY(-3px); border-color:#CB2CFB; box-shadow:0 10px 28px rgba(102,24,126,.16); }
+  .tc-avatar { width:56px; height:56px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:20px; font-weight:800; color:white; margin:0 auto 12px; background:linear-gradient(135deg,#66187E,#CB2CFB); }
+  .tc-name { font-size:15px; font-weight:700; color:#1c1524; }
+  .tc-role { font-size:12px; color:#8a7d95; margin-top:3px; font-weight:400; }
+  .foot { text-align:center; padding:16px; font-size:10.5px; font-weight:500; letter-spacing:.14em; text-transform:uppercase; color:#c3b5cd; }
 </style>
 <script>
 const TC_PASSCODES = { 'Joana Guzman': '5211', 'Cinnamon Kumler': '0007', 'Scott Kumler': '0070' };
@@ -1777,12 +1776,10 @@ function adminLogin() {
 </script>
 </head>
 <body>
-<div class="header">
-  <h1>The Kumler Group — Transaction Hub</h1>
-  <p>Select your name to view your transactions</p>
-</div>
+<div style="position:absolute;top:18px;left:18px"><a href="https://kumler-hub.onrender.com" style="font-size:12px;font-weight:600;color:#66187E;text-decoration:none;border:1px solid #eadef0;border-radius:99px;padding:7px 16px;background:white">← Kumler Hub</a></div>
+<div class="logo"><img src="/logo.png" alt="The Kumler Group"></div>
+<div class="sub">Transaction Hub — select your name</div>
 <div class="select-wrap">
-  <div class="select-label">Who are you?</div>
   <div class="tc-grid">
     ${(() => {
       const people = [
@@ -1796,7 +1793,7 @@ function adminLogin() {
       return people.map((p) => {
         const initials = p.name.split(' ').map(w => w[0]).join('');
         return `<a class="tc-card" href="javascript:void(0)" onclick="${p.onclick}">
-          <div class="tc-avatar" style="background:${p.color}">${initials}</div>
+          <div class="tc-avatar">${initials}</div>
           <div class="tc-name">${p.name}</div>
           <div class="tc-role">${p.role}</div>
         </a>`;
@@ -1812,6 +1809,11 @@ function adminLogin() {
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, `http://localhost`);
   const pathname = url.pathname;
+
+  if (pathname === "/logo.png") {
+    res.writeHead(200, { "Content-Type": "image/png", "Cache-Control": "public, max-age=86400" });
+    return res.end(fs.readFileSync(path.join(__dirname, "logo.png")));
+  }
 
   if (req.method === "GET" && pathname === "/api/debug/rawfields") {
     const data = await loadData();
