@@ -1250,16 +1250,16 @@ function getDashboardHTML(transactions, tc) {
       };
 
   const closingsTodaySection = closingToday.length > 0 ? `
-    <div class="shd shd-green">🎉 Closings Today — ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})} (${closingToday.length})</div>
+    <div class="shd shd-green" style="padding:5px 13px;font-size:11px;font-weight:600">🎉 Closings Today — ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})} (${closingToday.length})</div>
     <div class="card" style="margin-bottom:14px;border-left:4px solid #15803d">
       <table><tbody>${closingToday.map(([id,t]) => {
         const fields = t.fields || {};
         const label = t.type === 'listing' || t.type === 'listing-uc' ? '🏡 Seller' : '🔑 Buyer';
         return `<tr onclick="window.location='/t/${id}?tc=${tc}'" style="cursor:pointer">
-          <td style="padding:7px 14px;font-size:13px;font-weight:700;color:#14532d">${t.address || '(no address)'}</td>
-          <td style="padding:7px 8px;font-size:12px;color:#166534">${fields.clientName || t.clientName || '—'}</td>
-          <td style="padding:7px 8px;font-size:11px"><span style="background:#dcfce7;color:#15803d;border-radius:8px;padding:2px 8px;font-weight:700">${label}</span></td>
-          <td style="padding:7px 8px;font-size:12px;color:#166534">${fields.agentPartner1 || '—'}</td>
+          <td style="padding:3px 13px;font-size:12.5px;font-weight:700;color:#14532d">${t.address || '(no address)'}</td>
+          <td style="padding:3px 8px;font-size:11.5px;color:#166534">${fields.clientName || t.clientName || '—'}</td>
+          <td style="padding:3px 8px;font-size:10.5px"><span style="background:#dcfce7;color:#15803d;border-radius:8px;padding:1px 7px;font-weight:700">${label}</span></td>
+          <td style="padding:3px 8px;font-size:11.5px;color:#166534">${fields.agentPartner1 || '—'}</td>
         </tr>`;
       }).join('')}</tbody></table>
     </div>` : '';
@@ -1289,11 +1289,12 @@ function getDashboardHTML(transactions, tc) {
   .tab-badge { background:#dc2626; color:white; border-radius:999px; padding:1px 8px; font-size:11px; margin-left:4px; }
   .shd { display:flex; align-items:center; gap:9px; border-radius:10px; margin-bottom:6px; padding:9px 16px; font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:.06em; color:white; }
   .shd:has(+ .card) { border-radius:14px 14px 0 0; margin-bottom:0; }
-  .shd-purple { background:#7c3aed; } .shd-red { background:#dc2626; } .shd-green { background:#15803d; }
+  .shd-purple { background:#7c3aed; } .shd-red { background:#CB2CFB; } .shd-green { background:#15803d; }
   .shd-blue { background:#66187E; } .shd-gray { background:#6b7280; }
   .dashboard-layout { display:flex; gap:20px; align-items:flex-start; }
   .dashboard-main { flex:1; min-width:0; }
   .task-panel { width:260px; flex-shrink:0; position:sticky; top:16px; }
+  .detail-sidebar-hdr { background:#4a1160; color:white; padding:9px 14px; font-size:11.5px; font-weight:800; text-transform:uppercase; letter-spacing:.5px; }
   .task-panel .card { padding:0; }
   .task-group { border-bottom:1px solid #f0f2f8; padding:10px 14px; }
   .task-group:last-child { border-bottom:none; }
@@ -1349,7 +1350,7 @@ function getDashboardHTML(transactions, tc) {
     ${needsAttention.length + pending.length + closingToday.length === 0 ? '<div class="card" style="padding:22px;text-align:center;color:#15803d;font-weight:700;margin-bottom:14px">✅ Nothing needs attention today — no pending intakes, no closings due</div>' : ''}
     ${needsAttention.length > 0 ? `
     <div class="shd shd-red">⚠️ Incomplete — Past Close Date, Not Marked Closed (${needsAttention.length})</div>
-    <div class="card" style="margin-bottom:14px;border-left:4px solid #dc2626">
+    <div class="card" style="margin-bottom:14px;border-left:4px solid #CB2CFB">
       ${makeTable(needsAttention, false, 'buyer')}
     </div>` : ''}
     ${pending.length > 0 ? `
@@ -1360,7 +1361,7 @@ function getDashboardHTML(transactions, tc) {
     ${closingsTodaySection}
     </div>
     <div data-tab="buyers">
-    ${(() => { const nb = needsAttention.filter(([,t]) => t.type === 'buyer' || t.type === 'buyer-new-build'); return nb.length ? `<div class="shd shd-red">⚠️ Incomplete — Past Close Date, Not Marked Closed (${nb.length})</div><div class="card" style="margin-bottom:14px;border-left:4px solid #dc2626">${makeTable(nb, false, 'buyer')}</div>` : ''; })()}
+    ${(() => { const nb = needsAttention.filter(([,t]) => t.type === 'buyer' || t.type === 'buyer-new-build'); return nb.length ? `<div class="shd shd-red">⚠️ Incomplete — Past Close Date, Not Marked Closed (${nb.length})</div><div class="card" style="margin-bottom:14px;border-left:4px solid #CB2CFB">${makeTable(nb, false, 'buyer')}</div>` : ''; })()}
     ${(() => { const pb = pending.filter(([,t]) => t.type === 'buyer' || t.type === 'buyer-new-build'); return pb.length ? `<div class="shd shd-purple">⚠️ Needs Setup (${pb.length})</div><div style="margin-bottom:14px;display:flex;flex-direction:column;gap:6px">${pb.map(pendingCard).join('')}</div>` : ''; })()}
     ${closingsTodaySection}
     <div class="shd shd-blue">🏠 Active Transactions — Buyers</div>
@@ -1422,7 +1423,7 @@ function getDashboardHTML(transactions, tc) {
           </div>`;
         }).join('');
         const secId = `sec-${sectionLabel.replace(/\s/g,'')}`;
-        return `<div class="shd shd-gray" onclick="toggleM('${secId}')" style="cursor:pointer;justify-content:space-between;font-weight:600">
+        return `<div class="shd shd-gray" onclick="toggleM('${secId}')" style="cursor:pointer;justify-content:space-between;font-weight:400;padding:5px 13px;font-size:11px">
           <span>${icon} ${sectionLabel} <span style="background:rgba(255,255,255,.22);border-radius:8px;padding:0 8px;font-size:11px;margin-left:4px">${list.length}</span></span>
           <span id="arr-${secId}" style="font-size:11px">▼</span>
         </div>
@@ -1503,7 +1504,7 @@ function getDashboardHTML(transactions, tc) {
         const ashley   = bu.filter(([,t]) => (t.fields?.tcName) === 'Ashley Belliveau');
         const cinnamon = [...listings]; // pre-UC listings = Cinnamon's setup phase
         const others   = bu.filter(([,t]) => { const n = t.fields?.tcName; return n !== 'Joana Guzman' && n !== 'Ashley Belliveau'; });
-        return `<div class="detail-sidebar-hdr" style="margin-bottom:10px">📋 Tasks by Coordinator</div>`
+        return `<div class="detail-sidebar-hdr" style="margin-bottom:10px;border-radius:9px">📋 Tasks by Coordinator</div>`
           + coordSection('Joana Guzman', joana)
           + coordSection('Ashley Belliveau', ashley)
           + coordSection('Cinnamon Kumler', cinnamon)
@@ -1748,11 +1749,11 @@ function getTCSelectHTML() {
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
   * { box-sizing:border-box; margin:0; padding:0; }
-  body { font-family:'Inter',-apple-system,Helvetica,sans-serif; background:#fdfbfe; color:#1c1524; min-height:100vh; display:flex; flex-direction:column; }
-  .logo { text-align:center; padding:48px 20px 0; }
+  body { font-family:'Inter',-apple-system,Helvetica,sans-serif; background:#fdfbfe; color:#1c1524; min-height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center; padding:30px 0; }
+  .logo { text-align:center; padding:0 20px; }
   .logo img { max-width:min(380px,84vw); height:auto; }
   .sub { text-align:center; font-size:14px; font-weight:400; color:#7a6d85; margin-top:22px; }
-  .select-wrap { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; padding:26px 20px 46px; }
+  .select-wrap { display:flex; flex-direction:column; align-items:center; padding:26px 20px 0; }
   .tc-grid { display:flex; flex-wrap:wrap; gap:16px; justify-content:center; max-width:760px; }
   .tc-card { background:white; border-radius:16px; box-shadow:0 2px 10px rgba(102,24,126,.06); padding:26px 24px; cursor:pointer; text-align:center; width:210px; border:1.5px solid #eadef0; transition:all .15s; text-decoration:none; color:inherit; }
   .tc-card:hover { transform:translateY(-3px); border-color:#CB2CFB; box-shadow:0 10px 28px rgba(102,24,126,.16); }
