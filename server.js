@@ -518,7 +518,7 @@ function getHTML(transaction, id, tc, related = []) {
   tr { border-bottom:1px solid #f0f2f8; transition:background .1s; }
   tr:last-child { border-bottom:none; }
   tr.done .label-cell label { color:#bbb; text-decoration:line-through; }
-  tr:hover { background:#fafbff; }
+  tr:hover { background:#fdf6ff; }
   .cb-cell { width:34px; padding:4px 4px 4px 14px; }
   .cb-cell input[type=checkbox] { width:14px; height:14px; cursor:pointer; accent-color:${color}; }
   .label-cell { padding:2px 8px; font-size:11.5px; }
@@ -1280,7 +1280,7 @@ function getDashboardHTML(transactions, tc) {
   .header p { font-size:13px; color:#cba8e0; margin-top:2px; }
   .btn { background:#a21caf; color:white; border:none; padding:10px 20px; border-radius:7px;
          font-size:13px; font-weight:600; cursor:pointer; }
-  .btn:hover { background:#1d4ed8; }
+  .btn:hover { background:#CB2CFB; }
   .container { max-width:1400px; margin:14px auto; padding:0 16px; }
   .tab-bar { display:flex; gap:6px; background:white; border:1px solid #e5eaf1; padding:5px; border-radius:12px; width:fit-content; margin-bottom:16px; box-shadow:0 1px 3px rgba(22,50,79,.06); flex-wrap:wrap; }
   .tab-btn { background:transparent; border:none; color:#5b6b7f; font-weight:700; font-family:inherit; font-size:13px; padding:8px 18px; border-radius:8px; cursor:pointer; }
@@ -1312,7 +1312,7 @@ function getDashboardHTML(transactions, tc) {
        font-weight:600; text-transform:uppercase; letter-spacing:.05em; border-bottom:1px solid #e5eaf1; }
   td { padding:3px 10px; border-bottom:1px solid #f0f2f8; font-size:12px; }
   tr:last-child td { border-bottom:none; }
-  tr:hover td { background:#f7f9ff; }
+  tr:hover td { background:#faf0fe; }
   .empty { padding:14px; text-align:center; color:#888; font-size:13px; }
   .modal-bg { display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:100; align-items:center; justify-content:center; }
   .modal-bg.open { display:flex; }
@@ -1354,7 +1354,7 @@ function getDashboardHTML(transactions, tc) {
       ${makeTable(needsAttention, false, 'buyer')}
     </div>` : ''}
     ${pending.length > 0 ? `
-    <div class="shd shd-purple">⚠️ Needs Attention — New Formstack (${pending.length})</div>
+    <div class="shd shd-purple"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Needs Attention — New Formstack (${pending.length})</div>
     <div style="margin-bottom:14px;display:flex;flex-direction:column;gap:6px">
       ${pending.map(pendingCard).join('')}
     </div>` : ''}
