@@ -705,7 +705,7 @@ ${(!isListing && !contractDate) ? `<div style="margin:12px 32px 0;background:#ff
     ? `<div style="background:white;border-radius:10px;box-shadow:0 1px 4px rgba(0,0,0,.07);padding:36px 24px;text-align:center;color:#64748b;font-size:14px">🔒 This transaction's checklist is managed by <strong style="color:#4a1160">${assignedTC}</strong></div>`
     : sectionHTML}</div>
   <div class="detail-sidebar">
-    ${tasksHidden ? `<div class="detail-sidebar-hdr"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg> Tasks</div><div class="task-due-empty">Managed by ${assignedTC}</div>` : (() => {
+    ${tasksHidden ? `<div class="detail-sidebar-hdr"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg> Tasks</div><div class="task-due-empty">Managed by ${assignedTC}</div>` : (() => {
       const today = todayAZ();
       const pastDue = [], dueToday = [];
       let ucp = false;
@@ -741,7 +741,7 @@ ${(!isListing && !contractDate) ? `<div style="margin:12px 32px 0;background:#ff
         totalPast ? `<span style="background:#dc2626;color:white;border-radius:10px;padding:2px 8px;font-size:11px;font-weight:700">⚠ ${totalPast} past due</span>` : '',
         totalToday ? `<span style="background:#15803d;color:white;border-radius:10px;padding:2px 8px;font-size:11px;font-weight:700">✓ ${totalToday} today</span>` : ''
       ].filter(Boolean).join(' ');
-      const hdr = `<div class="detail-sidebar-hdr" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg> Tasks ${hdrBadges}</div>`;
+      const hdr = `<div class="detail-sidebar-hdr" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg> Tasks ${hdrBadges}</div>`;
       const upcoming = mtUpcoming.length
         ? `<div class="task-due-group"><div class="task-due-label" style="color:#64748b">📅 Scheduled</div>${mtUpcoming.map(m => mtRow(m, 'color:#64748b;font-weight:600')).join('')}</div>`
         : '';
@@ -1250,7 +1250,7 @@ function getDashboardHTML(transactions, tc) {
       };
 
   const closingsTodaySection = closingToday.length > 0 ? `
-    <div class="shd shd-green" style="padding:5px 13px;font-size:11px;font-weight:600"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="m9 16 2 2 4-4"/></svg> Closings Today — ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})} (${closingToday.length})</div>
+    <div class="shd shd-green" style="padding:5px 13px;font-size:11px;font-weight:600"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="m9 16 2 2 4-4"/></svg> Closings Today — ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})} (${closingToday.length})</div>
     <div class="card" style="margin-bottom:14px;border-left:4px solid #15803d">
       <table><tbody>${closingToday.map(([id,t]) => {
         const fields = t.fields || {};
@@ -1287,7 +1287,7 @@ function getDashboardHTML(transactions, tc) {
   .tab-btn:hover { color:#66187E; }
   .tab-btn.on { background:#66187E; color:white; }
   .tab-badge { background:#dc2626; color:white; border-radius:999px; padding:1px 8px; font-size:11px; margin-left:4px; }
-  .shd { display:flex; align-items:center; gap:9px; border-radius:10px; margin-bottom:6px; padding:7px 14px; font-size:11.5px; font-weight:600; text-transform:uppercase; letter-spacing:.06em; color:white; }
+  .shd { display:flex; align-items:center; gap:9px; border-radius:10px; margin-bottom:6px; padding:7px 14px; font-size:12.5px; font-weight:600; text-transform:uppercase; letter-spacing:.06em; color:white; }
   .shd:has(+ .card) { border-radius:14px 14px 0 0; margin-bottom:0; }
   .shd-purple { background:#CB2CFB; } .shd-red { background:#dc2626; } .shd-green { background:#15803d; }
   .shd-blue { background:#66187E; } .shd-gray { background:#6b7280; }
@@ -1342,14 +1342,14 @@ function getDashboardHTML(transactions, tc) {
 <div class="dashboard-layout">
   <div class="dashboard-main">
     <div class="tab-bar">
-      <button class="tab-btn" data-for="dash" onclick="showTab('dash')"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Dashboard${needsAttention.length + pending.length ? ` <span class="tab-badge">${needsAttention.length + pending.length}</span>` : ''}</button>
-      <button class="tab-btn" data-for="buyers" onclick="showTab('buyers')"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> Buyers (${active.length + listingUC.length})</button>
+      <button class="tab-btn" data-for="dash" onclick="showTab('dash')"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Dashboard${needsAttention.length + pending.length ? ` <span class="tab-badge">${needsAttention.length + pending.length}</span>` : ''}</button>
+      <button class="tab-btn" data-for="buyers" onclick="showTab('buyers')"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> Buyers (${active.length + listingUC.length})</button>
       <button class="tab-btn" data-for="listings" onclick="showTab('listings')">🏷️ Listings (${listings.length})</button>
     </div>
     <div data-tab="dash">
     ${needsAttention.length + pending.length + closingToday.length === 0 ? '<div class="card" style="padding:22px;text-align:center;color:#15803d;font-weight:700;margin-bottom:14px">✅ Nothing needs attention today — no pending intakes, no closings due</div>' : ''}
     ${needsAttention.length > 0 ? `
-    <div class="shd shd-red"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Incomplete — Past Close Date, Not Marked Closed (${needsAttention.length})</div>
+    <div class="shd shd-red"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Incomplete — Past Close Date, Not Marked Closed (${needsAttention.length})</div>
     <div class="card" style="margin-bottom:14px;border-left:4px solid #dc2626">
       ${makeTable(needsAttention, false, 'buyer')}
     </div>` : ''}
@@ -1361,29 +1361,29 @@ function getDashboardHTML(transactions, tc) {
     ${closingsTodaySection}
     </div>
     <div data-tab="buyers">
-    ${(() => { const nb = needsAttention.filter(([,t]) => t.type === 'buyer' || t.type === 'buyer-new-build'); return nb.length ? `<div class="shd shd-red"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Incomplete — Past Close Date, Not Marked Closed (${nb.length})</div><div class="card" style="margin-bottom:14px;border-left:4px solid #dc2626">${makeTable(nb, false, 'buyer')}</div>` : ''; })()}
-    ${(() => { const pb = pending.filter(([,t]) => t.type === 'buyer' || t.type === 'buyer-new-build'); return pb.length ? `<div class="shd shd-purple"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Needs Setup (${pb.length})</div><div style="margin-bottom:14px;display:flex;flex-direction:column;gap:6px">${pb.map(pendingCard).join('')}</div>` : ''; })()}
+    ${(() => { const nb = needsAttention.filter(([,t]) => t.type === 'buyer' || t.type === 'buyer-new-build'); return nb.length ? `<div class="shd shd-red"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Incomplete — Past Close Date, Not Marked Closed (${nb.length})</div><div class="card" style="margin-bottom:14px;border-left:4px solid #dc2626">${makeTable(nb, false, 'buyer')}</div>` : ''; })()}
+    ${(() => { const pb = pending.filter(([,t]) => t.type === 'buyer' || t.type === 'buyer-new-build'); return pb.length ? `<div class="shd shd-purple"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Needs Setup (${pb.length})</div><div style="margin-bottom:14px;display:flex;flex-direction:column;gap:6px">${pb.map(pendingCard).join('')}</div>` : ''; })()}
     ${closingsTodaySection}
-    <div class="shd shd-blue"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> Active Transactions — Buyers</div>
+    <div class="shd shd-blue"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> Active Transactions — Buyers</div>
     <div class="card" style="margin-bottom:14px">
       ${active.length === 0 ? '<div class="empty">No active transactions.</div>' : makeTable([...active].sort((a,b) => { const da = a[1].fields?.closeDate || '9999-99-99', db = b[1].fields?.closeDate || '9999-99-99'; return da < db ? -1 : da > db ? 1 : 0; }), false, 'buyer')}
     </div>
-    <div class="shd shd-blue"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> Active Transactions — Sellers</div>
+    <div class="shd shd-blue"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> Active Transactions — Sellers</div>
     <div class="card" style="margin-bottom:14px">
       ${listingUC.length === 0 ? '<div class="empty">No listings under contract.</div>' : makeTable(listingUC, false, 'uc')}
     </div>
     </div>
     <div data-tab="listings">
-    ${(() => { const pl = pending.filter(([,t]) => t.type === 'listing' || t.type === 'listing-uc'); return pl.length ? `<div class="shd shd-purple"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Needs Setup (${pl.length})</div><div style="margin-bottom:14px;display:flex;flex-direction:column;gap:6px">${pl.map(pendingCard).join('')}</div>` : ''; })()}
+    ${(() => { const pl = pending.filter(([,t]) => t.type === 'listing' || t.type === 'listing-uc'); return pl.length ? `<div class="shd shd-purple"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Needs Setup (${pl.length})</div><div style="margin-bottom:14px;display:flex;flex-direction:column;gap:6px">${pl.map(pendingCard).join('')}</div>` : ''; })()}
     ${(() => {
       const resi = listings.filter(([, t]) => (t.fields?.propertyType) !== 'Land');
       const land = listings.filter(([, t]) => (t.fields?.propertyType) === 'Land');
       return `
-    <div class="shd shd-blue"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M20.59 13.41 11 3.83A2 2 0 0 0 9.59 3.24H4a1 1 0 0 0-1 1v5.59a2 2 0 0 0 .59 1.41l9.58 9.59a2 2 0 0 0 2.83 0l4.59-4.59a2 2 0 0 0 0-2.83z"/><circle cx="7.5" cy="7.5" r=".5"/></svg> Listings — Residential (${resi.length})</div>
+    <div class="shd shd-blue"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M20.59 13.41 11 3.83A2 2 0 0 0 9.59 3.24H4a1 1 0 0 0-1 1v5.59a2 2 0 0 0 .59 1.41l9.58 9.59a2 2 0 0 0 2.83 0l4.59-4.59a2 2 0 0 0 0-2.83z"/><circle cx="7.5" cy="7.5" r=".5"/></svg> Listings — Residential (${resi.length})</div>
     <div class="card" style="margin-bottom:14px">
       ${resi.length === 0 ? '<div class="empty">No residential listings.</div>' : makeTable(resi, false, 'listing')}
     </div>
-    <div class="shd shd-green">🌵 Listings — Land (${land.length})</div>
+    <div class="shd shd-green"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="m8 3 4 8 5-5 5 15H2L8 3z"/></svg> Listings — Land (${land.length})</div>
     <div class="card" style="margin-bottom:14px">
       ${land.length === 0 ? '<div class="empty">No land listings.</div>' : makeTable(land, false, 'listing')}
     </div>`;
@@ -1429,7 +1429,7 @@ function getDashboardHTML(transactions, tc) {
         </div>
         <div id="${secId}" style="display:none;margin-bottom:20px;margin-top:6px">${rows}</div>`;
       }
-      return makeMonthGroups(closed,'Closed Transactions',`<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`) + makeMonthGroups(cancelled,'Cancelled Transactions',`<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>`);
+      return makeMonthGroups(closed,'Closed Transactions',`<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`) + makeMonthGroups(cancelled,'Cancelled Transactions',`<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>`);
     })()}
     </div>
   </div>
@@ -1504,7 +1504,7 @@ function getDashboardHTML(transactions, tc) {
         const ashley   = bu.filter(([,t]) => (t.fields?.tcName) === 'Ashley Belliveau');
         const cinnamon = [...listings]; // pre-UC listings = Cinnamon's setup phase
         const others   = bu.filter(([,t]) => { const n = t.fields?.tcName; return n !== 'Joana Guzman' && n !== 'Ashley Belliveau'; });
-        return `<div class="detail-sidebar-hdr" style="margin-bottom:10px;border-radius:9px"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg> Tasks by Coordinator</div>`
+        return `<div class="detail-sidebar-hdr" style="margin-bottom:10px;border-radius:9px"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg> Tasks by Coordinator</div>`
           + coordSection('Joana Guzman', joana)
           + coordSection('Ashley Belliveau', ashley)
           + coordSection('Cinnamon Kumler', cinnamon)
@@ -1521,7 +1521,7 @@ function getDashboardHTML(transactions, tc) {
         totalToday ? `<span style="background:#15803d;color:white;border-radius:10px;padding:2px 8px;font-size:11px;font-weight:700">✓ ${totalToday} today</span>` : ''
       ].filter(Boolean).join(' ');
       const body = txnGroups.length ? txnGroups.join('') : '<div class="task-panel-empty">No tasks due today</div>';
-      return `<div class="detail-sidebar-hdr" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg> Tasks ${hdrBadges}</div><div class="card" style="padding:0;overflow:hidden">${body}</div>`;
+      return `<div class="detail-sidebar-hdr" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg> Tasks ${hdrBadges}</div><div class="card" style="padding:0;overflow:hidden">${body}</div>`;
     })()}
   </div>
 </div>
