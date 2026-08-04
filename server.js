@@ -483,7 +483,7 @@ function getHTML(transaction, id, tc, related = []) {
 <style>
   * { box-sizing:border-box; margin:0; padding:0; }
   body { font-family:-apple-system,Helvetica,sans-serif; background:#f5f6fa; color:#1a1a2e; }
-  .header { background:#4a1160; color:white; padding:18px 32px; display:flex; align-items:center; gap:16px; }
+  .header { background:linear-gradient(120deg,#3d0d52,#66187E 55%,#a21caf 135%); color:white; padding:16px 32px; display:flex; align-items:center; gap:16px; }
   .header a { color:#cba8e0; font-size:13px; text-decoration:none; margin-right:8px; }
   .header a:hover { color:white; }
   .header h1 { font-size:18px; font-weight:700; flex:1; }
@@ -662,7 +662,7 @@ ${(!isListing && !contractDate) ? `<div style="margin:12px 32px 0;background:#ff
     </div>` : ''}
   </div>
   ${isListing ? `
-  <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#2e7d32;letter-spacing:.5px;margin:10px 0 4px">🏷️ Listing Info</div>
+  <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#2e7d32;letter-spacing:.5px;margin:10px 0 4px"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M20.59 13.41 11 3.83A2 2 0 0 0 9.59 3.24H4a1 1 0 0 0-1 1v5.59a2 2 0 0 0 .59 1.41l9.58 9.59a2 2 0 0 0 2.83 0l4.59-4.59a2 2 0 0 0 0-2.83z"/><circle cx="7.5" cy="7.5" r=".5"/></svg> Listing Info</div>
   <div class="info-grid">
     ${[["MLS#", "mlsNum"], ["Lockbox#", "lockboxNum"], ["Shackle Code", "shackleCode"], ["CBS Code", "cbsCode"]].map(([label, key]) => `
     <div class="info-field">
@@ -692,7 +692,7 @@ ${(!isListing && !contractDate) ? `<div style="margin:12px 32px 0;background:#ff
   </div>` : ''}
   <div style="border-top:1px solid #f1f1f4;margin-top:6px;padding-top:10px">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
-      <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#9a3412;letter-spacing:.5px">📌 Contingencies</div>
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#9a3412;letter-spacing:.5px"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1z"/></svg> Contingencies</div>
       <button onclick="addContingency()" style="background:#ea580c;color:white;border:none;border-radius:6px;padding:4px 11px;font-size:11px;font-weight:700;cursor:pointer">+ Add Contingency</button>
     </div>
     <div id="contingency-list"></div>
@@ -743,7 +743,7 @@ ${(!isListing && !contractDate) ? `<div style="margin:12px 32px 0;background:#ff
       ].filter(Boolean).join(' ');
       const hdr = `<div class="detail-sidebar-hdr" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg> Tasks ${hdrBadges}</div>`;
       const upcoming = mtUpcoming.length
-        ? `<div class="task-due-group"><div class="task-due-label" style="color:#64748b">📅 Scheduled</div>${mtUpcoming.map(m => mtRow(m, 'color:#64748b;font-weight:600')).join('')}</div>`
+        ? `<div class="task-due-group"><div class="task-due-label" style="color:#64748b"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Scheduled</div>${mtUpcoming.map(m => mtRow(m, 'color:#64748b;font-weight:600')).join('')}</div>`
         : '';
       const addRow = `<div style="padding:10px 12px;border-top:1px solid #f0f2f8">
         <input id="mt-text" placeholder="Add a task…" onkeydown="if(event.key==='Enter')addManualTask()"
@@ -1250,7 +1250,7 @@ function getDashboardHTML(transactions, tc) {
       };
 
   const closingsTodaySection = closingToday.length > 0 ? `
-    <div class="shd shd-green" style="padding:5px 13px;font-size:11px;font-weight:600"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="m9 16 2 2 4-4"/></svg> Closings Today — ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})} (${closingToday.length})</div>
+    <div class="shd shd-green"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="m9 16 2 2 4-4"/></svg> Closings Today — ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})} (${closingToday.length})</div>
     <div class="card" style="margin-bottom:14px;border-left:4px solid #15803d">
       <table><tbody>${closingToday.map(([id,t]) => {
         const fields = t.fields || {};
@@ -1275,7 +1275,7 @@ function getDashboardHTML(transactions, tc) {
 <style>
   * { box-sizing:border-box; margin:0; padding:0; }
   body { font-family:'Inter',-apple-system,Helvetica,sans-serif; background:#f2f5f9; color:#1c2733; }
-  .header { background:#4a1160; color:white; padding:18px 32px; display:flex; align-items:center; justify-content:space-between; }
+  .header { background:linear-gradient(120deg,#3d0d52,#66187E 55%,#a21caf 135%); color:white; padding:15px 32px; display:flex; align-items:center; justify-content:space-between; }
   .header h1 { font-size:20px; font-weight:700; }
   .header p { font-size:13px; color:#cba8e0; margin-top:2px; }
   .btn { background:#a21caf; color:white; border:none; padding:10px 20px; border-radius:7px;
@@ -1329,12 +1329,15 @@ function getDashboardHTML(transactions, tc) {
 </style></head>
 <body>
 <div class="header">
-  <div>
+  <div style="display:flex;align-items:center;gap:14px">
+    <div style="width:42px;height:42px;border-radius:50%;background:#CB2CFB;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 2px 12px rgba(203,44,251,.5)"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+    <div>
     <div style="display:flex;align-items:center;gap:10px">
-      <a href="/" style="color:rgba(255,255,255,.7);text-decoration:none;font-size:12px;font-weight:600;border:1px solid rgba(255,255,255,.3);border-radius:5px;padding:3px 8px">← Back</a>
-      <h1>The Kumler Group — Transaction Hub</h1>
+      <a href="/" style="color:rgba(255,255,255,.7);text-decoration:none;font-size:12px;font-weight:600;border:1px solid rgba(255,255,255,.3);border-radius:99px;padding:3px 11px">← Back</a>
+      <h1 style="font-weight:600">The Kumler Group — Transaction Hub</h1>
     </div>
     <p>${isAdmin ? 'Viewing all transactions (Admin)' : `All transactions — tasks for <strong>${tc}</strong>`}</p>
+  </div>
   </div>
   <button class="btn" onclick="document.getElementById('modal').classList.add('open')">+ New Transaction</button>
 </div>
@@ -1344,17 +1347,17 @@ function getDashboardHTML(transactions, tc) {
     <div class="tab-bar">
       <button class="tab-btn" data-for="dash" onclick="showTab('dash')"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Dashboard${needsAttention.length + pending.length ? ` <span class="tab-badge">${needsAttention.length + pending.length}</span>` : ''}</button>
       <button class="tab-btn" data-for="buyers" onclick="showTab('buyers')"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> Buyers (${active.length + listingUC.length})</button>
-      <button class="tab-btn" data-for="listings" onclick="showTab('listings')">🏷️ Listings (${listings.length})</button>
+      <button class="tab-btn" data-for="listings" onclick="showTab('listings')"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M20.59 13.41 11 3.83A2 2 0 0 0 9.59 3.24H4a1 1 0 0 0-1 1v5.59a2 2 0 0 0 .59 1.41l9.58 9.59a2 2 0 0 0 2.83 0l4.59-4.59a2 2 0 0 0 0-2.83z"/><circle cx="7.5" cy="7.5" r=".5"/></svg> Listings (${listings.length})</button>
     </div>
     <div data-tab="dash">
-    ${needsAttention.length + pending.length + closingToday.length === 0 ? '<div class="card" style="padding:22px;text-align:center;color:#15803d;font-weight:700;margin-bottom:14px">✅ Nothing needs attention today — no pending intakes, no closings due</div>' : ''}
+    ${needsAttention.length + pending.length + closingToday.length === 0 ? '<div class="card" style="padding:22px;text-align:center;color:#15803d;font-weight:700;margin-bottom:14px"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Nothing needs attention today — no pending intakes, no closings due</div>' : ''}
     ${needsAttention.length > 0 ? `
     <div class="shd shd-red"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Incomplete — Past Close Date, Not Marked Closed (${needsAttention.length})</div>
     <div class="card" style="margin-bottom:14px;border-left:4px solid #dc2626">
       ${makeTable(needsAttention, false, 'buyer')}
     </div>` : ''}
     ${pending.length > 0 ? `
-    <div class="shd shd-purple"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Needs Attention — New Formstack (${pending.length})</div>
+    <div class="shd shd-purple"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Needs Attention — New Formstack (${pending.length})</div>
     <div style="margin-bottom:14px;display:flex;flex-direction:column;gap:6px">
       ${pending.map(pendingCard).join('')}
     </div>` : ''}
