@@ -1233,7 +1233,7 @@ function getDashboardHTML(transactions, tc) {
         const receivedAt = t.createdAt ? new Date(t.createdAt).toLocaleString('en-US', { timeZone: 'America/Phoenix', month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true }) : '—';
         const curType = (t.type && t.type !== '') ? t.type : 'buyer';
         const typeOpts = [['buyer','Buyer — Resale'],['buyer-new-build','Buyer — New Build'],['listing','Listing'],['listing-uc','Listing Escrow']];
-        return `<div style="background:white;border:1px solid #e5eaf1;border-left:4px solid #7c3aed;border-radius:10px;padding:10px 14px;box-shadow:0 1px 3px rgba(22,50,79,.05)">
+        return `<div style="background:white;border:1px solid #e5eaf1;border-left:4px solid #CB2CFB;border-radius:10px;padding:10px 14px;box-shadow:0 1px 3px rgba(22,50,79,.05)">
           <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
             <div style="flex:1;min-width:180px">
               <div style="font-weight:700;font-size:14px;color:#1e293b">${addr}</div>
@@ -1244,7 +1244,7 @@ function getDashboardHTML(transactions, tc) {
           </div>
           <div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap;align-items:center">
             <span style="font-size:11px;color:#94a3b8;font-weight:600;margin-right:2px">TYPE:</span>
-            ${typeOpts.map(([val, label]) => `<button onclick="setFsType('${id}','${val}',this)" style="font-size:11px;font-weight:700;padding:4px 10px;border-radius:5px;cursor:pointer;border:2px solid ${curType===val?'#7c3aed':'#e2e8f0'};background:${curType===val?'#7c3aed':'white'};color:${curType===val?'white':'#64748b'}">${label}</button>`).join('')}
+            ${typeOpts.map(([val, label]) => `<button onclick="setFsType('${id}','${val}',this)" style="font-size:11px;font-weight:700;padding:4px 10px;border-radius:5px;cursor:pointer;border:2px solid ${curType===val?'#CB2CFB':'#e2e8f0'};background:${curType===val?'#CB2CFB':'white'};color:${curType===val?'white':'#64748b'}">${label}</button>`).join('')}
           </div>
         </div>`;
       };
@@ -1289,7 +1289,7 @@ function getDashboardHTML(transactions, tc) {
   .tab-badge { background:#dc2626; color:white; border-radius:999px; padding:1px 8px; font-size:11px; margin-left:4px; }
   .shd { display:flex; align-items:center; gap:9px; border-radius:10px; margin-bottom:6px; padding:9px 16px; font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:.06em; color:white; }
   .shd:has(+ .card) { border-radius:14px 14px 0 0; margin-bottom:0; }
-  .shd-purple { background:#7c3aed; } .shd-red { background:#CB2CFB; } .shd-green { background:#15803d; }
+  .shd-purple { background:#CB2CFB; } .shd-red { background:#dc2626; } .shd-green { background:#15803d; }
   .shd-blue { background:#66187E; } .shd-gray { background:#6b7280; }
   .dashboard-layout { display:flex; gap:20px; align-items:flex-start; }
   .dashboard-main { flex:1; min-width:0; }
@@ -1350,7 +1350,7 @@ function getDashboardHTML(transactions, tc) {
     ${needsAttention.length + pending.length + closingToday.length === 0 ? '<div class="card" style="padding:22px;text-align:center;color:#15803d;font-weight:700;margin-bottom:14px">✅ Nothing needs attention today — no pending intakes, no closings due</div>' : ''}
     ${needsAttention.length > 0 ? `
     <div class="shd shd-red">⚠️ Incomplete — Past Close Date, Not Marked Closed (${needsAttention.length})</div>
-    <div class="card" style="margin-bottom:14px;border-left:4px solid #CB2CFB">
+    <div class="card" style="margin-bottom:14px;border-left:4px solid #dc2626">
       ${makeTable(needsAttention, false, 'buyer')}
     </div>` : ''}
     ${pending.length > 0 ? `
@@ -1361,7 +1361,7 @@ function getDashboardHTML(transactions, tc) {
     ${closingsTodaySection}
     </div>
     <div data-tab="buyers">
-    ${(() => { const nb = needsAttention.filter(([,t]) => t.type === 'buyer' || t.type === 'buyer-new-build'); return nb.length ? `<div class="shd shd-red">⚠️ Incomplete — Past Close Date, Not Marked Closed (${nb.length})</div><div class="card" style="margin-bottom:14px;border-left:4px solid #CB2CFB">${makeTable(nb, false, 'buyer')}</div>` : ''; })()}
+    ${(() => { const nb = needsAttention.filter(([,t]) => t.type === 'buyer' || t.type === 'buyer-new-build'); return nb.length ? `<div class="shd shd-red">⚠️ Incomplete — Past Close Date, Not Marked Closed (${nb.length})</div><div class="card" style="margin-bottom:14px;border-left:4px solid #dc2626">${makeTable(nb, false, 'buyer')}</div>` : ''; })()}
     ${(() => { const pb = pending.filter(([,t]) => t.type === 'buyer' || t.type === 'buyer-new-build'); return pb.length ? `<div class="shd shd-purple">⚠️ Needs Setup (${pb.length})</div><div style="margin-bottom:14px;display:flex;flex-direction:column;gap:6px">${pb.map(pendingCard).join('')}</div>` : ''; })()}
     ${closingsTodaySection}
     <div class="shd shd-blue">🏠 Active Transactions — Buyers</div>
@@ -1658,9 +1658,9 @@ async function setFsType(id, type, btn) {
   });
   btn.closest('div').querySelectorAll('button').forEach(b => {
     const active = b === btn;
-    b.style.background = active ? '#7c3aed' : 'white';
+    b.style.background = active ? '#CB2CFB' : 'white';
     b.style.color = active ? 'white' : '#64748b';
-    b.style.borderColor = active ? '#7c3aed' : '#e2e8f0';
+    b.style.borderColor = active ? '#CB2CFB' : '#e2e8f0';
   });
 }
 function toggleCoord(id) {
