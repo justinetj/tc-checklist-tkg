@@ -337,7 +337,7 @@ function getHTML(transaction, id, tc, related = []) {
   const done = items.filter(i => checked[i.id]).length;
   const pct = Math.round((done / total) * 100);
   const isBuyer = transaction.type === "buyer" || transaction.type === "buyer-new-build";
-  const color = isBuyer ? "#1565c0" : transaction.type === "listing-uc" ? "#b45309" : "#2e7d32";
+  const color = isBuyer ? "#9333ea" : transaction.type === "listing-uc" ? "#b45309" : "#2e7d32";
   // Task ownership: Listing Coordinators own the pre–Under Contract listing checklist;
   // TCs own buyers + listings once Under Contract; admin sees everything.
   const assignedTC = fields.tcName || '';
@@ -375,7 +375,7 @@ function getHTML(transaction, id, tc, related = []) {
     let dateDisplay = '';
     if (autoDateForGroup) {
       const [y,m,d] = autoDateForGroup.split('-');
-      dateDisplay = ` — <span style="font-size:12px;font-weight:700;color:#1e3a5f">${m}/${d}/${y}</span>`;
+      dateDisplay = ` — <span style="font-size:12px;font-weight:700;color:#4a1160">${m}/${d}/${y}</span>`;
     }
     const isCOE = g.day && g.day.startsWith('COE');
     const headerBg = isCOE ? '#7e22ce' : '#0f4c9e';
@@ -480,8 +480,8 @@ function getHTML(transaction, id, tc, related = []) {
 <style>
   * { box-sizing:border-box; margin:0; padding:0; }
   body { font-family:-apple-system,Helvetica,sans-serif; background:#f5f6fa; color:#1a1a2e; }
-  .header { background:#1e3a5f; color:white; padding:18px 32px; display:flex; align-items:center; gap:16px; }
-  .header a { color:#a8c4e0; font-size:13px; text-decoration:none; margin-right:8px; }
+  .header { background:#4a1160; color:white; padding:18px 32px; display:flex; align-items:center; gap:16px; }
+  .header a { color:#cba8e0; font-size:13px; text-decoration:none; margin-right:8px; }
   .header a:hover { color:white; }
   .header h1 { font-size:18px; font-weight:700; flex:1; }
   .badge { display:inline-block; padding:3px 10px; border-radius:12px; font-size:11px;
@@ -496,18 +496,18 @@ function getHTML(transaction, id, tc, related = []) {
                display:grid; grid-template-columns:repeat(auto-fill,minmax(165px,1fr)); gap:0;
                overflow:hidden; border:1px solid #e0e4f0; }
   .info-field { padding:4px 10px; border-right:1px solid #e0e4f0; border-bottom:1px solid #e0e4f0; }
-  .info-field.highlight { background:#f0f4ff; }
+  .info-field.highlight { background:#faf0ff; }
   .info-label { font-size:8.5px; font-weight:700; text-transform:uppercase; color:#888; margin-bottom:1px; }
   .info-input { width:100%; border:none; font-size:12px; color:#1a1a2e; background:transparent;
                 outline:none; font-family:inherit; }
-  .info-input:focus { color:#1565c0; }
+  .info-input:focus { color:#9333ea; }
 
   .container { max-width:1100px; margin:16px auto; padding:0 16px; }
   .section { background:white; border-radius:10px; margin-bottom:14px;
              box-shadow:0 1px 4px rgba(0,0,0,.07); overflow:hidden; }
   .section-header { display:flex; justify-content:space-between; align-items:center;
-                    padding:10px 16px; background:#f0f4ff; border-bottom:1px solid #e0e4f0; }
-  .section-title { font-weight:700; font-size:13px; color:#1e3a5f; text-transform:uppercase; letter-spacing:.5px; }
+                    padding:10px 16px; background:#faf0ff; border-bottom:1px solid #e0e4f0; }
+  .section-title { font-weight:700; font-size:13px; color:#4a1160; text-transform:uppercase; letter-spacing:.5px; }
   .section-progress { display:flex; align-items:center; gap:8px; font-size:12px; color:#666; font-weight:600; }
   .sec-bar { width:80px; height:6px; background:#e0e4f0; border-radius:3px; display:inline-block; }
   .sec-fill { height:6px; border-radius:3px; display:block; transition:width .3s; }
@@ -545,10 +545,10 @@ function getHTML(transaction, id, tc, related = []) {
   .detail-layout { display:flex; gap:20px; align-items:flex-start; padding:0 0 40px; }
   .detail-main { flex:1; min-width:0; }
   .detail-sidebar { width:280px; flex-shrink:0; position:sticky; top:16px; background:white; border-radius:10px; box-shadow:0 1px 4px rgba(0,0,0,.07); overflow:hidden; }
-  .detail-sidebar-hdr { background:#1e3a5f; color:white; padding:11px 14px; font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:.5px; }
+  .detail-sidebar-hdr { background:#4a1160; color:white; padding:11px 14px; font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:.5px; }
   .task-due-group { border-bottom:1px solid #f0f2f8; padding:10px 14px; }
   .task-due-group:last-child { border-bottom:none; }
-  .task-due-label { font-size:11px; font-weight:700; color:#1e3a5f; margin-bottom:6px; text-transform:uppercase; }
+  .task-due-label { font-size:11px; font-weight:700; color:#4a1160; margin-bottom:6px; text-transform:uppercase; }
   .task-due-item { display:flex; align-items:flex-start; gap:6px; padding:2px 0; font-size:11.5px; color:#333; }
   .task-due-item input { margin-top:2px; flex-shrink:0; }
   .task-due-item label.overdue { color:#dc2626; }
@@ -560,7 +560,7 @@ function getHTML(transaction, id, tc, related = []) {
     <div><a href="/?tc=${tc}">← All Transactions</a></div>
     <h1>${transaction.address || 'No address'} <span class="badge">${transaction.type === 'buyer' ? 'Buyer - Resale' : transaction.type === 'buyer-new-build' ? 'Buyer - New Build' : transaction.type}</span></h1>
   </div>
-  <div style="text-align:right;font-size:13px;color:#a8c4e0">${done}/${total} complete</div>
+  <div style="text-align:right;font-size:13px;color:#cba8e0">${done}/${total} complete</div>
 </div>
 <div class="progress-bar"><div class="progress-fill" id="pbar"></div></div>
 <div class="progress-label" id="plabel"><strong>${done} of ${total}</strong> items complete &nbsp;·&nbsp; <strong>${pct}%</strong></div>
@@ -573,10 +573,10 @@ ${(!isListing && !contractDate) ? `<div style="margin:12px 32px 0;background:#ff
       ${transaction.status === 'pending' ? `<span style="background:#fef3c7;color:#b45309;padding:4px 12px;border-radius:6px;font-size:12px;font-weight:700">⚠️ Pending — Needs Setup</span>` : ''}
       ${transaction.status === 'closed' ? `<span style="background:#dcfce7;color:#15803d;padding:4px 12px;border-radius:6px;font-size:12px;font-weight:700">✓ Closed</span>` : ''}
       ${transaction.status === 'cancelled' ? `<span style="background:#fee2e2;color:#dc2626;padding:4px 12px;border-radius:6px;font-size:12px;font-weight:700">✕ Cancelled</span>` : ''}
-      ${transaction.status === 'pending' ? `<button onclick="setTxnStatus('active')" style="background:#1565c0;color:white;border:none;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer">✓ Activate Transaction</button>` : ''}
+      ${transaction.status === 'pending' ? `<button onclick="setTxnStatus('active')" style="background:#9333ea;color:white;border:none;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer">✓ Activate Transaction</button>` : ''}
       ${transaction.status !== 'closed' && transaction.status !== 'pending' ? `<button onclick="setTxnStatus('closed')" style="background:#dcfce7;color:#15803d;border:1px solid #bbf7d0;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer">Mark Closed</button>` : ''}
       ${transaction.status !== 'cancelled' && transaction.status !== 'pending' ? `<button onclick="setTxnStatus('cancelled')" style="background:#fee2e2;color:#dc2626;border:1px solid #fecaca;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer">Mark Cancelled</button>` : ''}
-      ${transaction.status && transaction.status !== 'active' && transaction.status !== 'pending' ? `<button onclick="setTxnStatus('active')" style="background:#f0f4ff;color:#1e3a5f;border:1px solid #c7d2fe;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer">Reopen</button>` : ''}
+      ${transaction.status && transaction.status !== 'active' && transaction.status !== 'pending' ? `<button onclick="setTxnStatus('active')" style="background:#faf0ff;color:#4a1160;border:1px solid #c7d2fe;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer">Reopen</button>` : ''}
       <button onclick="adminDeleteTxn()" title="Delete this entire file" style="background:#fee2e2;color:#dc2626;border:1px solid #fecaca;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer">🗑 Delete</button>
     </div>
   </div>
@@ -648,7 +648,7 @@ ${(!isListing && !contractDate) ? `<div style="margin:12px 32px 0;background:#ff
     </div>
     ${(related || []).map(r => `<div class="info-field" style="background:#fef3c7">
       <div class="info-label">${r.label}</div>
-      <a href="/t/${r.id}?tc=${encodeURIComponent(tc)}" style="font-size:14px;color:#1e3a5f;font-weight:600;text-decoration:none">→ ${r.text}</a>
+      <a href="/t/${r.id}?tc=${encodeURIComponent(tc)}" style="font-size:14px;color:#4a1160;font-weight:600;text-decoration:none">→ ${r.text}</a>
     </div>`).join('')}
     ${transaction.type !== 'buyer-new-build' ? `<div class="info-field" style="background:#fff7ed">
       <div class="info-label">BINSR Due (Day 10)</div>
@@ -699,7 +699,7 @@ ${(!isListing && !contractDate) ? `<div style="margin:12px 32px 0;background:#ff
 <div class="container" style="padding-top:0;padding-bottom:0">
 <div class="detail-layout">
   <div class="detail-main">${tasksHidden
-    ? `<div style="background:white;border-radius:10px;box-shadow:0 1px 4px rgba(0,0,0,.07);padding:36px 24px;text-align:center;color:#64748b;font-size:14px">🔒 This transaction's checklist is managed by <strong style="color:#1e3a5f">${assignedTC}</strong></div>`
+    ? `<div style="background:white;border-radius:10px;box-shadow:0 1px 4px rgba(0,0,0,.07);padding:36px 24px;text-align:center;color:#64748b;font-size:14px">🔒 This transaction's checklist is managed by <strong style="color:#4a1160">${assignedTC}</strong></div>`
     : sectionHTML}</div>
   <div class="detail-sidebar">
     ${tasksHidden ? `<div class="detail-sidebar-hdr">📋 Tasks</div><div class="task-due-empty">Managed by ${assignedTC}</div>` : (() => {
@@ -730,7 +730,7 @@ ${(!isListing && !contractDate) ? `<div style="margin:12px 32px 0;background:#ff
       const mtToday = mts.filter(m => m.due === today);
       const mtUpcoming = mts.filter(m => !m.due || m.due > today)
         .sort((a, b) => ((a.due || '9999') < (b.due || '9999') ? -1 : 1));
-      const mtRow = (m, style) => `<div class="task-due-item" style="justify-content:space-between"><div style="display:flex;align-items:flex-start;gap:7px;min-width:0"><input type="checkbox" onchange="doneManualTask('${m.id}', this)"><label style="${style}">${escM(m.text)} <span style="font-size:10px;color:#2563eb;font-weight:700">· task</span>${m.due && m.due > today ? ` <span style="font-size:10px;color:#94a3b8;font-weight:400">${m.due.slice(5,7)}/${m.due.slice(8,10)}</span>` : ''}</label></div><button onclick="deleteManualTask('${m.id}')" title="Delete task" style="background:none;border:none;color:#cbd5e1;cursor:pointer;font-size:11px;flex-shrink:0">✕</button></div>`;
+      const mtRow = (m, style) => `<div class="task-due-item" style="justify-content:space-between"><div style="display:flex;align-items:flex-start;gap:7px;min-width:0"><input type="checkbox" onchange="doneManualTask('${m.id}', this)"><label style="${style}">${escM(m.text)} <span style="font-size:10px;color:#a21caf;font-weight:700">· task</span>${m.due && m.due > today ? ` <span style="font-size:10px;color:#94a3b8;font-weight:400">${m.due.slice(5,7)}/${m.due.slice(8,10)}</span>` : ''}</label></div><button onclick="deleteManualTask('${m.id}')" title="Delete task" style="background:none;border:none;color:#cbd5e1;cursor:pointer;font-size:11px;flex-shrink:0">✕</button></div>`;
       const totalPast = pastDue.length + contPast.length + mtPast.length;
       const totalToday = dueToday.length + contDueToday.length + mtToday.length;
       const contLabel = (c) => (c.name && c.name.trim() ? c.name : 'Contingency') + ' <span style="font-size:10px;color:#9a3412;font-weight:700">· contingency</span>';
@@ -747,7 +747,7 @@ ${(!isListing && !contractDate) ? `<div style="margin:12px 32px 0;background:#ff
           style="width:100%;box-sizing:border-box;border:1px solid #e0e4f0;border-radius:6px;padding:8px 10px;font-size:13px;margin-bottom:7px">
         <div style="display:flex;gap:7px;align-items:center">
           <input id="mt-due" type="date" value="${today}" style="flex:1;box-sizing:border-box;border:1px solid #e0e4f0;border-radius:6px;padding:6px 8px;font-size:12px">
-          <button onclick="addManualTask()" style="background:#2563eb;color:white;border:none;border-radius:6px;padding:7px 18px;font-size:12px;font-weight:700;cursor:pointer">Add</button>
+          <button onclick="addManualTask()" style="background:#a21caf;color:white;border:none;border-radius:6px;padding:7px 18px;font-size:12px;font-weight:700;cursor:pointer">Add</button>
         </div>
       </div>`;
       if (!totalPast && !totalToday) return hdr + '<div class="task-due-empty">No tasks due today</div>' + upcoming + addRow;
@@ -1142,12 +1142,12 @@ function getDashboardHTML(transactions, tc) {
     const isBuyerT = t.type === "buyer" || t.type === "buyer-new-build";
     const done = items.filter(i => (t.checked || {})[i.id]).length;
     const pct = Math.round((done / items.length) * 100);
-    const color = isBuyerT ? "#1565c0" : t.type === "listing-uc" ? "#b45309" : "#2e7d32";
+    const color = isBuyerT ? "#9333ea" : t.type === "listing-uc" ? "#b45309" : "#2e7d32";
     const fields = t.fields || {};
     const actionBtns = isArchived
-      ? `<button title="Reopen" onclick="event.stopPropagation();setStatus('${id}','active')" style="background:#f0f4ff;color:#1e3a5f;border:none;padding:4px 9px;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer">Reopen</button>`
+      ? `<button title="Reopen" onclick="event.stopPropagation();setStatus('${id}','active')" style="background:#faf0ff;color:#4a1160;border:none;padding:4px 9px;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer">Reopen</button>`
       : `<button title="Mark Closed" onclick="event.stopPropagation();setStatus('${id}','closed')" style="background:#dcfce7;color:#15803d;border:none;padding:2px 6px;border-radius:5px;font-size:12px;font-weight:700;cursor:pointer;margin-right:2px">✓</button><button title="Mark Cancelled" onclick="event.stopPropagation();setStatus('${id}','cancelled')" style="background:#fee2e2;color:#dc2626;border:none;padding:2px 6px;border-radius:5px;font-size:12px;font-weight:700;cursor:pointer">⊘</button>`;
-    const progColor = pct === 100 ? '#1565c0' : pct >= 66 ? '#15803d' : pct >= 34 ? '#eab308' : '#dc2626';
+    const progColor = pct === 100 ? '#9333ea' : pct >= 66 ? '#15803d' : pct >= 34 ? '#eab308' : '#dc2626';
     const progress = `<td><div style="display:flex;align-items:center;gap:6px"><div style="flex:1;height:6px;background:#e0e4f0;border-radius:4px;min-width:28px"><div style="width:${pct}%;height:7px;background:${progColor};border-radius:4px"></div></div><span style="font-size:11px;font-weight:600;color:${progColor};white-space:nowrap">${pct}%</span></div></td>`;
     const actions = `<td onclick="event.stopPropagation()" style="white-space:nowrap;text-align:right">${actionBtns}<button title="Delete" onclick="event.stopPropagation();deleteTxn('${id}','${(t.address||'this transaction').replace(/'/g,"\\'")}',this)" style="background:#f5f5f5;color:#888;border:none;padding:2px 6px;border-radius:5px;font-size:12px;font-weight:700;cursor:pointer;margin-left:2px">✕</button></td>`;
     const base = `<td><strong>${t.address || '(no address)'}</strong></td><td>${fields.clientName || t.clientName || '—'}</td><td>${fields.agentPartner1 || '—'}</td>`;
@@ -1237,7 +1237,7 @@ function getDashboardHTML(transactions, tc) {
               <div style="font-size:12px;color:#64748b;margin-top:2px">${client && client !== '—' ? `Client: <b style="color:#1e293b">${client}</b> &nbsp;·&nbsp; ` : ''}Agent: <b style="color:#1e293b">${agent}</b></div>
               <div style="font-size:11px;color:#94a3b8;margin-top:3px">Received: ${receivedAt}</div>
             </div>
-            <a href="/t/${id}?tc=${tc}" style="background:#16324f;color:white;text-decoration:none;font-size:12px;font-weight:700;padding:7px 14px;border-radius:8px;white-space:nowrap">Open →</a><button onclick="adminDelete('${id}')" title="Delete this file" style="background:#fee2e2;color:#dc2626;border:1px solid #fecaca;font-size:13px;font-weight:700;padding:7px 11px;border-radius:8px;cursor:pointer">🗑</button>
+            <a href="/t/${id}?tc=${tc}" style="background:#66187E;color:white;text-decoration:none;font-size:12px;font-weight:700;padding:7px 14px;border-radius:8px;white-space:nowrap">Open →</a><button onclick="adminDelete('${id}')" title="Delete this file" style="background:#fee2e2;color:#dc2626;border:1px solid #fecaca;font-size:13px;font-weight:700;padding:7px 11px;border-radius:8px;cursor:pointer">🗑</button>
           </div>
           <div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap;align-items:center">
             <span style="font-size:11px;color:#94a3b8;font-weight:600;margin-right:2px">TYPE:</span>
@@ -1272,29 +1272,29 @@ function getDashboardHTML(transactions, tc) {
 <style>
   * { box-sizing:border-box; margin:0; padding:0; }
   body { font-family:'Inter',-apple-system,Helvetica,sans-serif; background:#f2f5f9; color:#1c2733; }
-  .header { background:#1e3a5f; color:white; padding:18px 32px; display:flex; align-items:center; justify-content:space-between; }
+  .header { background:#4a1160; color:white; padding:18px 32px; display:flex; align-items:center; justify-content:space-between; }
   .header h1 { font-size:20px; font-weight:700; }
-  .header p { font-size:13px; color:#a8c4e0; margin-top:2px; }
-  .btn { background:#2563eb; color:white; border:none; padding:10px 20px; border-radius:7px;
+  .header p { font-size:13px; color:#cba8e0; margin-top:2px; }
+  .btn { background:#a21caf; color:white; border:none; padding:10px 20px; border-radius:7px;
          font-size:13px; font-weight:600; cursor:pointer; }
   .btn:hover { background:#1d4ed8; }
   .container { max-width:1400px; margin:14px auto; padding:0 16px; }
   .tab-bar { display:flex; gap:6px; background:white; border:1px solid #e5eaf1; padding:5px; border-radius:12px; width:fit-content; margin-bottom:16px; box-shadow:0 1px 3px rgba(22,50,79,.06); flex-wrap:wrap; }
   .tab-btn { background:transparent; border:none; color:#5b6b7f; font-weight:700; font-family:inherit; font-size:13px; padding:8px 18px; border-radius:8px; cursor:pointer; }
-  .tab-btn:hover { color:#16324f; }
-  .tab-btn.on { background:#16324f; color:white; }
+  .tab-btn:hover { color:#66187E; }
+  .tab-btn.on { background:#66187E; color:white; }
   .tab-badge { background:#dc2626; color:white; border-radius:999px; padding:1px 8px; font-size:11px; margin-left:4px; }
   .shd { display:flex; align-items:center; gap:9px; border-radius:10px; margin-bottom:6px; padding:9px 16px; font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:.06em; color:white; }
   .shd:has(+ .card) { border-radius:14px 14px 0 0; margin-bottom:0; }
   .shd-purple { background:#7c3aed; } .shd-red { background:#dc2626; } .shd-green { background:#15803d; }
-  .shd-blue { background:#2456d6; } .shd-gray { background:#6b7280; }
+  .shd-blue { background:#66187E; } .shd-gray { background:#6b7280; }
   .dashboard-layout { display:flex; gap:20px; align-items:flex-start; }
   .dashboard-main { flex:1; min-width:0; }
   .task-panel { width:260px; flex-shrink:0; position:sticky; top:16px; }
   .task-panel .card { padding:0; }
   .task-group { border-bottom:1px solid #f0f2f8; padding:10px 14px; }
   .task-group:last-child { border-bottom:none; }
-  .task-group-name { font-size:11px; font-weight:700; color:#1e3a5f; margin-bottom:6px; text-transform:uppercase; letter-spacing:.3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .task-group-name { font-size:11px; font-weight:700; color:#4a1160; margin-bottom:6px; text-transform:uppercase; letter-spacing:.3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .task-item { display:flex; align-items:flex-start; gap:6px; padding:2px 0; }
   .task-item input[type=checkbox] { margin-top:2px; flex-shrink:0; cursor:pointer; }
   .task-item label { font-size:11.5px; color:#333; line-height:1.3; cursor:pointer; }
@@ -1313,14 +1313,14 @@ function getDashboardHTML(transactions, tc) {
   .modal-bg { display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:100; align-items:center; justify-content:center; }
   .modal-bg.open { display:flex; }
   .modal { background:white; border-radius:12px; padding:28px; width:440px; max-width:95vw; box-shadow:0 8px 32px rgba(0,0,0,.18); }
-  .modal h2 { font-size:17px; margin-bottom:20px; color:#1e3a5f; font-weight:700; }
+  .modal h2 { font-size:17px; margin-bottom:20px; color:#4a1160; font-weight:700; }
   .field { margin-bottom:14px; }
   .field label { display:block; font-size:12px; font-weight:700; color:#555; margin-bottom:5px; text-transform:uppercase; }
   .field input, .field select { width:100%; border:1px solid #d0d7e8; border-radius:6px;
     padding:9px 12px; font-size:14px; outline:none; font-family:inherit; }
-  .field input:focus, .field select:focus { border-color:#1e3a5f; }
+  .field input:focus, .field select:focus { border-color:#4a1160; }
   .modal-actions { display:flex; gap:10px; justify-content:flex-end; margin-top:22px; }
-  .btn-cancel { background:#f0f4ff; color:#1e3a5f; border:none; padding:10px 20px;
+  .btn-cancel { background:#faf0ff; color:#4a1160; border:none; padding:10px 20px;
                 border-radius:7px; font-size:13px; font-weight:600; cursor:pointer; }
 </style></head>
 <body>
@@ -1466,8 +1466,8 @@ function getDashboardHTML(transactions, tc) {
         }
         if (!pastDue.length && !dueToday.length && !mtPast.length && !mtToday.length) return null;
         const shortAddr = (t.address || '(no address)').replace(/,.*$/, '');
-        const mtRow = (m, color) => `<div class="task-item"><input type="checkbox" id="dm-${id}-${m.id}" onchange="dashManualDone('${id}','${m.id}',this.checked)"><label for="dm-${id}-${m.id}" style="color:${color}">${escT(m.text)} <span style="font-size:10px;color:#2563eb;font-weight:700">· task</span></label></div>`;
-        let inner = `<div class="task-group-name" style="font-size:11px;font-weight:700;color:#1e3a5f;padding:5px 0 3px;border-bottom:1px solid #e0e4f0;margin-bottom:4px">${shortAddr}</div>`;
+        const mtRow = (m, color) => `<div class="task-item"><input type="checkbox" id="dm-${id}-${m.id}" onchange="dashManualDone('${id}','${m.id}',this.checked)"><label for="dm-${id}-${m.id}" style="color:${color}">${escT(m.text)} <span style="font-size:10px;color:#a21caf;font-weight:700">· task</span></label></div>`;
+        let inner = `<div class="task-group-name" style="font-size:11px;font-weight:700;color:#4a1160;padding:5px 0 3px;border-bottom:1px solid #e0e4f0;margin-bottom:4px">${shortAddr}</div>`;
         if (pastDue.length) inner += pastDue.map(item => `<div class="task-item"><input type="checkbox" id="dt-${id}-${item.id}" onchange="dashCheck('${id}','${item.id}',this.checked)"><label for="dt-${id}-${item.id}" style="color:#dc2626">${item.label}</label></div>`).join('');
         inner += mtPast.map(m => mtRow(m, '#dc2626')).join('');
         if (dueToday.length) inner += dueToday.map(item => `<div class="task-item"><input type="checkbox" id="dt-${id}-${item.id}" onchange="dashCheck('${id}','${item.id}',this.checked)"><label for="dt-${id}-${item.id}" style="color:#15803d">${item.label}</label></div>`).join('');
@@ -1526,13 +1526,13 @@ function getDashboardHTML(transactions, tc) {
 ${(todayAZ() === '2026-07-31' && ['Ashley Belliveau','Joana Guzman','Cinnamon Kumler'].includes(tc)) || ((!tc || tc === 'admin') && todayAZ() <= '2026-07-31') ? `
 <div class="modal-bg" id="jnote" onclick="if(event.target===this)this.classList.remove('open')">
   <div class="modal" style="width:460px;text-align:center">
-    <div style="font-size:14px;color:#16324f;line-height:1.7;font-style:italic">
+    <div style="font-size:14px;color:#66187E;line-height:1.7;font-style:italic">
       "There is no path to Happiness. Happiness is the path.<br>
       There is no path to Love. Love is the path.<br>
       There is no path to Peace. Peace is the path."
     </div>
     <div style="font-size:11.5px;color:#8896a5;margin-top:8px">— Way of the Peaceful Warrior (one of my favorite books)</div>
-    <div style="font-size:15px;color:#16324f;font-weight:800;letter-spacing:.04em;margin-top:16px">HAPPY FRIDAY ☀️ — Justine</div>
+    <div style="font-size:15px;color:#66187E;font-weight:800;letter-spacing:.04em;margin-top:16px">HAPPY FRIDAY ☀️ — Justine</div>
     <div style="margin-top:12px">
       <button onclick="document.getElementById('jnote').classList.remove('open')" style="background:none;border:none;color:#8896a5;font-size:15px;cursor:pointer;padding:4px 10px">✕</button>
     </div>
@@ -1547,7 +1547,7 @@ ${popupTasks.length ? `
     <h2>⚠️ ${tc.split(' ')[0]} — please update! ${popupTasks.length} item${popupTasks.length > 1 ? 's need' : ' needs'} you today:</h2>
     ${popupTasks.map(x => `
     <a href="/t/${x.id}?tc=${encodeURIComponent(tc)}" style="display:block;text-decoration:none;border:1px solid #e5eaf1;border-left:4px solid ${x.due < todayAZ() ? '#dc2626' : '#15803d'};border-radius:9px;padding:9px 12px;margin-bottom:8px">
-      <div style="font-weight:700;font-size:13px;color:#16324f">${x.text}</div>
+      <div style="font-weight:700;font-size:13px;color:#66187E">${x.text}</div>
       <div style="font-size:11.5px;color:#5b6b7f;margin-top:2px">${x.address} · due ${x.due === todayAZ() ? 'today' : x.due}</div>
     </a>`).join('')}
     <div class="modal-actions" style="margin-top:10px">
@@ -1728,7 +1728,7 @@ document.getElementById('modal').addEventListener('click', function(e) {
 }
 
 const TC_NAMES = ["Joana Guzman", "Ashley Belliveau", "Cinnamon Kumler"];
-const TC_COLORS = ["#1565c0", "#0d5c2e", "#b45309"];
+const TC_COLORS = ["#9333ea", "#0d5c2e", "#b45309"];
 const TC_ROLES = { "Cinnamon Kumler": "Listing Coordinator" };
 // People with full admin-level access (see all transactions AND all tasks)
 const ADMIN_TCS = ["Scott Kumler"];
@@ -1745,20 +1745,20 @@ function getTCSelectHTML() {
 <style>
   * { box-sizing:border-box; margin:0; padding:0; }
   body { font-family:-apple-system,Helvetica,sans-serif; background:#f5f6fa; color:#1a1a2e; min-height:100vh; display:flex; flex-direction:column; }
-  .header { background:#1e3a5f; color:white; padding:24px 32px; text-align:center; }
+  .header { background:#4a1160; color:white; padding:24px 32px; text-align:center; }
   .header h1 { font-size:24px; font-weight:800; }
-  .header p { font-size:14px; color:#a8c4e0; margin-top:4px; }
+  .header p { font-size:14px; color:#cba8e0; margin-top:4px; }
   .select-wrap { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:40px 20px; }
   .select-label { font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:#64748b; margin-bottom:24px; }
   .tc-grid { display:flex; flex-wrap:wrap; gap:16px; justify-content:center; max-width:700px; }
   .tc-card { background:white; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,.08); padding:28px 24px; cursor:pointer; text-align:center; width:210px; border:2px solid transparent; transition:all .15s; text-decoration:none; color:inherit; }
   .tc-card:hover { transform:translateY(-2px); box-shadow:0 6px 20px rgba(0,0,0,.12); }
   .tc-avatar { width:56px; height:56px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:22px; font-weight:800; color:white; margin:0 auto 12px; }
-  .tc-name { font-size:15px; font-weight:700; color:#1e3a5f; }
+  .tc-name { font-size:15px; font-weight:700; color:#4a1160; }
   .tc-role { font-size:12px; color:#94a3b8; margin-top:3px; }
-  .admin-card { background:#1e3a5f; color:white; }
+  .admin-card { background:#4a1160; color:white; }
   .admin-card .tc-name { color:white; }
-  .admin-card .tc-role { color:#a8c4e0; }
+  .admin-card .tc-role { color:#cba8e0; }
 </style>
 <script>
 const TC_PASSCODES = { 'Joana Guzman': '5211', 'Cinnamon Kumler': '0007', 'Scott Kumler': '0070' };
@@ -1786,7 +1786,7 @@ function adminLogin() {
   <div class="tc-grid">
     ${(() => {
       const people = [
-        { name: 'Joana Guzman',     role: 'Transaction Coordinator', color: '#1565c0', onclick: "tcLogin('Joana Guzman')" },
+        { name: 'Joana Guzman',     role: 'Transaction Coordinator', color: '#9333ea', onclick: "tcLogin('Joana Guzman')" },
         { name: 'Ashley Belliveau', role: 'Transaction Coordinator', color: '#0d5c2e', onclick: "tcLogin('Ashley Belliveau')" },
         { name: 'Cinnamon Kumler',  role: 'Listing Coordinator',     color: '#b45309', onclick: "tcLogin('Cinnamon Kumler')" },
         { name: 'Justine Johnston', role: 'Director of Operations',  color: '#7e22ce', onclick: 'adminLogin()' },
