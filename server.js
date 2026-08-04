@@ -1778,7 +1778,6 @@ function adminLogin() {
 </script>
 </head>
 <body>
-<div style="position:absolute;top:18px;left:18px"><a href="https://kumler-hub.onrender.com" style="font-size:12px;font-weight:600;color:#66187E;text-decoration:none;border:1px solid #eadef0;border-radius:99px;padding:7px 16px;background:white">← Kumler Hub</a></div>
 <div class="logo"><img src="/logo.png" alt="The Kumler Group"></div>
 <div class="sub">Transaction Hub — select your name</div>
 <div class="select-wrap">
@@ -1802,6 +1801,7 @@ function adminLogin() {
       }).join('');
     })()}
   </div>
+  <a href="https://kumler-hub.onrender.com" style="margin-top:30px;font-size:12px;font-weight:600;color:#66187E;text-decoration:none;border:1px solid #eadef0;border-radius:99px;padding:8px 20px;background:white">← Kumler Hub</a>
 </div>
 </body></html>`;
 }
