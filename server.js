@@ -1802,7 +1802,7 @@ function adminLogin() {
       }).join('');
     })()}
   </div>
-  <a href="https://kumler-hub.onrender.com" style="margin-top:30px;font-size:12px;font-weight:600;color:#66187E;text-decoration:none;border:1px solid #eadef0;border-radius:99px;padding:8px 20px;background:white">← THE HUB</a>
+  <a href="https://kumler-hub.onrender.com" style="margin-top:30px;font-size:12px;font-weight:600;color:#66187E;text-decoration:none;border:1px solid #eadef0;border-radius:99px;padding:8px 20px;background:white">← Back</a>
 </div>
 </body></html>`;
 }
