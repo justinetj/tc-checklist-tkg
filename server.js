@@ -548,7 +548,7 @@ function getHTML(transaction, id, tc, related = []) {
   .detail-layout { display:flex; gap:20px; align-items:flex-start; padding:0 0 40px; }
   .detail-main { flex:1; min-width:0; }
   .detail-sidebar { width:280px; flex-shrink:0; position:sticky; top:16px; background:white; border-radius:10px; box-shadow:0 1px 4px rgba(0,0,0,.07); overflow:hidden; }
-  .detail-sidebar-hdr { background:#4a1160; color:white; padding:11px 14px; font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:.5px; }
+  .detail-sidebar-hdr { background:#4a1160; color:white; padding:11px 14px; font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:.5px; }
   .task-due-group { border-bottom:1px solid #f0f2f8; padding:10px 14px; }
   .task-due-group:last-child { border-bottom:none; }
   .task-due-label { font-size:11px; font-weight:700; color:#4a1160; margin-bottom:6px; text-transform:uppercase; }
@@ -1236,7 +1236,7 @@ function getDashboardHTML(transactions, tc) {
         return `<div style="background:white;border:1px solid #e5eaf1;border-left:4px solid #CB2CFB;border-radius:10px;padding:10px 14px;box-shadow:0 1px 3px rgba(22,50,79,.05)">
           <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
             <div style="flex:1;min-width:180px">
-              <div style="font-weight:700;font-size:14px;color:#1e293b">${addr}</div>
+              <div style="font-weight:600;font-size:14px;color:#1e293b">${addr}</div>
               <div style="font-size:12px;color:#64748b;margin-top:2px">${client && client !== '—' ? `Client: <b style="color:#1e293b">${client}</b> &nbsp;·&nbsp; ` : ''}Agent: <b style="color:#1e293b">${agent}</b></div>
               <div style="font-size:11px;color:#94a3b8;margin-top:3px">Received: ${receivedAt}</div>
             </div>
@@ -1294,7 +1294,7 @@ function getDashboardHTML(transactions, tc) {
   .dashboard-layout { display:flex; gap:20px; align-items:flex-start; }
   .dashboard-main { flex:1; min-width:0; }
   .task-panel { width:260px; flex-shrink:0; position:sticky; top:16px; }
-  .detail-sidebar-hdr { background:#4a1160; color:white; padding:9px 14px; font-size:11.5px; font-weight:800; text-transform:uppercase; letter-spacing:.5px; }
+  .detail-sidebar-hdr { background:#4a1160; color:white; padding:9px 14px; font-size:11.5px; font-weight:600; text-transform:uppercase; letter-spacing:.5px; }
   .task-panel .card { padding:0; }
   .task-group { border-bottom:1px solid #f0f2f8; padding:10px 14px; }
   .task-group:last-child { border-bottom:none; }
@@ -1471,7 +1471,7 @@ function getDashboardHTML(transactions, tc) {
         if (!pastDue.length && !dueToday.length && !mtPast.length && !mtToday.length) return null;
         const shortAddr = (t.address || '(no address)').replace(/,.*$/, '');
         const mtRow = (m, color) => `<div class="task-item"><input type="checkbox" id="dm-${id}-${m.id}" onchange="dashManualDone('${id}','${m.id}',this.checked)"><label for="dm-${id}-${m.id}" style="color:${color}">${escT(m.text)} <span style="font-size:10px;color:#a21caf;font-weight:700">· task</span></label></div>`;
-        let inner = `<div class="task-group-name" style="font-size:11px;font-weight:700;color:#4a1160;padding:5px 0 3px;border-bottom:1px solid #e0e4f0;margin-bottom:4px">${shortAddr}</div>`;
+        let inner = `<div class="task-group-name" style="font-size:11px;font-weight:600;color:#4a1160;padding:5px 0 3px;border-bottom:1px solid #e0e4f0;margin-bottom:4px">${shortAddr}</div>`;
         if (pastDue.length) inner += pastDue.map(item => `<div class="task-item"><input type="checkbox" id="dt-${id}-${item.id}" onchange="dashCheck('${id}','${item.id}',this.checked)"><label for="dt-${id}-${item.id}" style="color:#dc2626">${item.label}</label></div>`).join('');
         inner += mtPast.map(m => mtRow(m, '#dc2626')).join('');
         if (dueToday.length) inner += dueToday.map(item => `<div class="task-item"><input type="checkbox" id="dt-${id}-${item.id}" onchange="dashCheck('${id}','${item.id}',this.checked)"><label for="dt-${id}-${item.id}" style="color:#15803d">${item.label}</label></div>`).join('');
