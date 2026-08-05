@@ -695,10 +695,10 @@ ${(!isListing && !contractDate) ? `<div style="margin:12px 32px 0;background:#ff
       </select>
     </div>
   </div>` : ''}
-  <div style="border-top:1px solid #f1f1f4;margin-top:6px;padding-top:10px">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
-      <div style="font-size:11px;font-weight:600;text-transform:uppercase;color:#9a3412;letter-spacing:.5px"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1z"/></svg> Contingencies</div>
-      <button onclick="addContingency()" style="background:#ea580c;color:white;border:none;border-radius:6px;padding:4px 11px;font-size:11px;font-weight:600;cursor:pointer">+ Add Contingency</button>
+  <div style="border-top:1px solid #f1f1f4;margin-top:10px;padding-top:12px;padding-bottom:16px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+      <div style="font-size:11px;font-weight:600;text-transform:uppercase;color:#66187E;letter-spacing:.12em"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1z"/></svg> Contingencies</div>
+      <button class="stx" onclick="addContingency()">+ Add Contingency</button>
     </div>
     <div id="contingency-list"></div>
   </div>
