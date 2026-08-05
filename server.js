@@ -501,10 +501,14 @@ function getHTML(transaction, id, tc, related = []) {
                overflow:hidden; border:1px solid #e0e4f0; }
   .info-field { padding:4px 10px; border-right:1px solid #e0e4f0; border-bottom:1px solid #e0e4f0; }
   .info-field.highlight { background:#faf0ff; }
-  .info-label { font-size:8.5px; font-weight:600; text-transform:uppercase; color:#888; margin-bottom:1px; }
-  .info-input { width:100%; border:none; font-size:12px; color:#1a1a2e; background:transparent;
+  .info-label { font-size:9.5px; font-weight:600; text-transform:uppercase; color:#8a7d95; letter-spacing:.08em; margin-bottom:2px; }
+  .info-input { width:100%; border:none; font-size:13px; font-weight:500; color:#1c1524; background:transparent;
                 outline:none; font-family:inherit; }
   .info-input:focus { color:#9333ea; border-color:#CB2CFB; box-shadow:0 0 0 3px rgba(203,44,251,.14); border-radius:6px; }
+  .stx { background:white; color:#4a4453; border:1.5px solid #e4dcea; padding:6px 15px; border-radius:99px; font-size:12px; font-weight:600; cursor:pointer; font-family:inherit; transition:all .12s; }
+  .stx:hover { border-color:#66187E; color:#66187E; transform:translateY(-1px); box-shadow:0 4px 12px rgba(102,24,126,.12); }
+  .stx-green:hover { border-color:#15803d; color:#15803d; box-shadow:0 4px 12px rgba(21,128,61,.14); }
+  .stx-red:hover { border-color:#dc2626; color:#dc2626; box-shadow:0 4px 12px rgba(220,38,38,.13); }
 
   .container { max-width:1100px; margin:16px auto; padding:0 16px; }
   .section { background:white; border-radius:10px; margin-bottom:14px;
@@ -572,16 +576,16 @@ ${(!isListing && !contractDate) ? `<div style="margin:12px 32px 0;background:#ff
 
 <div class="info-card">
   <div style="padding:12px 0 8px;display:flex;align-items:center;justify-content:space-between">
-    <div style="font-size:11px;font-weight:600;text-transform:uppercase;color:#888;letter-spacing:.5px">Transaction Details</div>
+    <div style="font-size:11px;font-weight:600;text-transform:uppercase;color:#66187E;letter-spacing:.12em">Transaction Details</div>
     <div style="display:flex;gap:8px;align-items:center">
       ${transaction.status === 'pending' ? `<span style="background:#fef3c7;color:#b45309;padding:4px 12px;border-radius:6px;font-size:12px;font-weight:600">⚠️ Pending — Needs Setup</span>` : ''}
-      ${transaction.status === 'closed' ? `<span style="background:#dcfce7;color:#15803d;padding:4px 12px;border-radius:6px;font-size:12px;font-weight:600">✓ Closed</span>` : ''}
-      ${transaction.status === 'cancelled' ? `<span style="background:#fee2e2;color:#dc2626;padding:4px 12px;border-radius:6px;font-size:12px;font-weight:600">✕ Cancelled</span>` : ''}
-      ${transaction.status === 'pending' ? `<button onclick="setTxnStatus('active')" style="background:#9333ea;color:white;border:none;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer">✓ Activate Transaction</button>` : ''}
-      ${transaction.status !== 'closed' && transaction.status !== 'pending' ? `<button onclick="setTxnStatus('closed')" style="background:#dcfce7;color:#15803d;border:1px solid #bbf7d0;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer">Mark Closed</button>` : ''}
-      ${transaction.status !== 'cancelled' && transaction.status !== 'pending' ? `<button onclick="setTxnStatus('cancelled')" style="background:#fee2e2;color:#dc2626;border:1px solid #fecaca;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer">Mark Cancelled</button>` : ''}
-      ${transaction.status && transaction.status !== 'active' && transaction.status !== 'pending' ? `<button onclick="setTxnStatus('active')" style="background:#faf0ff;color:#4a1160;border:1px solid #c7d2fe;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer">Reopen</button>` : ''}
-      <button onclick="adminDeleteTxn()" title="Delete this entire file" style="background:#fee2e2;color:#dc2626;border:1px solid #fecaca;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer">🗑 Delete</button>
+      ${transaction.status === 'closed' ? `<span style="display:inline-flex;align-items:center;gap:6px;color:#15803d;font-size:12px;font-weight:600;padding:6px 12px;background:#f2faf4;border-radius:99px"><span style="width:7px;height:7px;border-radius:50%;background:#15803d"></span>Closed</span>` : ''}
+      ${transaction.status === 'cancelled' ? `<span style="display:inline-flex;align-items:center;gap:6px;color:#dc2626;font-size:12px;font-weight:600;padding:6px 12px;background:#fdf4f4;border-radius:99px"><span style="width:7px;height:7px;border-radius:50%;background:#dc2626"></span>Cancelled</span>` : ''}
+      ${transaction.status === 'pending' ? `<button class="stx" onclick="setTxnStatus('active')" style="background:#66187E;color:white;border:1.5px solid #66187E">Activate Transaction</button>` : ''}
+      ${transaction.status !== 'closed' && transaction.status !== 'pending' ? `<button class="stx stx-green" onclick="setTxnStatus('closed')">Mark Closed</button>` : ''}
+      ${transaction.status !== 'cancelled' && transaction.status !== 'pending' ? `<button class="stx stx-red" onclick="setTxnStatus('cancelled')">Mark Cancelled</button>` : ''}
+      ${transaction.status && transaction.status !== 'active' && transaction.status !== 'pending' ? `<button class="stx" onclick="setTxnStatus('active')">Reopen</button>` : ''}
+      <button class="stx stx-red" onclick="adminDeleteTxn()" title="Delete this entire file">Delete</button>
     </div>
   </div>
   <div class="info-grid">
