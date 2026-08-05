@@ -504,7 +504,7 @@ function getHTML(transaction, id, tc, related = []) {
   .info-label { font-size:8.5px; font-weight:600; text-transform:uppercase; color:#888; margin-bottom:1px; }
   .info-input { width:100%; border:none; font-size:12px; color:#1a1a2e; background:transparent;
                 outline:none; font-family:inherit; }
-  .info-input:focus { color:#9333ea; }
+  .info-input:focus { color:#9333ea; border-color:#CB2CFB; box-shadow:0 0 0 3px rgba(203,44,251,.14); border-radius:6px; }
 
   .container { max-width:1100px; margin:16px auto; padding:0 16px; }
   .section { background:white; border-radius:10px; margin-bottom:14px;
@@ -1241,14 +1241,14 @@ function getDashboardHTML(transactions, tc) {
         const receivedAt = t.createdAt ? new Date(t.createdAt).toLocaleString('en-US', { timeZone: 'America/Phoenix', month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true }) : '—';
         const curType = (t.type && t.type !== '') ? t.type : 'buyer';
         const typeOpts = [['buyer','Buyer — Resale'],['buyer-new-build','Buyer — New Build'],['listing','Listing'],['listing-uc','Listing Escrow']];
-        return `<div style="background:white;border:1px solid #e5eaf1;border-left:4px solid #CB2CFB;border-radius:10px;padding:10px 14px;box-shadow:0 1px 3px rgba(22,50,79,.05)">
+        return `<div class="pcard" style="background:white;border:1px solid #e5eaf1;border-left:4px solid #CB2CFB;border-radius:10px;padding:10px 14px;box-shadow:0 1px 3px rgba(22,50,79,.05)">
           <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
             <div style="flex:1;min-width:180px">
               <div style="font-weight:600;font-size:14px;color:#1e293b">${addr}</div>
               <div style="font-size:12px;color:#64748b;margin-top:2px">${client && client !== '—' ? `Client: <b style="color:#1e293b">${client}</b> &nbsp;·&nbsp; ` : ''}Agent: <b style="color:#1e293b">${agent}</b></div>
               <div style="font-size:11px;color:#94a3b8;margin-top:3px">Received: ${receivedAt}</div>
             </div>
-            <a href="/t/${id}?tc=${tc}" style="background:#66187E;color:white;text-decoration:none;font-size:12px;font-weight:600;padding:7px 14px;border-radius:8px;white-space:nowrap">Open →</a><button onclick="adminDelete('${id}')" title="Delete this file" style="background:white;color:#8a7d95;border:1.5px solid #eadef0;font-size:12px;font-weight:600;width:32px;height:32px;border-radius:8px;cursor:pointer;line-height:1" onmouseover="this.style.borderColor='#CB2CFB';this.style.color='#CB2CFB'" onmouseout="this.style.borderColor='#eadef0';this.style.color='#8a7d95'">✕</button>
+            <a href="/t/${id}?tc=${tc}" class="open-btn" style="background:#66187E;color:white;text-decoration:none;font-size:12px;font-weight:600;padding:7px 14px;border-radius:8px;white-space:nowrap">Open →</a><button onclick="adminDelete('${id}')" title="Delete this file" style="background:white;color:#8a7d95;border:1.5px solid #eadef0;font-size:12px;font-weight:600;width:32px;height:32px;border-radius:8px;cursor:pointer;line-height:1" onmouseover="this.style.borderColor='#CB2CFB';this.style.color='#CB2CFB'" onmouseout="this.style.borderColor='#eadef0';this.style.color='#8a7d95'">✕</button>
           </div>
           <div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap;align-items:center">
             <span style="font-size:11px;color:#94a3b8;font-weight:600;margin-right:2px">TYPE:</span>
@@ -1291,10 +1291,14 @@ function getDashboardHTML(transactions, tc) {
   .btn:hover { background:#CB2CFB; transform:scale(1.04); }
   .container { max-width:1400px; margin:14px auto; padding:0 16px; }
   .tab-bar { display:flex; gap:6px; background:white; border:1px solid #e5eaf1; padding:5px; border-radius:12px; width:fit-content; margin-bottom:16px; box-shadow:0 1px 3px rgba(22,50,79,.06); flex-wrap:wrap; }
-  .tab-btn { background:transparent; border:none; color:#5b6b7f; font-weight:600; font-family:inherit; font-size:13px; padding:8px 18px; border-radius:8px; cursor:pointer; }
-  .tab-btn:hover { color:#66187E; }
+  .tab-btn { background:transparent; border:1.5px solid transparent; color:#5b6b7f; font-weight:600; font-family:inherit; font-size:13px; padding:8px 18px; border-radius:8px; cursor:pointer; transition:transform .1s, border-color .1s, color .1s, box-shadow .1s; }
+  .tab-btn:hover { color:#66187E; transform:translateY(-1px); border-color:#CB2CFB; box-shadow:0 4px 12px rgba(203,44,251,.18); }
   .tab-btn.on { background:#66187E; color:white; }
   .tab-badge { background:#dc2626; color:white; border-radius:999px; padding:1px 8px; font-size:11px; margin-left:4px; }
+  .pcard { transition:transform .12s, box-shadow .12s; }
+  .pcard:hover { transform:translateY(-2px); box-shadow:0 8px 22px rgba(102,24,126,.15) !important; }
+  .open-btn { transition:transform .1s, background .12s; display:inline-block; }
+  .open-btn:hover { transform:scale(1.06); background:#CB2CFB !important; }
   .shd { display:flex; align-items:center; gap:9px; border-radius:10px; margin-bottom:6px; padding:7px 14px; font-size:12.5px; font-weight:600; text-transform:uppercase; letter-spacing:.06em; color:white; }
   .shd:has(+ .card) { border-radius:14px 14px 0 0; margin-bottom:0; }
   .shd-purple { background:#CB2CFB; } .shd-red { background:#dc2626; } .shd-green { background:#15803d; }
@@ -1356,7 +1360,11 @@ function getDashboardHTML(transactions, tc) {
       <button class="tab-btn" data-for="listings" onclick="showTab('listings')"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M20.59 13.41 11 3.83A2 2 0 0 0 9.59 3.24H4a1 1 0 0 0-1 1v5.59a2 2 0 0 0 .59 1.41l9.58 9.59a2 2 0 0 0 2.83 0l4.59-4.59a2 2 0 0 0 0-2.83z"/><circle cx="7.5" cy="7.5" r=".5"/></svg> Listings (${listings.length})</button>
     </div>
     <div data-tab="dash">
-    ${needsAttention.length + pending.length + closingToday.length === 0 ? '<div class="card" style="padding:22px;text-align:center;color:#15803d;font-weight:600;margin-bottom:14px"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Nothing needs attention today — no pending intakes, no closings due</div>' : ''}
+    ${needsAttention.length + pending.length + closingToday.length === 0 ? `<div class="card" style="display:flex;align-items:center;gap:16px;padding:18px 22px;margin-bottom:14px;border-left:4px solid #15803d">
+      <div style="width:44px;height:44px;border-radius:50%;background:#e9f7ef;display:flex;align-items:center;justify-content:center;color:#15803d;flex-shrink:0"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+      <div><div style="font-size:14.5px;font-weight:600;color:#14532d">All clear — nothing needs attention today</div>
+      <div style="font-size:12px;color:#5b6b7f;margin-top:2px">No pending intakes, no closings due, nothing past close date</div></div>
+    </div>` : ''}
     ${needsAttention.length > 0 ? `
     <div class="shd shd-red"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Incomplete — Past Close Date, Not Marked Closed (${needsAttention.length})</div>
     <div class="card" style="margin-bottom:14px;border-left:4px solid #dc2626">
