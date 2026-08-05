@@ -505,7 +505,7 @@ function getHTML(transaction, id, tc, related = []) {
   .info-input { width:100%; border:none; font-size:13px; font-weight:500; color:#1c1524; background:transparent;
                 outline:none; font-family:inherit; }
   .info-input:focus { color:#9333ea; border-color:#CB2CFB; box-shadow:0 0 0 3px rgba(203,44,251,.14); border-radius:6px; }
-  .stx { background:white; color:#4a4453; border:1.5px solid #e4dcea; padding:6px 15px; border-radius:99px; font-size:12px; font-weight:600; cursor:pointer; font-family:inherit; transition:all .12s; }
+  .stx { background:white; color:#4a4453; border:1.5px solid #e4dcea; padding:6px 15px; border-radius:99px; font-size:12px; font-weight:500; cursor:pointer; font-family:inherit; transition:all .12s; }
   .stx:hover { border-color:#66187E; color:#66187E; transform:translateY(-1px); box-shadow:0 4px 12px rgba(102,24,126,.12); }
   .stx-green:hover { border-color:#15803d; color:#15803d; box-shadow:0 4px 12px rgba(21,128,61,.14); }
   .stx-red:hover { border-color:#dc2626; color:#dc2626; box-shadow:0 4px 12px rgba(220,38,38,.13); }
@@ -695,7 +695,7 @@ ${(!isListing && !contractDate) ? `<div style="margin:12px 32px 0;background:#ff
       </select>
     </div>
   </div>` : ''}
-  <div style="border-top:1px solid #f1f1f4;margin-top:10px;padding-top:12px;padding-bottom:16px">
+  <div style="border-top:1px solid #f1f1f4;margin-top:8px;padding-top:10px;padding-bottom:6px">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
       <div style="font-size:11px;font-weight:600;text-transform:uppercase;color:#66187E;letter-spacing:.12em"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1z"/></svg> Contingencies</div>
       <button class="stx" onclick="addContingency()">+ Add Contingency</button>
