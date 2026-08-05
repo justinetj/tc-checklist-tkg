@@ -1313,7 +1313,8 @@ function getDashboardHTML(transactions, tc) {
   .task-item label.overdue { color:#dc2626; }
   .task-panel-empty { padding:24px 14px; text-align:center; color:#888; font-size:12px; }
   @media(max-width:900px) { .dashboard-layout { flex-direction:column; } .task-panel { width:100%; position:static; } }
-  .card { background:white; border:1px solid #e5eaf1; border-radius:14px; box-shadow:0 1px 3px rgba(22,50,79,.05); overflow:hidden; }
+  .card { background:white; border:1.5px solid #e5eaf1; border-radius:14px; box-shadow:0 1px 3px rgba(102,24,126,.05); overflow:hidden; transition:transform .12s, box-shadow .12s, border-color .12s; }
+  .card:hover { transform:translateY(-2px); border-color:#CB2CFB; box-shadow:0 8px 24px rgba(102,24,126,.12); }
   .shd + .card { border-top-left-radius:0; border-top-right-radius:0; }
   table { width:100%; border-collapse:collapse; }
   th { text-align:left; padding:5px 14px; background:#fafbfd; font-size:10px; color:#5b6b7f;
