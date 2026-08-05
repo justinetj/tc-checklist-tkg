@@ -378,7 +378,7 @@ function getHTML(transaction, id, tc, related = []) {
     let dateDisplay = '';
     if (autoDateForGroup) {
       const [y,m,d] = autoDateForGroup.split('-');
-      dateDisplay = ` — <span style="font-size:12px;font-weight:700;color:#4a1160">${m}/${d}/${y}</span>`;
+      dateDisplay = ` — <span style="font-size:12px;font-weight:600;color:#4a1160">${m}/${d}/${y}</span>`;
     }
     const isCOE = g.day && g.day.startsWith('COE');
     const headerBg = isCOE ? '#7e22ce' : '#0f4c9e';
@@ -416,7 +416,7 @@ function getHTML(transaction, id, tc, related = []) {
     }).join('');
     const lockedBanner = locked && !lockBannerShown ? (lockBannerShown = true, `<tr style="background:#fef9c3"><td colspan="4" style="padding:6px 12px;font-size:11px;color:#92400e;font-weight:600">🔒 Enter Under Contract Date above to unlock the sections below</td></tr>`) : '';
     const tbodyId = 'day-' + g.day.replace(/[^a-z0-9]/gi, '-');
-    const header = g.day ? `<tr class="day-header" id="hdr-${tbodyId}" style="background:#f8fafc;${locked?'opacity:0.4':''}cursor:pointer;" onclick="toggleDay('${tbodyId}',this)"><td colspan="4" style="padding:5px 10px;font-size:11px;font-weight:700;letter-spacing:.5px;border-bottom:1px solid #e2e8f0"><span class="day-badge" style="background:${headerBg};color:white;padding:2px 9px;border-radius:10px;font-size:11px">${g.day}</span>${dateDisplay} <span class="collapse-arrow" style="float:right;font-size:10px;color:#94a3b8">▲</span></td></tr>` : '';
+    const header = g.day ? `<tr class="day-header" id="hdr-${tbodyId}" style="background:#f8fafc;${locked?'opacity:0.4':''}cursor:pointer;" onclick="toggleDay('${tbodyId}',this)"><td colspan="4" style="padding:5px 10px;font-size:11px;font-weight:600;letter-spacing:.5px;border-bottom:1px solid #e2e8f0"><span class="day-badge" style="background:${headerBg};color:white;padding:2px 9px;border-radius:10px;font-size:11px">${g.day}</span>${dateDisplay} <span class="collapse-arrow" style="float:right;font-size:10px;color:#94a3b8">▲</span></td></tr>` : '';
     const rowsOut = locked ? rows.replace(/<input type="checkbox"/g, '<input type="checkbox" disabled').replace(/<input type="date"/g, '<input type="date" disabled').replace(/<input type="text"/g, '<input type="text" disabled') : rows;
     return lockedBanner + header + `<tbody id="${tbodyId}" style="${locked?'opacity:0.4;pointer-events:none':''}">${rowsOut}${extraRows || ''}</tbody>`;
   };
@@ -428,7 +428,7 @@ function getHTML(transaction, id, tc, related = []) {
     const overdue = c.due && !c.done && c.due < today;
     return `<tr class="${c.done ? 'done' : ''}${overdue ? ' row-overdue' : ''}">
       <td class="cb-cell"><input type="checkbox" ${c.done ? 'checked' : ''} onchange="toggleContingencyDone('${c.id}')"></td>
-      <td class="label-cell"><label>${String(c.name || 'Contingency').replace(/</g, '&lt;')} <span style="font-size:10px;color:#ea580c;font-weight:700;background:#fff7ed;border:1px solid #fed7aa;border-radius:6px;padding:0 5px">contingency</span></label></td>
+      <td class="label-cell"><label>${String(c.name || 'Contingency').replace(/</g, '&lt;')} <span style="font-size:10px;color:#ea580c;font-weight:600;background:#fff7ed;border:1px solid #fed7aa;border-radius:6px;padding:0 5px">contingency</span></label></td>
       <td class="date-cell"><input type="date" class="date-input due${overdue ? ' overdue' : ''}" value="${(c.due || '').replace(/"/g, '&quot;')}" onchange="setContingencyDueById('${c.id}', this.value)"></td>
       <td class="note-cell"><button onclick="deleteContingencyById('${c.id}')" style="background:none;border:none;color:#cbd5e1;font-size:12px;cursor:pointer" title="Remove contingency">✕ remove</button></td>
     </tr>`;
@@ -441,7 +441,7 @@ function getHTML(transaction, id, tc, related = []) {
   const placed = new Set();
   const standaloneCont = (c) => {
     const p = (c.due || '').split('-'); const dd = c.due ? (p[1] + '/' + p[2] + '/' + p[0]) : '';
-    return `<tr class="day-header" style="background:#fff7ed;cursor:default"><td colspan="4" style="padding:8px 12px;font-size:12px;font-weight:700;border-bottom:1px solid #fed7aa"><span class="day-badge" style="background:#ea580c;color:white;padding:2px 9px;border-radius:10px;font-size:11px">🔶 CONTINGENCY</span> — <span style="font-size:12px;font-weight:700;color:#9a3412">${dd}</span></td></tr><tbody>${contRow(c)}</tbody>`;
+    return `<tr class="day-header" style="background:#fff7ed;cursor:default"><td colspan="4" style="padding:8px 12px;font-size:12px;font-weight:600;border-bottom:1px solid #fed7aa"><span class="day-badge" style="background:#ea580c;color:white;padding:2px 9px;border-radius:10px;font-size:11px">🔶 CONTINGENCY</span> — <span style="font-size:12px;font-weight:600;color:#9a3412">${dd}</span></td></tr><tbody>${contRow(c)}</tbody>`;
   };
   let ci = 0;
   const partsArr = [];
@@ -480,16 +480,16 @@ function getHTML(transaction, id, tc, related = []) {
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${transaction.address || 'Transaction'} — Transaction Hub</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"><circle cx=%2750%27 cy=%2750%27 r=%2748%27 fill=%27%23CB2CFB%27/><path d=%27M28 52 50 34 72 52%27 stroke=%27white%27 stroke-width=%278%27 fill=%27none%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27/><path d=%27M34 50 V74 H66 V50%27 stroke=%27white%27 stroke-width=%278%27 fill=%27none%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27/></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"><circle cx=%2750%27 cy=%2750%27 r=%2748%27 fill=%27%23CB2CFB%27/><path d=%27M28 52 50 34 72 52%27 stroke=%27white%27 stroke-width=%278%27 fill=%27none%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27/><path d=%27M34 50 V74 H66 V50%27 stroke=%27white%27 stroke-width=%278%27 fill=%27none%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27/></svg>">
 <style>
   * { box-sizing:border-box; margin:0; padding:0; }
-  body { font-family:'Outfit',-apple-system,Helvetica,sans-serif; background:#f5f6fa; color:#1a1a2e; }
+  body { font-family:'Inter',-apple-system,Helvetica,sans-serif; background:#f5f6fa; color:#1a1a2e; }
   .header { background:linear-gradient(120deg,#3d0d52,#66187E 55%,#a21caf 135%); color:white; padding:16px 32px; display:flex; align-items:center; gap:16px; }
   .header a { color:#cba8e0; font-size:13px; text-decoration:none; margin-right:8px; }
   .header a:hover { color:white; }
-  .header h1 { font-size:18px; font-weight:700; flex:1; }
+  .header h1 { font-size:18px; font-weight:600; flex:1; }
   .badge { display:inline-block; padding:3px 10px; border-radius:12px; font-size:11px;
-           font-weight:700; background:${color}; color:white; text-transform:uppercase; }
+           font-weight:600; background:${color}; color:white; text-transform:uppercase; }
   .progress-bar { height:5px; background:#d0d7e8; }
   .progress-fill { height:5px; background:${color}; transition:width .3s; width:${pct}%; }
   .progress-label { background:white; padding:8px 32px; font-size:13px; color:#555;
@@ -501,7 +501,7 @@ function getHTML(transaction, id, tc, related = []) {
                overflow:hidden; border:1px solid #e0e4f0; }
   .info-field { padding:4px 10px; border-right:1px solid #e0e4f0; border-bottom:1px solid #e0e4f0; }
   .info-field.highlight { background:#faf0ff; }
-  .info-label { font-size:8.5px; font-weight:700; text-transform:uppercase; color:#888; margin-bottom:1px; }
+  .info-label { font-size:8.5px; font-weight:600; text-transform:uppercase; color:#888; margin-bottom:1px; }
   .info-input { width:100%; border:none; font-size:12px; color:#1a1a2e; background:transparent;
                 outline:none; font-family:inherit; }
   .info-input:focus { color:#9333ea; }
@@ -511,7 +511,7 @@ function getHTML(transaction, id, tc, related = []) {
              box-shadow:0 1px 4px rgba(0,0,0,.07); overflow:hidden; }
   .section-header { display:flex; justify-content:space-between; align-items:center;
                     padding:10px 16px; background:#faf0ff; border-bottom:1px solid #e0e4f0; }
-  .section-title { font-weight:700; font-size:13px; color:#4a1160; text-transform:uppercase; letter-spacing:.5px; }
+  .section-title { font-weight:600; font-size:13px; color:#4a1160; text-transform:uppercase; letter-spacing:.5px; }
   .section-progress { display:flex; align-items:center; gap:8px; font-size:12px; color:#666; font-weight:600; }
   .sec-bar { width:80px; height:6px; background:#e0e4f0; border-radius:3px; display:inline-block; }
   .sec-fill { height:6px; border-radius:3px; display:block; transition:width .3s; }
@@ -526,7 +526,7 @@ function getHTML(transaction, id, tc, related = []) {
   .label-cell label { cursor:pointer; }
   .day-cell { padding:6px 4px; width:80px; }
   .day-badge { display:inline-block; padding:2px 7px; border-radius:10px; font-size:10px;
-               font-weight:700; color:white; white-space:nowrap; }
+               font-weight:600; color:white; white-space:nowrap; }
   .date-input.due { border-color:#d1fae5; color:#15803d; font-weight:600; background:#f0fdf4; }
   .date-input.due.overdue { border-color:#fecaca; color:#dc2626; background:#fff5f5; }
   tr.row-overdue { background:#fff5f5; }
@@ -552,7 +552,7 @@ function getHTML(transaction, id, tc, related = []) {
   .detail-sidebar-hdr { background:#4a1160; color:white; padding:11px 14px; font-size:12px; font-weight:500; text-transform:uppercase; letter-spacing:.5px; }
   .task-due-group { border-bottom:1px solid #f0f2f8; padding:10px 14px; }
   .task-due-group:last-child { border-bottom:none; }
-  .task-due-label { font-size:11px; font-weight:700; color:#4a1160; margin-bottom:6px; text-transform:uppercase; }
+  .task-due-label { font-size:11px; font-weight:600; color:#4a1160; margin-bottom:6px; text-transform:uppercase; }
   .task-due-item { display:flex; align-items:flex-start; gap:6px; padding:2px 0; font-size:11.5px; color:#333; }
   .task-due-item input { margin-top:2px; flex-shrink:0; }
   .task-due-item label.overdue { color:#dc2626; }
@@ -572,16 +572,16 @@ ${(!isListing && !contractDate) ? `<div style="margin:12px 32px 0;background:#ff
 
 <div class="info-card">
   <div style="padding:12px 0 8px;display:flex;align-items:center;justify-content:space-between">
-    <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#888;letter-spacing:.5px">Transaction Details</div>
+    <div style="font-size:11px;font-weight:600;text-transform:uppercase;color:#888;letter-spacing:.5px">Transaction Details</div>
     <div style="display:flex;gap:8px;align-items:center">
-      ${transaction.status === 'pending' ? `<span style="background:#fef3c7;color:#b45309;padding:4px 12px;border-radius:6px;font-size:12px;font-weight:700">⚠️ Pending — Needs Setup</span>` : ''}
-      ${transaction.status === 'closed' ? `<span style="background:#dcfce7;color:#15803d;padding:4px 12px;border-radius:6px;font-size:12px;font-weight:700">✓ Closed</span>` : ''}
-      ${transaction.status === 'cancelled' ? `<span style="background:#fee2e2;color:#dc2626;padding:4px 12px;border-radius:6px;font-size:12px;font-weight:700">✕ Cancelled</span>` : ''}
-      ${transaction.status === 'pending' ? `<button onclick="setTxnStatus('active')" style="background:#9333ea;color:white;border:none;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer">✓ Activate Transaction</button>` : ''}
-      ${transaction.status !== 'closed' && transaction.status !== 'pending' ? `<button onclick="setTxnStatus('closed')" style="background:#dcfce7;color:#15803d;border:1px solid #bbf7d0;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer">Mark Closed</button>` : ''}
-      ${transaction.status !== 'cancelled' && transaction.status !== 'pending' ? `<button onclick="setTxnStatus('cancelled')" style="background:#fee2e2;color:#dc2626;border:1px solid #fecaca;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer">Mark Cancelled</button>` : ''}
-      ${transaction.status && transaction.status !== 'active' && transaction.status !== 'pending' ? `<button onclick="setTxnStatus('active')" style="background:#faf0ff;color:#4a1160;border:1px solid #c7d2fe;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer">Reopen</button>` : ''}
-      <button onclick="adminDeleteTxn()" title="Delete this entire file" style="background:#fee2e2;color:#dc2626;border:1px solid #fecaca;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer">🗑 Delete</button>
+      ${transaction.status === 'pending' ? `<span style="background:#fef3c7;color:#b45309;padding:4px 12px;border-radius:6px;font-size:12px;font-weight:600">⚠️ Pending — Needs Setup</span>` : ''}
+      ${transaction.status === 'closed' ? `<span style="background:#dcfce7;color:#15803d;padding:4px 12px;border-radius:6px;font-size:12px;font-weight:600">✓ Closed</span>` : ''}
+      ${transaction.status === 'cancelled' ? `<span style="background:#fee2e2;color:#dc2626;padding:4px 12px;border-radius:6px;font-size:12px;font-weight:600">✕ Cancelled</span>` : ''}
+      ${transaction.status === 'pending' ? `<button onclick="setTxnStatus('active')" style="background:#9333ea;color:white;border:none;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer">✓ Activate Transaction</button>` : ''}
+      ${transaction.status !== 'closed' && transaction.status !== 'pending' ? `<button onclick="setTxnStatus('closed')" style="background:#dcfce7;color:#15803d;border:1px solid #bbf7d0;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer">Mark Closed</button>` : ''}
+      ${transaction.status !== 'cancelled' && transaction.status !== 'pending' ? `<button onclick="setTxnStatus('cancelled')" style="background:#fee2e2;color:#dc2626;border:1px solid #fecaca;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer">Mark Cancelled</button>` : ''}
+      ${transaction.status && transaction.status !== 'active' && transaction.status !== 'pending' ? `<button onclick="setTxnStatus('active')" style="background:#faf0ff;color:#4a1160;border:1px solid #c7d2fe;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer">Reopen</button>` : ''}
+      <button onclick="adminDeleteTxn()" title="Delete this entire file" style="background:#fee2e2;color:#dc2626;border:1px solid #fecaca;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer">🗑 Delete</button>
     </div>
   </div>
   <div class="info-grid">
@@ -663,7 +663,7 @@ ${(!isListing && !contractDate) ? `<div style="margin:12px 32px 0;background:#ff
     </div>` : ''}
   </div>
   ${isListing ? `
-  <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#2e7d32;letter-spacing:.5px;margin:10px 0 4px"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M20.59 13.41 11 3.83A2 2 0 0 0 9.59 3.24H4a1 1 0 0 0-1 1v5.59a2 2 0 0 0 .59 1.41l9.58 9.59a2 2 0 0 0 2.83 0l4.59-4.59a2 2 0 0 0 0-2.83z"/><circle cx="7.5" cy="7.5" r=".5"/></svg> Listing Info</div>
+  <div style="font-size:11px;font-weight:600;text-transform:uppercase;color:#2e7d32;letter-spacing:.5px;margin:10px 0 4px"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M20.59 13.41 11 3.83A2 2 0 0 0 9.59 3.24H4a1 1 0 0 0-1 1v5.59a2 2 0 0 0 .59 1.41l9.58 9.59a2 2 0 0 0 2.83 0l4.59-4.59a2 2 0 0 0 0-2.83z"/><circle cx="7.5" cy="7.5" r=".5"/></svg> Listing Info</div>
   <div class="info-grid">
     ${[["MLS#", "mlsNum"], ["Lockbox#", "lockboxNum"], ["Shackle Code", "shackleCode"], ["CBS Code", "cbsCode"]].map(([label, key]) => `
     <div class="info-field">
@@ -693,8 +693,8 @@ ${(!isListing && !contractDate) ? `<div style="margin:12px 32px 0;background:#ff
   </div>` : ''}
   <div style="border-top:1px solid #f1f1f4;margin-top:6px;padding-top:10px">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
-      <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#9a3412;letter-spacing:.5px"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1z"/></svg> Contingencies</div>
-      <button onclick="addContingency()" style="background:#ea580c;color:white;border:none;border-radius:6px;padding:4px 11px;font-size:11px;font-weight:700;cursor:pointer">+ Add Contingency</button>
+      <div style="font-size:11px;font-weight:600;text-transform:uppercase;color:#9a3412;letter-spacing:.5px"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1z"/></svg> Contingencies</div>
+      <button onclick="addContingency()" style="background:#ea580c;color:white;border:none;border-radius:6px;padding:4px 11px;font-size:11px;font-weight:600;cursor:pointer">+ Add Contingency</button>
     </div>
     <div id="contingency-list"></div>
   </div>
@@ -734,13 +734,13 @@ ${(!isListing && !contractDate) ? `<div style="margin:12px 32px 0;background:#ff
       const mtToday = mts.filter(m => m.due === today);
       const mtUpcoming = mts.filter(m => !m.due || m.due > today)
         .sort((a, b) => ((a.due || '9999') < (b.due || '9999') ? -1 : 1));
-      const mtRow = (m, style) => `<div class="task-due-item" style="justify-content:space-between"><div style="display:flex;align-items:flex-start;gap:7px;min-width:0"><input type="checkbox" onchange="doneManualTask('${m.id}', this)"><label style="${style}">${escM(m.text)} <span style="font-size:10px;color:#a21caf;font-weight:700">· task</span>${m.due && m.due > today ? ` <span style="font-size:10px;color:#94a3b8;font-weight:400">${m.due.slice(5,7)}/${m.due.slice(8,10)}</span>` : ''}</label></div><button onclick="deleteManualTask('${m.id}')" title="Delete task" style="background:none;border:none;color:#cbd5e1;cursor:pointer;font-size:11px;flex-shrink:0">✕</button></div>`;
+      const mtRow = (m, style) => `<div class="task-due-item" style="justify-content:space-between"><div style="display:flex;align-items:flex-start;gap:7px;min-width:0"><input type="checkbox" onchange="doneManualTask('${m.id}', this)"><label style="${style}">${escM(m.text)} <span style="font-size:10px;color:#a21caf;font-weight:600">· task</span>${m.due && m.due > today ? ` <span style="font-size:10px;color:#94a3b8;font-weight:400">${m.due.slice(5,7)}/${m.due.slice(8,10)}</span>` : ''}</label></div><button onclick="deleteManualTask('${m.id}')" title="Delete task" style="background:none;border:none;color:#cbd5e1;cursor:pointer;font-size:11px;flex-shrink:0">✕</button></div>`;
       const totalPast = pastDue.length + contPast.length + mtPast.length;
       const totalToday = dueToday.length + contDueToday.length + mtToday.length;
-      const contLabel = (c) => (c.name && c.name.trim() ? c.name : 'Contingency') + ' <span style="font-size:10px;color:#9a3412;font-weight:700">· contingency</span>';
+      const contLabel = (c) => (c.name && c.name.trim() ? c.name : 'Contingency') + ' <span style="font-size:10px;color:#9a3412;font-weight:600">· contingency</span>';
       const hdrBadges = [
-        totalPast ? `<span style="background:#dc2626;color:white;border-radius:10px;padding:2px 8px;font-size:11px;font-weight:700">⚠ ${totalPast} past due</span>` : '',
-        totalToday ? `<span style="background:#15803d;color:white;border-radius:10px;padding:2px 8px;font-size:11px;font-weight:700">✓ ${totalToday} today</span>` : ''
+        totalPast ? `<span style="background:#dc2626;color:white;border-radius:10px;padding:2px 8px;font-size:11px;font-weight:600">⚠ ${totalPast} past due</span>` : '',
+        totalToday ? `<span style="background:#15803d;color:white;border-radius:10px;padding:2px 8px;font-size:11px;font-weight:600">✓ ${totalToday} today</span>` : ''
       ].filter(Boolean).join(' ');
       const hdr = `<div class="detail-sidebar-hdr" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg> Tasks ${hdrBadges}</div>`;
       const upcoming = mtUpcoming.length
@@ -751,7 +751,7 @@ ${(!isListing && !contractDate) ? `<div style="margin:12px 32px 0;background:#ff
           style="width:100%;box-sizing:border-box;border:1px solid #e0e4f0;border-radius:6px;padding:8px 10px;font-size:13px;margin-bottom:7px">
         <div style="display:flex;gap:7px;align-items:center">
           <input id="mt-due" type="date" value="${today}" style="flex:1;box-sizing:border-box;border:1px solid #e0e4f0;border-radius:6px;padding:6px 8px;font-size:12px">
-          <button onclick="addManualTask()" style="background:#a21caf;color:white;border:none;border-radius:6px;padding:7px 18px;font-size:12px;font-weight:700;cursor:pointer">Add</button>
+          <button onclick="addManualTask()" style="background:#a21caf;color:white;border:none;border-radius:6px;padding:7px 18px;font-size:12px;font-weight:600;cursor:pointer">Add</button>
         </div>
       </div>`;
       if (!totalPast && !totalToday) return hdr + '<div class="task-due-empty">No tasks due today</div>' + upcoming + addRow;
@@ -1157,12 +1157,12 @@ function getDashboardHTML(transactions, tc) {
     const fields = t.fields || {};
     const actionBtns = isArchived
       ? `<button title="Reopen" onclick="event.stopPropagation();setStatus('${id}','active')" style="background:#faf0ff;color:#4a1160;border:none;padding:4px 9px;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer">Reopen</button>`
-      : `<button title="Mark Closed" onclick="event.stopPropagation();setStatus('${id}','closed')" style="background:#dcfce7;color:#15803d;border:none;padding:2px 6px;border-radius:5px;font-size:12px;font-weight:700;cursor:pointer;margin-right:2px">✓</button><button title="Mark Cancelled" onclick="event.stopPropagation();setStatus('${id}','cancelled')" style="background:#fee2e2;color:#dc2626;border:none;padding:2px 6px;border-radius:5px;font-size:12px;font-weight:700;cursor:pointer">⊘</button>`;
+      : `<button title="Mark Closed" onclick="event.stopPropagation();setStatus('${id}','closed')" style="background:#dcfce7;color:#15803d;border:none;padding:2px 6px;border-radius:5px;font-size:12px;font-weight:600;cursor:pointer;margin-right:2px">✓</button><button title="Mark Cancelled" onclick="event.stopPropagation();setStatus('${id}','cancelled')" style="background:#fee2e2;color:#dc2626;border:none;padding:2px 6px;border-radius:5px;font-size:12px;font-weight:600;cursor:pointer">⊘</button>`;
     const progColor = pct === 100 ? '#9333ea' : pct >= 66 ? '#15803d' : pct >= 34 ? '#eab308' : '#dc2626';
     const progress = `<td><div style="display:flex;align-items:center;gap:6px"><div style="flex:1;height:6px;background:#e0e4f0;border-radius:4px;min-width:28px"><div style="width:${pct}%;height:7px;background:${progColor};border-radius:4px"></div></div><span style="font-size:11px;font-weight:600;color:${progColor};white-space:nowrap">${pct}%</span></div></td>`;
-    const actions = `<td onclick="event.stopPropagation()" style="white-space:nowrap;text-align:right">${actionBtns}<button title="Delete" onclick="event.stopPropagation();deleteTxn('${id}','${(t.address||'this transaction').replace(/'/g,"\\'")}',this)" style="background:#f5f5f5;color:#888;border:none;padding:2px 6px;border-radius:5px;font-size:12px;font-weight:700;cursor:pointer;margin-left:2px">✕</button></td>`;
+    const actions = `<td onclick="event.stopPropagation()" style="white-space:nowrap;text-align:right">${actionBtns}<button title="Delete" onclick="event.stopPropagation();deleteTxn('${id}','${(t.address||'this transaction').replace(/'/g,"\\'")}',this)" style="background:#f5f5f5;color:#888;border:none;padding:2px 6px;border-radius:5px;font-size:12px;font-weight:600;cursor:pointer;margin-left:2px">✕</button></td>`;
     const base = `<td><strong>${t.address || '(no address)'}</strong></td><td>${fields.clientName || t.clientName || '—'}</td><td>${fields.agentPartner1 || '—'}</td>`;
-    const ucFlag = `<span style="background:#fee2e2;color:#dc2626;border-radius:6px;padding:1px 7px;font-size:10px;font-weight:700;white-space:nowrap">⚠ Please update</span>`;
+    const ucFlag = `<span style="background:#fee2e2;color:#dc2626;border-radius:6px;padding:1px 7px;font-size:10px;font-weight:600;white-space:nowrap">⚠ Please update</span>`;
     const ucCell = (isBuyerT && !fields.contractDate) ? ucFlag : fmt(fields.contractDate);
     let dateCols = '';
     if (mode === 'uc') {
@@ -1248,11 +1248,11 @@ function getDashboardHTML(transactions, tc) {
               <div style="font-size:12px;color:#64748b;margin-top:2px">${client && client !== '—' ? `Client: <b style="color:#1e293b">${client}</b> &nbsp;·&nbsp; ` : ''}Agent: <b style="color:#1e293b">${agent}</b></div>
               <div style="font-size:11px;color:#94a3b8;margin-top:3px">Received: ${receivedAt}</div>
             </div>
-            <a href="/t/${id}?tc=${tc}" style="background:#66187E;color:white;text-decoration:none;font-size:12px;font-weight:700;padding:7px 14px;border-radius:8px;white-space:nowrap">Open →</a><button onclick="adminDelete('${id}')" title="Delete this file" style="background:white;color:#8a7d95;border:1.5px solid #eadef0;font-size:12px;font-weight:600;width:32px;height:32px;border-radius:8px;cursor:pointer;line-height:1" onmouseover="this.style.borderColor='#CB2CFB';this.style.color='#CB2CFB'" onmouseout="this.style.borderColor='#eadef0';this.style.color='#8a7d95'">✕</button>
+            <a href="/t/${id}?tc=${tc}" style="background:#66187E;color:white;text-decoration:none;font-size:12px;font-weight:600;padding:7px 14px;border-radius:8px;white-space:nowrap">Open →</a><button onclick="adminDelete('${id}')" title="Delete this file" style="background:white;color:#8a7d95;border:1.5px solid #eadef0;font-size:12px;font-weight:600;width:32px;height:32px;border-radius:8px;cursor:pointer;line-height:1" onmouseover="this.style.borderColor='#CB2CFB';this.style.color='#CB2CFB'" onmouseout="this.style.borderColor='#eadef0';this.style.color='#8a7d95'">✕</button>
           </div>
           <div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap;align-items:center">
             <span style="font-size:11px;color:#94a3b8;font-weight:600;margin-right:2px">TYPE:</span>
-            ${typeOpts.map(([val, label]) => `<button onclick="setFsType('${id}','${val}',this)" style="font-size:11px;font-weight:700;padding:4px 10px;border-radius:5px;cursor:pointer;border:2px solid ${curType===val?'#CB2CFB':'#e2e8f0'};background:${curType===val?'#CB2CFB':'white'};color:${curType===val?'white':'#64748b'}">${label}</button>`).join('')}
+            ${typeOpts.map(([val, label]) => `<button onclick="setFsType('${id}','${val}',this)" style="font-size:11px;font-weight:600;padding:4px 10px;border-radius:5px;cursor:pointer;border:2px solid ${curType===val?'#CB2CFB':'#e2e8f0'};background:${curType===val?'#CB2CFB':'white'};color:${curType===val?'white':'#64748b'}">${label}</button>`).join('')}
           </div>
         </div>`;
       };
@@ -1266,7 +1266,7 @@ function getDashboardHTML(transactions, tc) {
         return `<tr onclick="window.location='/t/${id}?tc=${tc}'" style="cursor:pointer">
           <td style="padding:3px 13px;font-size:12.5px;font-weight:600;color:#14532d">${t.address || '(no address)'}</td>
           <td style="padding:3px 8px;font-size:11.5px;color:#166534">${fields.clientName || t.clientName || '—'}</td>
-          <td style="padding:3px 8px;font-size:10.5px"><span style="background:#dcfce7;color:#15803d;border-radius:8px;padding:1px 7px;font-weight:700">${label}</span></td>
+          <td style="padding:3px 8px;font-size:10.5px"><span style="background:#dcfce7;color:#15803d;border-radius:8px;padding:1px 7px;font-weight:600">${label}</span></td>
           <td style="padding:3px 8px;font-size:11.5px;color:#166534">${fields.agentPartner1 || '—'}</td>
         </tr>`;
       }).join('')}</tbody></table>
@@ -1279,19 +1279,19 @@ function getDashboardHTML(transactions, tc) {
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>The Kumler Group — Transaction Hub</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27><circle cx=%2750%27 cy=%2750%27 r=%2748%27 fill=%27%23CB2CFB%27/><path d=%27M28 52 50 34 72 52%27 stroke=%27white%27 stroke-width=%278%27 fill=%27none%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27/><path d=%27M34 50 V74 H66 V50%27 stroke=%27white%27 stroke-width=%278%27 fill=%27none%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27/></svg>">
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
   * { box-sizing:border-box; margin:0; padding:0; }
-  body { font-family:'Outfit',-apple-system,Helvetica,sans-serif; background:#f2f5f9; color:#1c2733; }
+  body { font-family:'Inter',-apple-system,Helvetica,sans-serif; background:#f2f5f9; color:#1c2733; }
   .header { background:linear-gradient(120deg,#3d0d52,#66187E 55%,#a21caf 135%); color:white; padding:15px 32px; display:flex; align-items:center; justify-content:space-between; }
-  .header h1 { font-size:20px; font-weight:700; }
+  .header h1 { font-size:20px; font-weight:600; }
   .header p { font-size:13px; color:#cba8e0; margin-top:2px; }
   .btn { background:#a21caf; color:white; border:none; padding:10px 20px; border-radius:7px;
          font-size:13px; font-weight:600; cursor:pointer; }
   .btn:hover { background:#CB2CFB; }
   .container { max-width:1400px; margin:14px auto; padding:0 16px; }
   .tab-bar { display:flex; gap:6px; background:white; border:1px solid #e5eaf1; padding:5px; border-radius:12px; width:fit-content; margin-bottom:16px; box-shadow:0 1px 3px rgba(22,50,79,.06); flex-wrap:wrap; }
-  .tab-btn { background:transparent; border:none; color:#5b6b7f; font-weight:700; font-family:inherit; font-size:13px; padding:8px 18px; border-radius:8px; cursor:pointer; }
+  .tab-btn { background:transparent; border:none; color:#5b6b7f; font-weight:600; font-family:inherit; font-size:13px; padding:8px 18px; border-radius:8px; cursor:pointer; }
   .tab-btn:hover { color:#66187E; }
   .tab-btn.on { background:#66187E; color:white; }
   .tab-badge { background:#dc2626; color:white; border-radius:999px; padding:1px 8px; font-size:11px; margin-left:4px; }
@@ -1306,7 +1306,7 @@ function getDashboardHTML(transactions, tc) {
   .task-panel .card { padding:0; }
   .task-group { border-bottom:1px solid #f0f2f8; padding:10px 14px; }
   .task-group:last-child { border-bottom:none; }
-  .task-group-name { font-size:11px; font-weight:700; color:#4a1160; margin-bottom:6px; text-transform:uppercase; letter-spacing:.3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .task-group-name { font-size:11px; font-weight:600; color:#4a1160; margin-bottom:6px; text-transform:uppercase; letter-spacing:.3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .task-item { display:flex; align-items:flex-start; gap:6px; padding:2px 0; }
   .task-item input[type=checkbox] { margin-top:2px; flex-shrink:0; cursor:pointer; }
   .task-item label { font-size:11.5px; color:#333; line-height:1.3; cursor:pointer; }
@@ -1325,9 +1325,9 @@ function getDashboardHTML(transactions, tc) {
   .modal-bg { display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:100; align-items:center; justify-content:center; }
   .modal-bg.open { display:flex; }
   .modal { background:white; border-radius:12px; padding:28px; width:440px; max-width:95vw; box-shadow:0 8px 32px rgba(0,0,0,.18); }
-  .modal h2 { font-size:17px; margin-bottom:20px; color:#4a1160; font-weight:700; }
+  .modal h2 { font-size:17px; margin-bottom:20px; color:#4a1160; font-weight:600; }
   .field { margin-bottom:14px; }
-  .field label { display:block; font-size:12px; font-weight:700; color:#555; margin-bottom:5px; text-transform:uppercase; }
+  .field label { display:block; font-size:12px; font-weight:600; color:#555; margin-bottom:5px; text-transform:uppercase; }
   .field input, .field select { width:100%; border:1px solid #d0d7e8; border-radius:6px;
     padding:9px 12px; font-size:14px; outline:none; font-family:inherit; }
   .field input:focus, .field select:focus { border-color:#4a1160; }
@@ -1355,7 +1355,7 @@ function getDashboardHTML(transactions, tc) {
       <button class="tab-btn" data-for="listings" onclick="showTab('listings')"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M20.59 13.41 11 3.83A2 2 0 0 0 9.59 3.24H4a1 1 0 0 0-1 1v5.59a2 2 0 0 0 .59 1.41l9.58 9.59a2 2 0 0 0 2.83 0l4.59-4.59a2 2 0 0 0 0-2.83z"/><circle cx="7.5" cy="7.5" r=".5"/></svg> Listings (${listings.length})</button>
     </div>
     <div data-tab="dash">
-    ${needsAttention.length + pending.length + closingToday.length === 0 ? '<div class="card" style="padding:22px;text-align:center;color:#15803d;font-weight:700;margin-bottom:14px"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Nothing needs attention today — no pending intakes, no closings due</div>' : ''}
+    ${needsAttention.length + pending.length + closingToday.length === 0 ? '<div class="card" style="padding:22px;text-align:center;color:#15803d;font-weight:600;margin-bottom:14px"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Nothing needs attention today — no pending intakes, no closings due</div>' : ''}
     ${needsAttention.length > 0 ? `
     <div class="shd shd-red"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Incomplete — Past Close Date, Not Marked Closed (${needsAttention.length})</div>
     <div class="card" style="margin-bottom:14px;border-left:4px solid #dc2626">
@@ -1478,7 +1478,7 @@ function getDashboardHTML(transactions, tc) {
         }
         if (!pastDue.length && !dueToday.length && !mtPast.length && !mtToday.length) return null;
         const shortAddr = (t.address || '(no address)').replace(/,.*$/, '');
-        const mtRow = (m, color) => `<div class="task-item"><input type="checkbox" id="dm-${id}-${m.id}" onchange="dashManualDone('${id}','${m.id}',this.checked)"><label for="dm-${id}-${m.id}" style="color:${color}">${escT(m.text)} <span style="font-size:10px;color:#a21caf;font-weight:700">· task</span></label></div>`;
+        const mtRow = (m, color) => `<div class="task-item"><input type="checkbox" id="dm-${id}-${m.id}" onchange="dashManualDone('${id}','${m.id}',this.checked)"><label for="dm-${id}-${m.id}" style="color:${color}">${escT(m.text)} <span style="font-size:10px;color:#a21caf;font-weight:600">· task</span></label></div>`;
         let inner = `<div class="task-group-name" style="font-size:11px;font-weight:500;color:#4a1160;padding:5px 0 3px;border-bottom:1px solid #e0e4f0;margin-bottom:4px">${shortAddr}</div>`;
         if (pastDue.length) inner += pastDue.map(item => `<div class="task-item"><input type="checkbox" id="dt-${id}-${item.id}" onchange="dashCheck('${id}','${item.id}',this.checked)"><label for="dt-${id}-${item.id}" style="color:#dc2626">${item.label}</label></div>`).join('');
         inner += mtPast.map(m => mtRow(m, '#dc2626')).join('');
@@ -1493,8 +1493,8 @@ function getDashboardHTML(transactions, tc) {
         for (const [id, t] of txns) { const b = txnBlock(id, t); if (!b) continue; past += b.past; todayN += b.todayN; blocks.push(b.html); }
         if (hideIfEmpty && !blocks.length) return '';
         const badges = [
-          past ? `<span style="background:#dc2626;color:white;border-radius:10px;padding:1px 7px;font-size:10px;font-weight:700">⚠ ${past}</span>` : '',
-          todayN ? `<span style="background:#15803d;color:white;border-radius:10px;padding:1px 7px;font-size:10px;font-weight:700">✓ ${todayN}</span>` : ''
+          past ? `<span style="background:#dc2626;color:white;border-radius:10px;padding:1px 7px;font-size:10px;font-weight:600">⚠ ${past}</span>` : '',
+          todayN ? `<span style="background:#15803d;color:white;border-radius:10px;padding:1px 7px;font-size:10px;font-weight:600">✓ ${todayN}</span>` : ''
         ].filter(Boolean).join(' ');
         const inner = blocks.length ? blocks.join('') : '<div class="task-panel-empty" style="padding:8px 12px">Nothing due</div>';
         const secId = 'coord-' + label.replace(/[^a-z0-9]/gi, '');
@@ -1525,8 +1525,8 @@ function getDashboardHTML(transactions, tc) {
       let totalPast = 0, totalToday = 0; const txnGroups = [];
       for (const [id, t] of taskSource.filter(isMine)) { const b = txnBlock(id, t); if (!b) continue; totalPast += b.past; totalToday += b.todayN; txnGroups.push(b.html); }
       const hdrBadges = [
-        totalPast ? `<span style="background:#dc2626;color:white;border-radius:10px;padding:2px 8px;font-size:11px;font-weight:700">⚠ ${totalPast} past due</span>` : '',
-        totalToday ? `<span style="background:#15803d;color:white;border-radius:10px;padding:2px 8px;font-size:11px;font-weight:700">✓ ${totalToday} today</span>` : ''
+        totalPast ? `<span style="background:#dc2626;color:white;border-radius:10px;padding:2px 8px;font-size:11px;font-weight:600">⚠ ${totalPast} past due</span>` : '',
+        totalToday ? `<span style="background:#15803d;color:white;border-radius:10px;padding:2px 8px;font-size:11px;font-weight:600">✓ ${totalToday} today</span>` : ''
       ].filter(Boolean).join(' ');
       const body = txnGroups.length ? txnGroups.join('') : '<div class="task-panel-empty">No tasks due today</div>';
       return `<div class="detail-sidebar-hdr" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg> Tasks ${hdrBadges}</div><div class="card" style="padding:0;overflow:hidden">${body}</div>`;
@@ -1544,7 +1544,7 @@ ${(todayAZ() === '2026-07-31' && ['Ashley Belliveau','Joana Guzman','Cinnamon Ku
       There is no path to Peace. Peace is the path."
     </div>
     <div style="font-size:11.5px;color:#8896a5;margin-top:8px">— Way of the Peaceful Warrior (one of my favorite books)</div>
-    <div style="font-size:15px;color:#66187E;font-weight:800;letter-spacing:.04em;margin-top:16px">HAPPY FRIDAY ☀️ — Justine</div>
+    <div style="font-size:15px;color:#66187E;font-weight:600;letter-spacing:.04em;margin-top:16px">HAPPY FRIDAY ☀️ — Justine</div>
     <div style="margin-top:12px">
       <button onclick="document.getElementById('jnote').classList.remove('open')" style="background:none;border:none;color:#8896a5;font-size:15px;cursor:pointer;padding:4px 10px">✕</button>
     </div>
@@ -1559,7 +1559,7 @@ ${popupTasks.length ? `
     <h2>⚠️ ${tc.split(' ')[0]} — please update! ${popupTasks.length} item${popupTasks.length > 1 ? 's need' : ' needs'} you today:</h2>
     ${popupTasks.map(x => `
     <a href="/t/${x.id}?tc=${encodeURIComponent(tc)}" style="display:block;text-decoration:none;border:1px solid #e5eaf1;border-left:4px solid ${x.due < todayAZ() ? '#dc2626' : '#15803d'};border-radius:9px;padding:9px 12px;margin-bottom:8px">
-      <div style="font-weight:700;font-size:13px;color:#66187E">${x.text}</div>
+      <div style="font-weight:600;font-size:13px;color:#66187E">${x.text}</div>
       <div style="font-size:11.5px;color:#5b6b7f;margin-top:2px">${x.address} · due ${x.due === todayAZ() ? 'today' : x.due}</div>
     </a>`).join('')}
     <div class="modal-actions" style="margin-top:10px">
@@ -1761,10 +1761,10 @@ function getTCSelectHTML() {
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>The Kumler Group — Transaction Hub</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27><circle cx=%2750%27 cy=%2750%27 r=%2748%27 fill=%27%23CB2CFB%27/><path d=%27M28 52 50 34 72 52%27 stroke=%27white%27 stroke-width=%278%27 fill=%27none%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27/><path d=%27M34 50 V74 H66 V50%27 stroke=%27white%27 stroke-width=%278%27 fill=%27none%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27/></svg>">
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
   * { box-sizing:border-box; margin:0; padding:0; }
-  body { font-family:'Outfit',-apple-system,Helvetica,sans-serif; background:#fdfbfe; color:#1c1524; min-height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center; padding:30px 0; }
+  body { font-family:'Inter',-apple-system,Helvetica,sans-serif; background:#fdfbfe; color:#1c1524; min-height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center; padding:30px 0; }
   .logo { text-align:center; padding:0 20px; }
   .logo img { max-width:min(380px,84vw); height:auto; }
   .sub { text-align:center; font-size:14px; font-weight:400; color:#7a6d85; margin-top:22px; }
@@ -1772,8 +1772,8 @@ function getTCSelectHTML() {
   .tc-grid { display:flex; flex-wrap:wrap; gap:16px; justify-content:center; max-width:760px; }
   .tc-card { background:white; border-radius:16px; box-shadow:0 2px 10px rgba(102,24,126,.06); padding:26px 24px; cursor:pointer; text-align:center; width:210px; border:1.5px solid #eadef0; transition:all .15s; text-decoration:none; color:inherit; }
   .tc-card:hover { transform:translateY(-3px); border-color:#CB2CFB; box-shadow:0 10px 28px rgba(102,24,126,.16); }
-  .tc-avatar { width:56px; height:56px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:20px; font-weight:800; color:white; margin:0 auto 12px; background:linear-gradient(135deg,#66187E,#CB2CFB); }
-  .tc-name { font-size:15px; font-weight:700; color:#1c1524; }
+  .tc-avatar { width:56px; height:56px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:20px; font-weight:600; color:white; margin:0 auto 12px; background:linear-gradient(135deg,#66187E,#CB2CFB); }
+  .tc-name { font-size:15px; font-weight:600; color:#1c1524; }
   .tc-role { font-size:12px; color:#8a7d95; margin-top:3px; font-weight:400; }
   .foot { text-align:center; padding:16px; font-size:10.5px; font-weight:500; letter-spacing:.14em; text-transform:uppercase; color:#c3b5cd; }
 </style>
