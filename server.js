@@ -1360,9 +1360,9 @@ function getDashboardHTML(transactions, tc) {
       <button class="tab-btn" data-for="listings" onclick="showTab('listings')"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M20.59 13.41 11 3.83A2 2 0 0 0 9.59 3.24H4a1 1 0 0 0-1 1v5.59a2 2 0 0 0 .59 1.41l9.58 9.59a2 2 0 0 0 2.83 0l4.59-4.59a2 2 0 0 0 0-2.83z"/><circle cx="7.5" cy="7.5" r=".5"/></svg> Listings (${listings.length})</button>
     </div>
     <div data-tab="dash">
-    ${needsAttention.length + pending.length + closingToday.length === 0 ? `<div style="display:flex;align-items:center;gap:10px;padding:11px 18px;background:linear-gradient(120deg,#faf0ff,#fdf3ff);border:1px solid #e8c8f7;border-radius:10px;margin-bottom:14px">
-      <span style="width:8px;height:8px;border-radius:50%;background:#CB2CFB;box-shadow:0 0 0 3px rgba(203,44,251,.18)"></span>
-      <span style="font-size:13px;color:#66187E;font-weight:500">All clear — no pending intakes, closings, or overdue files today</span>
+    ${needsAttention.length + pending.length + closingToday.length === 0 ? `<div style="display:flex;align-items:center;gap:10px;padding:11px 18px;background:linear-gradient(120deg,#3d0d52,#66187E 55%,#a21caf 135%);border-radius:10px;margin-bottom:14px">
+      <span style="width:8px;height:8px;border-radius:50%;background:#CB2CFB;box-shadow:0 0 0 3px rgba(255,255,255,.25)"></span>
+      <span style="font-size:13px;color:white;font-weight:500">All clear — no pending intakes, closings, or overdue files today</span>
     </div>` : ''}
     ${needsAttention.length > 0 ? `
     <div class="shd shd-red"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Incomplete — Past Close Date, Not Marked Closed (${needsAttention.length})</div>
