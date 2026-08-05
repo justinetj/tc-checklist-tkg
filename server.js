@@ -1360,10 +1360,9 @@ function getDashboardHTML(transactions, tc) {
       <button class="tab-btn" data-for="listings" onclick="showTab('listings')"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M20.59 13.41 11 3.83A2 2 0 0 0 9.59 3.24H4a1 1 0 0 0-1 1v5.59a2 2 0 0 0 .59 1.41l9.58 9.59a2 2 0 0 0 2.83 0l4.59-4.59a2 2 0 0 0 0-2.83z"/><circle cx="7.5" cy="7.5" r=".5"/></svg> Listings (${listings.length})</button>
     </div>
     <div data-tab="dash">
-    ${needsAttention.length + pending.length + closingToday.length === 0 ? `<div class="card" style="display:flex;align-items:center;gap:16px;padding:18px 22px;margin-bottom:14px;border-left:4px solid #15803d">
-      <div style="width:44px;height:44px;border-radius:50%;background:#e9f7ef;display:flex;align-items:center;justify-content:center;color:#15803d;flex-shrink:0"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
-      <div><div style="font-size:14.5px;font-weight:600;color:#14532d">All clear — nothing needs attention today</div>
-      <div style="font-size:12px;color:#5b6b7f;margin-top:2px">No pending intakes, no closings due, nothing past close date</div></div>
+    ${needsAttention.length + pending.length + closingToday.length === 0 ? `<div style="display:flex;align-items:center;gap:10px;padding:11px 18px;background:#f7fbf8;border:1px solid #dcefe2;border-radius:10px;margin-bottom:14px">
+      <span style="width:8px;height:8px;border-radius:50%;background:#15803d;box-shadow:0 0 0 3px rgba(21,128,61,.15)"></span>
+      <span style="font-size:13px;color:#166534;font-weight:500">All clear — no pending intakes, closings, or overdue files today</span>
     </div>` : ''}
     ${needsAttention.length > 0 ? `
     <div class="shd shd-red"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Incomplete — Past Close Date, Not Marked Closed (${needsAttention.length})</div>
