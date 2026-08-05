@@ -1288,7 +1288,7 @@ function getDashboardHTML(transactions, tc) {
   .header p { font-size:13px; color:#cba8e0; margin-top:2px; }
   .btn { background:#a21caf; color:white; border:none; padding:10px 20px; border-radius:7px;
          font-size:13px; font-weight:600; cursor:pointer; }
-  .btn:hover { background:#CB2CFB; }
+  .btn:hover { background:#CB2CFB; transform:scale(1.04); }
   .container { max-width:1400px; margin:14px auto; padding:0 16px; }
   .tab-bar { display:flex; gap:6px; background:white; border:1px solid #e5eaf1; padding:5px; border-radius:12px; width:fit-content; margin-bottom:16px; box-shadow:0 1px 3px rgba(22,50,79,.06); flex-wrap:wrap; }
   .tab-btn { background:transparent; border:none; color:#5b6b7f; font-weight:600; font-family:inherit; font-size:13px; padding:8px 18px; border-radius:8px; cursor:pointer; }
