@@ -479,10 +479,11 @@ function getHTML(transaction, id, tc, related = []) {
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${transaction.address || 'Transaction'} — Transaction Hub</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27><circle cx=%2750%27 cy=%2750%27 r=%2748%27 fill=%27%23CB2CFB%27/><path d=%27M28 52 50 34 72 52%27 stroke=%27white%27 stroke-width=%278%27 fill=%27none%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27/><path d=%27M34 50 V74 H66 V50%27 stroke=%27white%27 stroke-width=%278%27 fill=%27none%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27/></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"><circle cx=%2750%27 cy=%2750%27 r=%2748%27 fill=%27%23CB2CFB%27/><path d=%27M28 52 50 34 72 52%27 stroke=%27white%27 stroke-width=%278%27 fill=%27none%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27/><path d=%27M34 50 V74 H66 V50%27 stroke=%27white%27 stroke-width=%278%27 fill=%27none%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27/></svg>">
 <style>
   * { box-sizing:border-box; margin:0; padding:0; }
-  body { font-family:-apple-system,Helvetica,sans-serif; background:#f5f6fa; color:#1a1a2e; }
+  body { font-family:'Outfit',-apple-system,Helvetica,sans-serif; background:#f5f6fa; color:#1a1a2e; }
   .header { background:linear-gradient(120deg,#3d0d52,#66187E 55%,#a21caf 135%); color:white; padding:16px 32px; display:flex; align-items:center; gap:16px; }
   .header a { color:#cba8e0; font-size:13px; text-decoration:none; margin-right:8px; }
   .header a:hover { color:white; }
@@ -1278,10 +1279,10 @@ function getDashboardHTML(transactions, tc) {
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>The Kumler Group — Transaction Hub</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27><circle cx=%2750%27 cy=%2750%27 r=%2748%27 fill=%27%23CB2CFB%27/><path d=%27M28 52 50 34 72 52%27 stroke=%27white%27 stroke-width=%278%27 fill=%27none%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27/><path d=%27M34 50 V74 H66 V50%27 stroke=%27white%27 stroke-width=%278%27 fill=%27none%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27/></svg>">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   * { box-sizing:border-box; margin:0; padding:0; }
-  body { font-family:'Inter',-apple-system,Helvetica,sans-serif; background:#f2f5f9; color:#1c2733; }
+  body { font-family:'Outfit',-apple-system,Helvetica,sans-serif; background:#f2f5f9; color:#1c2733; }
   .header { background:linear-gradient(120deg,#3d0d52,#66187E 55%,#a21caf 135%); color:white; padding:15px 32px; display:flex; align-items:center; justify-content:space-between; }
   .header h1 { font-size:20px; font-weight:700; }
   .header p { font-size:13px; color:#cba8e0; margin-top:2px; }
@@ -1760,10 +1761,10 @@ function getTCSelectHTML() {
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>The Kumler Group — Transaction Hub</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27><circle cx=%2750%27 cy=%2750%27 r=%2748%27 fill=%27%23CB2CFB%27/><path d=%27M28 52 50 34 72 52%27 stroke=%27white%27 stroke-width=%278%27 fill=%27none%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27/><path d=%27M34 50 V74 H66 V50%27 stroke=%27white%27 stroke-width=%278%27 fill=%27none%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27/></svg>">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   * { box-sizing:border-box; margin:0; padding:0; }
-  body { font-family:'Inter',-apple-system,Helvetica,sans-serif; background:#fdfbfe; color:#1c1524; min-height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center; padding:30px 0; }
+  body { font-family:'Outfit',-apple-system,Helvetica,sans-serif; background:#fdfbfe; color:#1c1524; min-height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center; padding:30px 0; }
   .logo { text-align:center; padding:0 20px; }
   .logo img { max-width:min(380px,84vw); height:auto; }
   .sub { text-align:center; font-size:14px; font-weight:400; color:#7a6d85; margin-top:22px; }
