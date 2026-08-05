@@ -497,11 +497,11 @@ function getHTML(transaction, id, tc, related = []) {
 
   .info-card { background:white; margin:20px auto; max-width:1100px; padding:0 16px; }
   .info-grid { background:white; border-radius:10px; box-shadow:0 1px 4px rgba(0,0,0,.07);
-               display:grid; grid-template-columns:repeat(auto-fill,minmax(165px,1fr)); gap:0;
+               display:grid; grid-template-columns:repeat(auto-fill,minmax(205px,1fr)); gap:0;
                overflow:hidden; border:1px solid #e0e4f0; }
   .info-field { padding:4px 10px; border-right:1px solid #e0e4f0; border-bottom:1px solid #e0e4f0; }
   .info-field.highlight { background:#faf0ff; }
-  .info-label { font-size:9.5px; font-weight:600; text-transform:uppercase; color:#8a7d95; letter-spacing:.08em; margin-bottom:2px; }
+  .info-label { font-size:9.5px; font-weight:600; text-transform:uppercase; color:#8a7d95; letter-spacing:.06em; margin-bottom:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .info-input { width:100%; border:none; font-size:13px; font-weight:500; color:#1c1524; background:transparent;
                 outline:none; font-family:inherit; }
   .info-input:focus { color:#9333ea; border-color:#CB2CFB; box-shadow:0 0 0 3px rgba(203,44,251,.14); border-radius:6px; }
