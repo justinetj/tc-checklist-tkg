@@ -291,7 +291,10 @@ const UC_START = LISTING_ITEMS.findIndex(i => i.section === "Under Contract");
 const LISTING_UC_ITEMS = LISTING_ITEMS.slice(UC_START);
 const txnItems = t => t.type === "buyer" ? BUYER_ITEMS
   : t.type === "buyer-new-build" ? BUYER_NEW_BUILD_ITEMS
-  : t.type === "listing-uc" ? LISTING_UC_ITEMS : LISTING_ITEMS;
+  : t.type === "listing-uc" ? LISTING_UC_ITEMS
+  // A listing that has gone Under Contract carries just the escrow phases,
+  // exactly like a Listing Escrow intake (pre-UC checkmarks stay in the data)
+  : (t.type === "listing" && t.fields?.ucDate) ? LISTING_UC_ITEMS : LISTING_ITEMS;
 
 // Contract acceptance and COE can never fall on a weekend — returns the
 // offending day name, or null if the date is fine/absent.
