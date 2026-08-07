@@ -1345,8 +1345,8 @@ function getDashboardHTML(transactions, tc) {
   .open-btn:hover { transform:scale(1.06); background:#CB2CFB !important; }
   .shd { display:flex; align-items:center; gap:9px; border-radius:10px; margin-bottom:6px; padding:7px 14px; font-size:12.5px; font-weight:600; text-transform:uppercase; letter-spacing:.06em; color:white; }
   .shd:has(+ .card) { border-radius:14px 14px 0 0; margin-bottom:0; }
-  .shd-purple { background:#CB2CFB; } .shd-red { background:#dc2626; } .shd-green { background:#15803d; }
-  .shd-blue { background:#66187E; } .shd-gray { background:#6b7280; }
+  .shd-purple { background:linear-gradient(120deg,#8b21a8,#CB2CFB 70%,#e05df7 140%); } .shd-red { background:#dc2626; } .shd-green { background:#15803d; }
+  .shd-blue { background:#66187E; } .shd-gray { background:#eceaf0 !important; color:#6b6477 !important; }
   .shd-green { background:linear-gradient(120deg,#0c4a26,#15803d 60%,#1fa04e 135%) !important; }
   .dashboard-layout { display:flex; gap:20px; align-items:flex-start; }
   .dashboard-main { flex:1; min-width:0; }
