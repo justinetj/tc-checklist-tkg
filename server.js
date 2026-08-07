@@ -620,27 +620,35 @@ ${(!isListing && !contractDate) ? `<div style="margin:12px 32px 0;background:#ff
     </div>
   </div>
   <div class="info-grid">
-    ${(isListing ? [
+    ${(() => { const preUC = isListing && !fields.ucDate; return (isListing ? [
       ["Property Address", "address", "text", false],
-      ["Employment Agreement Date", "contractDate", "date", true],
-      ["Listing Start Date", "listingStartDate", "date", true],
-      ["Listing Expiration Date", "listingExpDate", "date", true],
       ["Client Name", "clientName", "text", false],
-      ["Under Contract Date", "ucDate", "date", true],
-      ["Close of Escrow (COE)", "closeDate", "date", true],
+      ["Employment Agreement Date", "contractDate", "date", preUC],
+      ["Listing Start Date", "listingStartDate", "date", preUC],
+      ["Listing Expiration Date", "listingExpDate", "date", preUC],
+      ["Under Contract Date", "ucDate", "date", !preUC],
+      ["Close of Escrow (COE)", "closeDate", "date", !preUC],
+      ["BINSR Due (Day 10)", "__binsr", "date", false],
       ["Sales Price", "salesPrice", "text", false],
       ["Commission Amount", "commissionAmount", "text", false],
     ] : transaction.type === "buyer-new-build" ? [
       ["Property Address", "address", "text", false],
+      ["Client Name", "clientName", "text", false],
       ["Contract Date — Day 0", "contractDate", "date", true],
       ["Close of Escrow Date (COE)", "closeDate", "date", true],
-      ["Client Name", "clientName", "text", false],
     ] : [
       ["Property Address", "address", "text", false],
+      ["Client Name", "clientName", "text", false],
       ["Contract Date — Day 0", "contractDate", "date", true],
       ["Close of Escrow Date (COE)", "closeDate", "date", true],
-      ["Client Name", "clientName", "text", false],
-    ]).map(([label, key, type, hi]) => `
+      ["BINSR Due (Day 10)", "__binsr", "date", false],
+    ]); })().map(([label, key, type, hi]) => key === '__binsr' ? `
+      <div class="info-field">
+        <div class="info-label">${label}</div>
+        <input id="binsrDue" class="info-input" type="date" placeholder="—"
+        value="${(() => { if (isListing && !fields.ucDate) return ''; if (fields.binsrDue) return fields.binsrDue; const base = isListing ? fields.ucDate : fields.contractDate; if (!base) return ''; const d = new Date(base + 'T12:00:00'); if (isNaN(d.getTime())) return ''; d.setDate(d.getDate() + 10); return d.toISOString().slice(0,10); })()}"
+        onchange="saveField('binsrDue', this.value)">
+      </div>` : `
       <div class="info-field${hi ? ' highlight' : ''}"${key === 'address' ? ' style="grid-column:span 2"' : ''}>
         <div class="info-label">${label}</div>
         ${key === 'address'
@@ -689,13 +697,6 @@ ${(!isListing && !contractDate) ? `<div style="margin:12px 32px 0;background:#ff
       <div class="info-label">${r.label}</div>
       <a href="/t/${r.id}?tc=${encodeURIComponent(tc)}" style="font-size:14px;color:#4a1160;font-weight:600;text-decoration:none">→ ${r.text}</a>
     </div>`).join('')}
-    ${transaction.type !== 'buyer-new-build' ? `<div class="info-field" style="background:#fff7ed">
-      <div class="info-label">BINSR Due (Day 10)</div>
-      <input id="binsrDue" class="info-input" type="date" placeholder="—"
-        style="color:#b45309;font-weight:600"
-        value="${(() => { if (isListing && !fields.ucDate) return ''; if (fields.binsrDue) return fields.binsrDue; const base = isListing ? fields.ucDate : fields.contractDate; if (!base) return ''; const d = new Date(base + 'T12:00:00'); if (isNaN(d.getTime())) return ''; d.setDate(d.getDate() + 10); return d.toISOString().slice(0,10); })()}"
-        onchange="saveField('binsrDue', this.value)">
-    </div>` : ''}
   </div>
   ${isListing ? `
   <div style="font-size:11px;font-weight:600;text-transform:uppercase;color:#2e7d32;letter-spacing:.5px;margin:10px 0 4px"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M20.59 13.41 11 3.83A2 2 0 0 0 9.59 3.24H4a1 1 0 0 0-1 1v5.59a2 2 0 0 0 .59 1.41l9.58 9.59a2 2 0 0 0 2.83 0l4.59-4.59a2 2 0 0 0 0-2.83z"/><circle cx="7.5" cy="7.5" r=".5"/></svg> Listing Info</div>
