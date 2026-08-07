@@ -623,14 +623,9 @@ ${(!isListing && !contractDate) ? `<div style="margin:12px 32px 0;background:#ff
     ${(() => { const preUC = isListing && !fields.ucDate; return (isListing ? [
       ["Property Address", "address", "text", false],
       ["Client Name", "clientName", "text", false],
-      ["Employment Agreement Date", "contractDate", "date", preUC],
-      ["Listing Start Date", "listingStartDate", "date", preUC],
-      ["Listing Expiration Date", "listingExpDate", "date", preUC],
       ["Under Contract Date", "ucDate", "date", !preUC],
       ["Close of Escrow (COE)", "closeDate", "date", !preUC],
       ["BINSR Due (Day 10)", "__binsr", "date", false],
-      ["Sales Price", "salesPrice", "text", false],
-      ["Commission Amount", "commissionAmount", "text", false],
     ] : transaction.type === "buyer-new-build" ? [
       ["Property Address", "address", "text", false],
       ["Client Name", "clientName", "text", false],
@@ -693,6 +688,19 @@ ${(!isListing && !contractDate) ? `<div style="margin:12px 32px 0;background:#ff
         <option value="Cinnamon Kumler"${(fields.tcName||'')==='Cinnamon Kumler'?' selected':''}>Cinnamon Kumler</option>
       </select>
     </div>
+    ${isListing ? (() => { const preUC = !fields.ucDate; return [
+      ["Employment Agreement Date", "contractDate", "date", preUC],
+      ["Listing Start Date", "listingStartDate", "date", preUC],
+      ["Listing Expiration Date", "listingExpDate", "date", preUC],
+      ["Sales Price", "salesPrice", "text", false],
+      ["Commission Amount", "commissionAmount", "text", false],
+    ].map(([label, key, type, hi]) => `
+      <div class="info-field${hi ? ' highlight' : ''}">
+        <div class="info-label">${label}</div>
+        <input class="info-input" type="${type}" placeholder="—" data-key="${key}"
+              value="${(key === 'salesPrice' ? fmtMoneySrv(fields[key]) : (fields[key] || '')).replace(/"/g, '&quot;')}"
+              onchange="saveField('${key}', ${key === 'salesPrice' ? 'fmtMoney(this)' : 'this.value'}, this)">
+      </div>`).join(''); })() : ''}
     ${(related || []).map(r => `<div class="info-field" style="background:#fef3c7">
       <div class="info-label">${r.label}</div>
       <a href="/t/${r.id}?tc=${encodeURIComponent(tc)}" style="font-size:14px;color:#4a1160;font-weight:600;text-decoration:none">→ ${r.text}</a>
