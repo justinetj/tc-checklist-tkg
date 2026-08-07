@@ -1338,7 +1338,7 @@ function getDashboardHTML(transactions, tc) {
   .tab-btn { background:transparent; border:1.5px solid transparent; color:#5b6b7f; font-weight:600; font-family:inherit; font-size:13px; padding:8px 18px; border-radius:8px; cursor:pointer; transition:transform .1s, border-color .1s, color .1s, box-shadow .1s; }
   .tab-btn:hover { color:#66187E; transform:translateY(-1px); border-color:#CB2CFB; box-shadow:0 4px 12px rgba(203,44,251,.18); }
   .tab-btn.on { background:#66187E; color:white; }
-  .tab-badge { background:#dc2626; color:white; border-radius:999px; padding:1px 8px; font-size:11px; margin-left:4px; }
+  .tab-badge { background:linear-gradient(135deg,#a21caf,#CB2CFB); color:white; border-radius:999px; padding:1px 9px; font-size:11px; font-weight:600; margin-left:5px; box-shadow:0 2px 8px rgba(203,44,251,.35); }
   .pcard { transition:transform .12s, box-shadow .12s; }
   .pcard:hover { transform:translateY(-2px); box-shadow:0 8px 22px rgba(102,24,126,.15) !important; }
   .open-btn { transition:transform .1s, background .12s; display:inline-block; }
@@ -1347,6 +1347,7 @@ function getDashboardHTML(transactions, tc) {
   .shd:has(+ .card) { border-radius:14px 14px 0 0; margin-bottom:0; }
   .shd-purple { background:#CB2CFB; } .shd-red { background:#dc2626; } .shd-green { background:#15803d; }
   .shd-blue { background:#66187E; } .shd-gray { background:#6b7280; }
+  .shd-green { background:linear-gradient(120deg,#0c4a26,#15803d 60%,#1fa04e 135%) !important; }
   .dashboard-layout { display:flex; gap:20px; align-items:flex-start; }
   .dashboard-main { flex:1; min-width:0; }
   .task-panel { width:260px; flex-shrink:0; position:sticky; top:16px; }
