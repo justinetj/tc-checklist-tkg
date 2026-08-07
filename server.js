@@ -1177,7 +1177,7 @@ function getDashboardHTML(transactions, tc) {
     return assigned === tc || assigned === '';
   };
 
-  function fmt(dateStr) { if (!dateStr) return '—'; const [y,m,d] = dateStr.split('-'); return `${m}/${d}/${y}`; }
+  function fmt(dateStr) { if (!dateStr) return '—'; const [y,m,d] = dateStr.split('-'); return `${+m}/${+d}/${y.slice(2)}`; }
   function streetOnly(a) {
     if (!a) return a;
     const parts = String(a).split(',').map(v => v.trim());
@@ -1230,7 +1230,7 @@ function getDashboardHTML(transactions, tc) {
       if (dueISO < todayStr) pastDue.push(item.label);
       else if (dueISO === todayStr) dueToday.push(item.label);
     }
-    const baseCompact = `<td style="font-size:12.5px;white-space:nowrap;font-weight:600;color:#1c1524">${streetOnly(t.address) || '(no address)'}</td><td style="font-size:11.5px;white-space:nowrap">${fields.clientName || t.clientName || '—'}</td><td style="font-size:11.5px;white-space:nowrap">${fields.agentPartner1 || '—'}</td><td style="font-size:11.5px;white-space:nowrap">${(fields.tcName || fields.lcName || '—').split(' ')[0]}</td>`;
+    const baseCompact = `<td style="font-size:12.5px;white-space:nowrap;font-weight:600;color:#1c1524">${(streetOnly(t.address) || '(no address)').toUpperCase()}</td><td style="font-size:11.5px;white-space:nowrap">${fields.clientName || t.clientName || '—'}</td><td style="font-size:11.5px;white-space:nowrap">${fields.agentPartner1 || '—'}</td><td style="font-size:11.5px;white-space:nowrap">${(fields.tcName || fields.lcName || '—').split(' ')[0]}</td>`;
     const rowStyle = dueToday.length && !pastDue.length
       ? 'border-left:4px solid #16a34a;background:#f0fdf4;'
       : pastDue.length ? 'border-left:4px solid #dc2626;' : '';
@@ -1304,7 +1304,7 @@ function getDashboardHTML(transactions, tc) {
         const fields = t.fields || {};
         const label = t.type === 'listing' || t.type === 'listing-uc' ? '🏡 Seller' : '🔑 Buyer';
         return `<tr onclick="window.location='/t/${id}?tc=${tc}'" style="cursor:pointer">
-          <td style="padding:3px 13px;font-size:12.5px;font-weight:600;color:#14532d">${t.address || '(no address)'}</td>
+          <td style="padding:3px 13px;font-size:12.5px;font-weight:600;color:#14532d">${(t.address || '(no address)').toUpperCase()}</td>
           <td style="padding:3px 8px;font-size:11.5px;color:#166534">${fields.clientName || t.clientName || '—'}</td>
           <td style="padding:3px 8px;font-size:10.5px"><span style="background:#dcfce7;color:#15803d;border-radius:8px;padding:1px 7px;font-weight:600">${label}</span></td>
           <td style="padding:3px 8px;font-size:11.5px;color:#166534">${fields.agentPartner1 || '—'}</td>
