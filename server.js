@@ -1020,11 +1020,7 @@ async function deleteManualTask(id) {
 }
 async function adminDeleteTxn() {
 function delGate(label) {
-  if (!confirm('Do you want to delete ' + label + '? This cannot be undone.')) return false;
-  const code = prompt('Enter your passcode to confirm:');
-  if (code === null) return false;
-  if (!['5211','0007','0070','0001','3315'].includes(code)) { alert('Incorrect passcode.'); return false; }
-  return true;
+  return confirm('Do you want to delete ' + label + '? This cannot be undone.');
 }
   if (!delGate('this file')) return;
   const r = await fetch('/api/transactions/' + TXN_ID, { method:'DELETE' });
@@ -1664,11 +1660,7 @@ ${popupTasks.length ? `
 <script>
 const IS_ADMIN = ${JSON.stringify(isAdmin)};
 function delGate(label) {
-  if (!confirm('Do you want to delete ' + label + '? This cannot be undone.')) return false;
-  const code = prompt('Enter your passcode to confirm:');
-  if (code === null) return false;
-  if (!['5211','0007','0070','0001','3315'].includes(code)) { alert('Incorrect passcode.'); return false; }
-  return true;
+  return confirm('Do you want to delete ' + label + '? This cannot be undone.');
 }
 async function adminDelete(id) {
   if (!delGate('this file')) return;
