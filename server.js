@@ -1234,7 +1234,7 @@ function getDashboardHTML(transactions, tc) {
     const rowStyle = dueToday.length && !pastDue.length
       ? 'border-left:4px solid #16a34a;background:#f0fdf4;'
       : pastDue.length ? 'border-left:4px solid #dc2626;' : '';
-    return `<tr onclick="window.location='/t/${id}?tc=${tc}'" style="cursor:pointer;${rowStyle}${isArchived?'opacity:0.7':''}">${baseCompact}${dateCols}${progress}${actions}</tr>`;
+    return `<tr onclick="window.location='/t/${id}?tc=${tc}'" style="cursor:pointer;${rowStyle}${isArchived?'opacity:0.7':''}">${baseCompact}${dateCols}${progress}</tr>`;
   }
 
   const todayISO   = todayAZ();
@@ -1265,12 +1265,12 @@ function getDashboardHTML(transactions, tc) {
   function makeTable(list, archived, mode) {
     if (list.length === 0) return '<div class="empty">None</div>';
     const headers = mode === 'uc'
-      ? `<th>Address</th><th>Client</th><th>Agent</th><th>TC</th><th>Under Contract</th><th>Closing Date</th><th>Progress</th><th>Actions</th>`
+      ? `<th>Address</th><th>Client</th><th>Agent</th><th>TC</th><th>Under Contract</th><th>Closing Date</th><th>Progress</th>`
       : mode === 'buyer'
-      ? `<th>Address</th><th>Client</th><th>Agent</th><th>TC</th><th>Under Contract</th><th>Closing Date</th><th>Progress</th><th>Actions</th>`
+      ? `<th>Address</th><th>Client</th><th>Agent</th><th>TC</th><th>Under Contract</th><th>Closing Date</th><th>Progress</th>`
       : mode === 'listing'
-      ? `<th>Address</th><th>Client</th><th>Agent</th><th>TC</th><th>Agreement</th><th>Start</th><th>Exp</th><th>Progress</th><th></th>`
-      : `<th>Address</th><th>Client</th><th>Agent</th><th>TC</th><th>Contract Date</th><th>Close Date</th><th>Progress</th><th>Actions</th>`;
+      ? `<th>Address</th><th>Client</th><th>Agent</th><th>TC</th><th>Agreement</th><th>Start</th><th>Exp</th><th>Progress</th>`
+      : `<th>Address</th><th>Client</th><th>Agent</th><th>TC</th><th>Contract Date</th><th>Close Date</th><th>Progress</th>`;
     return `<div style="overflow-x:auto"><table><thead><tr>${headers}</tr></thead><tbody>${list.map(([id,t]) => makeRow(id,t,archived,mode)).join('')}</tbody></table></div>`;
   }
 
