@@ -246,52 +246,44 @@ const LISTING_ITEMS = [
   { id: "lu7", section: "Day 5",                       day: "Day 5",  label: "CLUE sent to buyer's agent" },
   { id: "lu8", section: "Day 5",                       day: "Day 5",  label: "Update seller" },
   { id: "lu9", section: "Day 5",                       day: "Day 5",  label: "Send seller ABD" },
-  // Day 7
-  { id: "l34", section: "Day 7",                       day: "Day 7",  label: "BINSR received from buyer — send to seller" },
-  { id: "l35", section: "Day 7",                       day: "Day 7",  label: "Follow up with agent regarding BINSR response" },
-  // Day 9
-  { id: "lu10", section: "Day 9",                      day: "Day 9",  label: "Second BINSR follow up if needed" },
   // Day 10
   { id: "l37", section: "Day 10",                      day: "Day 10", label: "Inspection period complete" },
   { id: "l36", section: "Day 10",                      day: "Day 10", label: "BINSR #1 Due", hasDue: true },
   { id: "lu11", section: "Day 10",                     day: "Day 10", label: "Request LSU #1" },
   { id: "l38", section: "Day 10",                      day: "Day 10", label: "Request title commitment from title company" },
   // Day 12
-  { id: "lu12", section: "Day 12",                     day: "Day 12", label: "BINSR #2 due (5 days after #1)", hasDue: true },
+  { id: "l35", section: "Day 12",                      day: "Day 12", label: "Follow up with agent regarding BINSR response" },
   { id: "lu13", section: "Day 12",                     day: "Day 12", label: "Update seller" },
+  // Day 13
+  { id: "lu10", section: "Day 13",                     day: "Day 13", label: "Second BINSR follow up if needed" },
   // Day 15
   { id: "l39", section: "Day 15",                      day: "Day 15", label: "Appraisal appointment confirmed" },
-  { id: "lu14", section: "Day 15",                     day: "Day 15", label: "Follow up with agent regarding BINSR #3", hasDue: true },
-  { id: "lu15", section: "Day 15",                     day: "Day 15", label: "Change FUB status to Appraisal Contingency", indent: true },
   { id: "l40b", section: "Day 15",                     day: "Day 15", label: "Seller response to BINSR due", hasDue: true },
   { id: "l40", section: "Day 15",                      day: "Day 15", label: "Confirm any agreed repairs are scheduled" },
   // Day 17
   { id: "lu16", section: "Day 17",                     day: "Day 17", label: "Request LSU #2" },
   { id: "lu17", section: "Day 17",                     day: "Day 17", label: "BINSR #3 due (5 days after BINSR #2)", hasDue: true },
+  { id: "lu15", section: "Day 17",                     day: "Day 17", label: "Change FUB status to Appraisal Contingency", indent: true },
   // Day 19
   { id: "lu18", section: "Day 19",                     day: "Day 19", label: "Update seller" },
   // Day 22
   { id: "l41", section: "Day 22",                      day: "Day 22", label: "Appraisal received — confirm value", hasDue: true },
   { id: "lu19", section: "Day 22",                     day: "Day 22", label: "Change FUB status to Loan Contingency", indent: true },
-  { id: "l42", section: "Day 22",                      day: "Day 22", label: "Buyer loan approval confirmed" },
-  { id: "l43", section: "Day 22",                      day: "Day 22", label: "Confirm all repairs are complete" },
   // Day 24
   { id: "lu20", section: "Day 24",                     day: "Day 24", label: "Request LSU #3" },
   // Day 26
   { id: "lu21", section: "Day 26",                     day: "Day 26", label: "Update seller" },
-  // COE -10
-  { id: "l44", section: "COE -10 Days",                day: "COE -10", label: "Confirm home warranty — ordered & who pays" },
-  { id: "l45", section: "COE -10 Days",                day: "COE -10", label: "Mortgage payoff ordered by title" },
-  // COE -5
-  { id: "l46", section: "COE -5 Days",                 day: "COE -5", label: "CDA sent to title" },
-  { id: "l47", section: "COE -5 Days",                 day: "COE -5", label: "Loan approval received / confirmed" },
-  // COE -4
-  { id: "l49", section: "COE -4 Days",                 day: "COE -4", label: "Did final walkthrough happen?" },
+  // COE -7
+  { id: "lu23", section: "COE -7 Days",                day: "COE -7", label: "Seller scheduled to sign" },
+  // COE -6
+  { id: "lu24", section: "COE -6 Days",                day: "COE -6", label: "Make sure SkySlope is complete" },
   // COE -3
   { id: "l50", section: "COE -3 Days",                 day: "COE -3", label: "Confirm all repairs are complete" },
-  { id: "l51", section: "COE -3 Days",                 day: "COE -3", label: "Docs to title" },
-  { id: "l52", section: "COE -3 Days",                 day: "COE -3", label: "Utilities cancellation scheduled by seller" },
+  { id: "l46", section: "COE -3 Days",                 day: "COE -3", label: "CDA sent to title" },
+  { id: "l51", section: "COE -3 Days",                 day: "COE -3", label: "Docs to title / Clear to close" },
   { id: "lu22", section: "COE -3 Days",                day: "COE -3", label: "Est. Settlement statement" },
+  // COE -1
+  { id: "l49", section: "COE -1 Day",                  day: "COE -1", label: "Ask for walk through" },
   // COE — Close of Escrow
   { id: "l53",  section: "COE — Close of Escrow",      day: "COE",    label: "Recording confirmed" },
   { id: "l53a", section: "COE — Close of Escrow",      day: "COE",    label: "Final SS / copy of check" },
@@ -307,6 +299,7 @@ const LISTING_ITEMS = [
   { id: "l55c", section: "COE — Close of Escrow",      day: "COE",    label: "Reconfirm closing date", indent: true },
   { id: "l56",  section: "COE — Close of Escrow",      day: "COE",    label: "Update MLS status → Sold" },
   { id: "l57",  section: "COE — Close of Escrow",      day: "COE",    label: "Update Zillow status → Sold" },
+  { id: "lu25", section: "COE — Close of Escrow",      day: "COE",    label: "Schedule sign/lockbox pick up" },
   { id: "l58",  section: "COE — Close of Escrow",      day: "COE",    label: "Move file to close" },
   { id: "l59",  section: "COE — Close of Escrow",      day: "COE",    label: "Commission settled" },
 ];
