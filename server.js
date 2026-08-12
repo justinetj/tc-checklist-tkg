@@ -206,6 +206,9 @@ const LISTING_ITEMS = [
   { id: "l60", section: "Day 0 — Listing Setup",       day: "Day 0",  label: "Input MLS listing" },
   { id: "l60a", section: "Day 0 — Listing Setup",      day: "Day 0",  label: "All information correct", indent: true },
   { id: "l60b", section: "Day 0 — Listing Setup",      day: "Day 0",  label: "Photos uploaded", indent: true },
+  { id: "l61",  section: "Day 0 — Listing Setup",      day: "Day 0",  label: "Create SkySlope file with all required documents" },
+  { id: "l61a", section: "Day 0 — Listing Setup",      day: "Day 0",  label: "MLS listing", indent: true },
+  { id: "l61b", section: "Day 0 — Listing Setup",      day: "Day 0",  label: "Tax record printout", indent: true },
   { id: "l12", section: "Day 0 — Listing Setup",       day: "Day 0",  label: "Send intro email to all parties" },
   // Day 1
   { id: "l13", section: "Day 1",                       day: "Day 1",  label: "Photos received & approved" },
@@ -259,7 +262,6 @@ const LISTING_ITEMS = [
   // Day 15
   { id: "l39", section: "Day 15",                      day: "Day 15", label: "Appraisal appointment confirmed" },
   { id: "l40b", section: "Day 15",                     day: "Day 15", label: "Seller response to BINSR due", hasDue: true },
-  { id: "l40", section: "Day 15",                      day: "Day 15", label: "Confirm any agreed repairs are scheduled" },
   // Day 17
   { id: "lu16", section: "Day 17",                     day: "Day 17", label: "Request LSU #2" },
   { id: "lu17", section: "Day 17",                     day: "Day 17", label: "BINSR #3 due (5 days after BINSR #2)", hasDue: true },
