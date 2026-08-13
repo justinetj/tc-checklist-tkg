@@ -1256,6 +1256,20 @@ function getDashboardHTML(transactions, tc) {
   const cancelled  = sorted.filter(([,t]) => t.status === "cancelled");
   // Active transactions whose close date has already passed but aren't marked closed.
   const needsAttention = sorted.filter(([,t]) => (!t.status || t.status === "active") && t.fields?.closeDate && t.fields.closeDate < todayISO);
+  const azNow = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Phoenix' }));
+  const wkMon = new Date(azNow); wkMon.setHours(0,0,0,0); wkMon.setDate(wkMon.getDate() - ((azNow.getDay() + 6) % 7));
+  const wkNext = new Date(wkMon); wkNext.setDate(wkNext.getDate() + 7);
+  const wkPrev = new Date(wkMon); wkPrev.setDate(wkPrev.getDate() - 7);
+  const inWin = (ts, a, b) => ts >= a.getTime() && ts < b.getTime();
+  const isEscrowT = x => x.type === 'buyer' || x.type === 'buyer-new-build' || x.type === 'listing-uc';
+  const wkStats = {
+    escNow:  allEntries.filter(([,x]) => isEscrowT(x) && x.createdAt && inWin(x.createdAt, wkMon, wkNext)).length,
+    escPrev: allEntries.filter(([,x]) => isEscrowT(x) && x.createdAt && inWin(x.createdAt, wkPrev, wkMon)).length,
+    lisNow:  allEntries.filter(([,x]) => x.type === 'listing' && x.createdAt && inWin(x.createdAt, wkMon, wkNext)).length,
+    lisPrev: allEntries.filter(([,x]) => x.type === 'listing' && x.createdAt && inWin(x.createdAt, wkPrev, wkMon)).length,
+  };
+  const wkArrow = (cur, prev) => cur > prev ? '<span style="color:#CB2CFB;font-size:15px">▲</span>' : cur < prev ? '<span style="color:#b3a6bf;font-size:15px">▼</span>' : '<span style="color:#b3a6bf;font-size:15px">—</span>';
+  const wkLabel = wkMon.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' }) + ' – ' + new Date(wkNext.getTime() - 86400000).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' });
 
   function makeTable(list, archived, mode) {
     if (list.length === 0) return '<div class="empty">None</div>';
@@ -1396,6 +1410,16 @@ function getDashboardHTML(transactions, tc) {
       <button class="tab-btn" data-for="listings" onclick="showTab('listings')"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M20.59 13.41 11 3.83A2 2 0 0 0 9.59 3.24H4a1 1 0 0 0-1 1v5.59a2 2 0 0 0 .59 1.41l9.58 9.59a2 2 0 0 0 2.83 0l4.59-4.59a2 2 0 0 0 0-2.83z"/><circle cx="7.5" cy="7.5" r=".5"/></svg> Listings (${listings.length})</button>
     </div>
     <div data-tab="dash">
+    <div style="display:flex;gap:12px;margin-bottom:14px;flex-wrap:wrap">
+      <div style="flex:1;min-width:220px;background:white;border:1.5px solid #eadef0;border-radius:12px;padding:12px 18px;box-shadow:0 2px 10px rgba(102,24,126,.06)">
+        <div style="font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#8a7d95">New Escrows This Week <span style="font-weight:400;text-transform:none;letter-spacing:0;color:#b3a6bf">· Mon–Sun ${wkLabel}</span></div>
+        <div style="display:flex;align-items:baseline;gap:10px;margin-top:3px"><span style="font-size:26px;font-weight:600;color:#66187E">${wkStats.escNow}</span>${wkArrow(wkStats.escNow, wkStats.escPrev)}<span style="font-size:12px;color:#8a7d95">last week ${wkStats.escPrev}</span></div>
+      </div>
+      <div style="flex:1;min-width:220px;background:white;border:1.5px solid #eadef0;border-radius:12px;padding:12px 18px;box-shadow:0 2px 10px rgba(102,24,126,.06)">
+        <div style="font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#8a7d95">New Listings This Week <span style="font-weight:400;text-transform:none;letter-spacing:0;color:#b3a6bf">· Mon–Sun ${wkLabel}</span></div>
+        <div style="display:flex;align-items:baseline;gap:10px;margin-top:3px"><span style="font-size:26px;font-weight:600;color:#66187E">${wkStats.lisNow}</span>${wkArrow(wkStats.lisNow, wkStats.lisPrev)}<span style="font-size:12px;color:#8a7d95">last week ${wkStats.lisPrev}</span></div>
+      </div>
+    </div>
     ${needsAttention.length + pending.length + closingToday.length === 0 ? `<div style="display:flex;align-items:center;gap:10px;padding:11px 18px;background:linear-gradient(120deg,#3d0d52,#66187E 55%,#a21caf 135%);border-radius:10px;margin-bottom:14px">
       <span style="width:8px;height:8px;border-radius:50%;background:#CB2CFB;box-shadow:0 0 0 3px rgba(255,255,255,.25)"></span>
       <span style="font-size:13px;color:white;font-weight:500">All clear — no pending intakes, closings, or overdue files today</span>
