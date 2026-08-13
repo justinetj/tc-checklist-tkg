@@ -1262,12 +1262,19 @@ function getDashboardHTML(transactions, tc) {
   const wkPrev = new Date(wkMon); wkPrev.setDate(wkPrev.getDate() - 7);
   const inWin = (ts, a, b) => ts >= a.getTime() && ts < b.getTime();
   const isEscrowT = x => x.type === 'buyer' || x.type === 'buyer-new-build' || x.type === 'listing-uc';
+  const wkRow = ([,x]) => ({ address: (x.fields?.address || x.address || '(no address)').toUpperCase(), agent: x.fields?.agentPartner1 || '—' });
+  const escNowList = allEntries.filter(([,x]) => isEscrowT(x) && x.createdAt && inWin(x.createdAt, wkMon, wkNext)).map(wkRow);
+  const lisNowList = allEntries.filter(([,x]) => x.type === 'listing' && x.createdAt && inWin(x.createdAt, wkMon, wkNext)).map(wkRow);
   const wkStats = {
-    escNow:  allEntries.filter(([,x]) => isEscrowT(x) && x.createdAt && inWin(x.createdAt, wkMon, wkNext)).length,
+    escNow:  escNowList.length,
     escPrev: allEntries.filter(([,x]) => isEscrowT(x) && x.createdAt && inWin(x.createdAt, wkPrev, wkMon)).length,
-    lisNow:  allEntries.filter(([,x]) => x.type === 'listing' && x.createdAt && inWin(x.createdAt, wkMon, wkNext)).length,
+    lisNow:  lisNowList.length,
     lisPrev: allEntries.filter(([,x]) => x.type === 'listing' && x.createdAt && inWin(x.createdAt, wkPrev, wkMon)).length,
   };
+  const wkList = (rows, id) => rows.length ? `<div id="${id}" style="display:none;margin-top:10px;border-top:1px solid #f1ecf5;padding-top:6px">${rows.map(r =>
+    `<div style="display:flex;justify-content:space-between;gap:10px;padding:5px 6px;font-size:12px;border-bottom:1px solid #f7f3fa;transition:background .14s ease" onmouseover="this.style.background='#faf0fe';this.style.boxShadow='inset 3px 0 0 #CB2CFB'" onmouseout="this.style.background='';this.style.boxShadow=''">
+      <span style="font-weight:600;color:#1c1524">${r.address}</span><span style="color:#66187E;font-weight:600;white-space:nowrap">${r.agent}</span>
+    </div>`).join('')}</div>` : '';
   const wkArrow = (cur, prev) => cur > prev ? '<span style="color:#CB2CFB;font-size:15px">▲</span>' : cur < prev ? '<span style="color:#b3a6bf;font-size:15px">▼</span>' : '<span style="color:#b3a6bf;font-size:15px">—</span>';
   const wkLabel = wkMon.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' }) + ' – ' + new Date(wkNext.getTime() - 86400000).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' });
 
@@ -1411,13 +1418,15 @@ function getDashboardHTML(transactions, tc) {
     </div>
     <div data-tab="dash">
     <div style="display:flex;gap:12px;margin-bottom:14px;flex-wrap:wrap">
-      <div style="flex:1;min-width:220px;background:white;border:1.5px solid #eadef0;border-radius:12px;padding:12px 18px;box-shadow:0 2px 10px rgba(102,24,126,.06)">
-        <div style="font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#8a7d95">New Escrows This Week <span style="font-weight:400;text-transform:none;letter-spacing:0;color:#b3a6bf">· Mon–Sun ${wkLabel}</span></div>
+      <div style="flex:1;min-width:220px;background:white;border:1.5px solid #eadef0;border-radius:12px;padding:12px 18px;box-shadow:0 2px 10px rgba(102,24,126,.06);${wkStats.escNow ? 'cursor:pointer' : ''}" ${wkStats.escNow ? `onclick="const l=document.getElementById('wk-esc');l.style.display=l.style.display==='none'?'':'none';document.getElementById('wk-esc-car').textContent=l.style.display==='none'?'▾':'▴'"` : ''}>
+        <div style="font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#8a7d95">New Escrows This Week <span style="font-weight:400;text-transform:none;letter-spacing:0;color:#b3a6bf">· Mon–Sun ${wkLabel}</span>${wkStats.escNow ? ` <span id="wk-esc-car" style="float:right;color:#CB2CFB">▾</span>` : ''}</div>
         <div style="display:flex;align-items:baseline;gap:10px;margin-top:3px"><span style="font-size:26px;font-weight:600;color:#66187E">${wkStats.escNow}</span>${wkArrow(wkStats.escNow, wkStats.escPrev)}<span style="font-size:12px;color:#8a7d95">last week ${wkStats.escPrev}</span></div>
+        ${wkList(escNowList, 'wk-esc')}
       </div>
-      <div style="flex:1;min-width:220px;background:white;border:1.5px solid #eadef0;border-radius:12px;padding:12px 18px;box-shadow:0 2px 10px rgba(102,24,126,.06)">
-        <div style="font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#8a7d95">New Listings This Week <span style="font-weight:400;text-transform:none;letter-spacing:0;color:#b3a6bf">· Mon–Sun ${wkLabel}</span></div>
+      <div style="flex:1;min-width:220px;background:white;border:1.5px solid #eadef0;border-radius:12px;padding:12px 18px;box-shadow:0 2px 10px rgba(102,24,126,.06);${wkStats.lisNow ? 'cursor:pointer' : ''}" ${wkStats.lisNow ? `onclick="const l=document.getElementById('wk-lis');l.style.display=l.style.display==='none'?'':'none';document.getElementById('wk-lis-car').textContent=l.style.display==='none'?'▾':'▴'"` : ''}>
+        <div style="font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#8a7d95">New Listings This Week <span style="font-weight:400;text-transform:none;letter-spacing:0;color:#b3a6bf">· Mon–Sun ${wkLabel}</span>${wkStats.lisNow ? ` <span id="wk-lis-car" style="float:right;color:#CB2CFB">▾</span>` : ''}</div>
         <div style="display:flex;align-items:baseline;gap:10px;margin-top:3px"><span style="font-size:26px;font-weight:600;color:#66187E">${wkStats.lisNow}</span>${wkArrow(wkStats.lisNow, wkStats.lisPrev)}<span style="font-size:12px;color:#8a7d95">last week ${wkStats.lisPrev}</span></div>
+        ${wkList(lisNowList, 'wk-lis')}
       </div>
     </div>
     ${needsAttention.length + pending.length + closingToday.length === 0 ? `<div style="display:flex;align-items:center;gap:10px;padding:11px 18px;background:linear-gradient(120deg,#3d0d52,#66187E 55%,#a21caf 135%);border-radius:10px;margin-bottom:14px">
