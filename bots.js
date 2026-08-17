@@ -59,15 +59,28 @@ function botLoginPage(err) {
 }
 
 // ── AI bot tracker (FUB) ─────────────────────────────────────────────────────
-function fubKey() {
+// Key comes from the env var if one is set, otherwise from bot_store in the
+// database. The database is the deployed path: it saves hand-editing env vars
+// on a service where a mistyped key name takes the whole checklist down.
+// The local file is the last resort, for running on Justine's Mac.
+let fubKeyCache = null;
+async function fubKey() {
   if (process.env.FUB_API_KEY) return process.env.FUB_API_KEY;
+  if (fubKeyCache) return fubKeyCache;
+  try {
+    await botDb();
+    const r = await pool.query(`SELECT value FROM bot_store WHERE key = 'fubKey'`);
+    const v = r.rows[0]?.value;
+    const k = typeof v === "string" ? v : v?.key;
+    if (k) { fubKeyCache = k; return k; }
+  } catch {}
   try {
     const cfg = JSON.parse(fs.readFileSync("/Users/justine/Claude/realtor-lead-guard/config.json", "utf8"));
     return cfg.apiKey || "";
   } catch { return ""; }
 }
 async function fubGet(p) {
-  const auth = "Basic " + Buffer.from(fubKey() + ":").toString("base64");
+  const auth = "Basic " + Buffer.from((await fubKey()) + ":").toString("base64");
   const r = await fetch("https://api.followupboss.com/v1/" + p, { headers: { Authorization: auth } });
   if (!r.ok) throw new Error("FUB " + r.status);
   return r.json();
