@@ -1852,15 +1852,51 @@ function getTCSelectHTML() {
   .tc-name { font-size:15px; font-weight:600; color:#1c1524; }
   .tc-role { font-size:12px; color:#8a7d95; margin-top:3px; font-weight:400; }
   .foot { text-align:center; padding:16px; font-size:10.5px; font-weight:500; letter-spacing:.14em; text-transform:uppercase; color:#c3b5cd; }
+  /* Passcode card — replaces the browser's prompt() */
+  .pad-wrap { position:fixed; inset:0; background:rgba(28,21,36,.32); backdrop-filter:blur(2px); display:none; align-items:center; justify-content:center; padding:20px; z-index:50; }
+  .pad { background:white; border:1.5px solid #eadef0; border-radius:16px; box-shadow:0 18px 50px rgba(102,24,126,.22); padding:30px 28px; width:100%; max-width:330px; text-align:center; }
+  .pad h2 { font-size:16px; font-weight:600; color:#1c1524; }
+  .pad p { font-size:12.5px; color:#8a7d95; margin-top:6px; font-weight:400; }
+  .pad input { width:100%; margin-top:18px; padding:11px 14px; font-family:inherit; font-size:15px; text-align:center; letter-spacing:.3em; border:1.5px solid #eadef0; border-radius:10px; outline:none; color:#1c1524; }
+  .pad input:focus { border-color:#CB2CFB; }
+  .pad button { width:100%; margin-top:12px; padding:11px; font-family:inherit; font-size:13px; font-weight:600; color:white; background:linear-gradient(135deg,#66187E,#CB2CFB); border:0; border-radius:10px; cursor:pointer; }
+  .pad .cancel { margin-top:10px; background:none; color:#8a7d95; font-weight:500; }
+  .pad .err { margin-top:14px; font-size:12px; font-weight:600; color:#b3005c; }
 </style>
 <script>
 const TC_PASSCODES = { 'Joana Guzman': '5211', 'Cinnamon Kumler': '0007', 'Scott Kumler': '0070' };
+// Styled passcode card, in place of the browser's prompt(). onOk gets the code
+// and returns false to report a wrong one without closing.
+function askPasscode(who, onOk) {
+  const pad = document.getElementById('pad');
+  const input = document.getElementById('pad-input');
+  const err = document.getElementById('pad-err');
+  document.getElementById('pad-who').textContent = who;
+  err.style.display = 'none';
+  input.value = '';
+  pad.style.display = 'flex';
+  setTimeout(() => input.focus(), 30);
+  pad.dataset.pending = '1';
+  pad._submit = () => {
+    if (onOk(input.value) === false) {
+      err.style.display = '';
+      input.value = '';
+      input.focus();
+    }
+  };
+}
+function padClose() {
+  const pad = document.getElementById('pad');
+  pad.style.display = 'none';
+  pad.dataset.pending = '';
+}
 function tcLogin(name) {
   const required = TC_PASSCODES[name];
   if (!required) { window.location.href = '/?tc=' + encodeURIComponent(name); return; }
-  const code = prompt('Enter passcode:');
-  if (code === required) { window.location.href = '/?tc=' + encodeURIComponent(name); }
-  else if (code !== null) { alert('Incorrect passcode.'); }
+  askPasscode(name.split(' ')[0], code => {
+    if (code !== required) return false;
+    window.location.href = '/?tc=' + encodeURIComponent(name);
+  });
 }
 // Justine and Scott get a second screen first: AI Assistants or Transaction Hub.
 // Passcodes stay on the Transaction Hub side; the bot tracker gates itself.
@@ -1882,10 +1918,17 @@ function choiceHub() {
   else if (choiceFor) tcLogin(choiceFor);
 }
 function adminLogin() {
-  const code = prompt('Enter passcode:');
-  if (code === '0001') { window.location.href = '/?tc=admin'; }
-  else if (code !== null) { alert('Incorrect passcode.'); }
+  askPasscode('Justine', code => {
+    if (code !== '0001') return false;
+    window.location.href = '/?tc=admin';
+  });
 }
+document.addEventListener('keydown', e => {
+  const pad = document.getElementById('pad');
+  if (!pad || pad.dataset.pending !== '1') return;
+  if (e.key === 'Enter') { e.preventDefault(); pad._submit(); }
+  if (e.key === 'Escape') padClose();
+});
 </script>
 </head>
 <body>
@@ -1929,6 +1972,16 @@ function adminLogin() {
     </a>
   </div>
   <a href="javascript:void(0)" onclick="backToPicker()" style="margin-top:30px;font-size:12px;font-weight:600;color:#66187E;text-decoration:none;border:1px solid #eadef0;border-radius:99px;padding:8px 20px;background:white">← Back</a>
+</div>
+<div class="pad-wrap" id="pad" onclick="if(event.target===this)padClose()">
+  <div class="pad">
+    <h2 id="pad-who">Passcode</h2>
+    <p>Enter your passcode to continue.</p>
+    <input id="pad-input" type="password" inputmode="numeric" autocomplete="off">
+    <button type="button" onclick="document.getElementById('pad')._submit()">Continue</button>
+    <button type="button" class="cancel" onclick="padClose()">Cancel</button>
+    <div class="err" id="pad-err" style="display:none">Incorrect passcode.</div>
+  </div>
 </div>
 </body></html>`;
 }
