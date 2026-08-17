@@ -235,6 +235,10 @@ export function handleBots(req, res) {
         const mon = new Date(azNow); mon.setHours(0, 0, 0, 0); mon.setDate(mon.getDate() - ((azNow.getDay() + 6) % 7));
         const prevMon = new Date(mon); prevMon.setDate(prevMon.getDate() - 7);
         const nextMon = new Date(mon); nextMon.setDate(nextMon.getDate() + 7);
+        // Today's own window, so the top of the card moves day to day.
+        const dayStart = new Date(azNow); dayStart.setHours(0, 0, 0, 0);
+        const dayNext = new Date(dayStart); dayNext.setDate(dayNext.getDate() + 1);
+        const dayPrev = new Date(dayStart); dayPrev.setDate(dayPrev.getDate() - 1);
         let calls = [], truncated = false;
         let callUrl = "calls?userId=" + hwId + "&limit=100";
         for (let page = 0; page < 60; page++) {
@@ -280,7 +284,7 @@ export function handleBots(req, res) {
           tags: { transfer: tTransfer, intro: tIntro, converted: tConverted, felix: tFelix, connections: tConnections },
           connections,
           recent: { transfer: rTransfer.map(({id, ...m}) => m), intro: rIntro.map(({id, ...m}) => m), converted: rConverted.map(({id, ...m}) => m), felix: rFelix.map(({id, ...m}) => m) },
-          calls: { thisWeek: callStats(mon, nextMon), lastWeek: callStats(prevMon, mon), truncated },
+          calls: { today: callStats(dayStart, dayNext), yesterday: callStats(dayPrev, dayStart), thisWeek: callStats(mon, nextMon), lastWeek: callStats(prevMon, mon), truncated },
           appts,
           apptLists,
           weekDelta,
