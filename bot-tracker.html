@@ -71,6 +71,7 @@
         <div class="divider"><span class="t">Results · All Time — tap a box to see agents</span><span class="ln"></span></div>
         <div class="grid">
           <div class="stat statbtn" onclick="togList('l-transfer', this)"><div class="l">Live call transfers <span class="car">&#9656;</span></div><div class="v" id="s-transfer"></div></div>
+          <div class="stat"><div class="l">Live transfers this week</div><div class="v" id="s-transferwk"></div></div>
           <div class="stat statbtn" onclick="togList('l-intro', this)"><div class="l">3-way intros <span class="car">&#9656;</span></div><div class="v" id="s-intro"></div></div>
           <div class="stat statbtn" onclick="togList('l-converted', this)"><div class="l">Converted <span class="car">&#9656;</span></div><div class="v" id="s-converted"></div></div>
           <div class="stat statbtn" onclick="togList('l-apptset', this)"><div class="l">Appointments set <span class="car">&#9656;</span></div><div class="v" id="s-apptset"></div></div>
@@ -181,7 +182,15 @@ async function load() {
         $g(el).innerHTML = totalNow + ' <span class="cmp">all time</span>';
       }
     };
-    tagStat("s-transfer", d.tags.transfer, "transfer");
+    // Live transfers lead with the all-time count and carry the week in its own
+    // box, the way the Felix handoffs read.
+    $g("s-transfer").innerHTML = d.tags.transfer + ' <span class="cmp">all time</span>';
+    if (wd && wd.now) {
+      $g("s-transferwk").innerHTML = wd.now.transfer + " " + arrow(wd.now.transfer, wd.prev ? wd.prev.transfer : null)
+        + (wd.prev ? ' <span class="cmp">last wk ' + wd.prev.transfer + "</span>" : "");
+    } else {
+      $g("s-transferwk").innerHTML = '<span class="cmp" style="font-size:13px">building history…</span>';
+    }
     tagStat("s-intro", d.tags.intro, "intro");
     tagStat("s-converted", d.tags.converted, "converted");
     $g("s-felix").innerHTML = d.tags.felix + "";
