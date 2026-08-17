@@ -4,6 +4,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import crypto from "crypto";
 import pg from "pg";
+import { isBotPath, handleBots, setBotPool } from "./bots.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -15,6 +16,7 @@ function todayAZ() {
 const { Pool } = pg;
 const pool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } });
 const PORT = process.env.PORT || 3002;
+setBotPool(pool);
 
 async function initDB() {
   await pool.query(`CREATE TABLE IF NOT EXISTS store (key TEXT PRIMARY KEY, value JSONB NOT NULL)`);
@@ -1915,7 +1917,7 @@ function adminLogin() {
 <!-- Second-step screen shown only for Justine and Scott. -->
 <div class="select-wrap" id="choice" style="display:none">
   <div class="tc-grid" style="max-width:460px">
-    <a class="tc-card" href="https://kumler-hub.onrender.com/bot-tracker">
+    <a class="tc-card" href="/bot-tracker">
       <div class="tc-avatar"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
       <div class="tc-name">AI Assistants</div>
       <div class="tc-role">Bot performance tracker</div>
@@ -1936,6 +1938,9 @@ function adminLogin() {
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, `http://localhost`);
   const pathname = url.pathname;
+
+  // AI Assistants — gated and answered entirely inside bots.js
+  if (isBotPath(pathname)) return handleBots(req, res);
 
   if (pathname === "/logo.png") {
     res.writeHead(200, { "Content-Type": "image/png", "Cache-Control": "public, max-age=86400" });

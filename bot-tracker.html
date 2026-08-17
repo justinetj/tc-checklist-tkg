@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI Assistants — The Kumler Group</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27><circle cx=%2750%27 cy=%2750%27 r=%2748%27 fill=%27%23CB2CFB%27/><path d=%27M32 68 V44 M50 68 V30 M68 68 V54%27 stroke=%27white%27 stroke-width=%278%27 stroke-linecap=%27round%27/></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'Inter',sans-serif; background:#fdfbfe; color:#1c1524; padding:34px 16px 46px; }
+  .wrap { max-width:980px; margin:0 auto; }
+  .logo { text-align:center; margin-bottom:6px; }
+  .logo img { max-width:min(280px,76vw); height:auto; }
+  h1 { text-align:center; font-size:21px; font-weight:600; margin-top:12px; }
+  .sub { text-align:center; font-size:13px; color:#7a6d85; margin:6px 0 24px; }
+  .cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(340px,1fr)); gap:18px; }
+  .card { background:white; border:1.5px solid #eadef0; border-radius:16px; overflow:hidden; box-shadow:0 2px 12px rgba(102,24,126,.07); }
+  .card-hd { background:linear-gradient(120deg,#3d0d52,#66187E 55%,#a21caf 135%); color:white; padding:14px 20px; display:flex; justify-content:space-between; align-items:center; }
+  .card-hd h2 { font-size:15px; font-weight:600; }
+  .card-hd .tagname { font-size:10.5px; opacity:.75; font-weight:400; }
+  .card-bd { padding:16px 20px 18px; }
+  .grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .grid3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; }
+  .divider { display:flex; align-items:center; gap:10px; margin:16px 0 8px; }
+  .divider .t { font-size:10.5px; font-weight:600; text-transform:uppercase; letter-spacing:.08em; color:#66187E; white-space:nowrap; }
+  .divider .ln { flex:1; height:1.5px; background:#f1e7f7; border-radius:99px; }
+  .stat { background:#faf5fd; border:1px solid #eadef0; border-radius:11px; padding:10px 14px; }
+  .stat .l { font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:.06em; color:#8a7d95; }
+  .stat .v { font-size:20px; font-weight:600; color:#66187E; margin-top:2px; display:flex; align-items:baseline; gap:6px; flex-wrap:wrap; }
+  .stat .cmp { font-size:10.5px; color:#8a7d95; font-weight:400; flex-basis:100%; margin-top:1px; white-space:nowrap; }
+  .up { color:#CB2CFB; font-size:13px; }
+  .dn { color:#b3a6bf; font-size:13px; }
+  .sect { font-size:10.5px; font-weight:600; text-transform:uppercase; letter-spacing:.07em; color:#8a7d95; margin:16px 0 6px; }
+  .lead { display:flex; justify-content:space-between; align-items:center; padding:6px 2px; border-bottom:1px solid #f7f3fa; font-size:12.5px; transition:background .14s ease; }
+  .lead:last-child { border-bottom:none; }
+  .lead:hover { background:#faf0fe; box-shadow:inset 3px 0 0 #CB2CFB; }
+  .lead .nm { font-weight:600; color:#1c1524; padding-left:6px; }
+  .lead .dt { color:#a99bb5; font-size:11.5px; }
+  .agpill { font-size:10.5px; font-weight:600; color:#66187E; background:#f3e0fb; border-radius:99px; padding:2px 9px; white-space:nowrap; }
+  .statbtn { cursor:pointer; transition:border-color .14s ease, box-shadow .14s ease; }
+  .statbtn:hover { border-color:#CB2CFB; box-shadow:0 3px 10px rgba(203,44,251,.14); }
+  .statbtn.open { border-color:#CB2CFB; background:#fdf0ff; }
+  .car { color:#c3b5cd; font-size:9px; }
+  .agnum { width:30px; text-align:right; font-size:13px; color:#66187E; font-weight:600; font-variant-numeric:tabular-nums; }
+  .note { text-align:center; font-size:11px; color:#a99bb5; margin-top:18px; }
+  .backrow { text-align:center; margin-top:26px; }
+  .backrow a { font-size:12px; font-weight:600; color:#66187E; text-decoration:none; border:1px solid #eadef0; border-radius:99px; padding:8px 20px; background:white; }
+  #loading { text-align:center; color:#8a7d95; font-size:13px; padding:40px 0; }
+  .pill { display:inline-block; font-size:10px; font-weight:600; background:rgba(255,255,255,.18); border-radius:99px; padding:3px 10px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="logo"><img src="/logo.png" alt="The Kumler Group"></div>
+  <h1>AI Assistants</h1>
+  <div class="sub" id="subline">Live from Follow Up Boss</div>
+
+  <div id="loading">Pulling live numbers from Follow Up Boss…</div>
+  <div class="cards" id="cards" style="display:none">
+
+    <div class="card">
+      <div class="card-hd"><h2>HouseWhisper</h2><span class="pill" id="hw-week"></span></div>
+      <div class="card-bd">
+        <div class="divider"><span class="t">This Week</span><span class="ln"></span></div>
+        <div class="grid3">
+          <div class="stat"><div class="l">Dials</div><div class="v" id="s-dials"></div></div>
+          <div class="stat"><div class="l">Engagements</div><div class="v" id="s-engaged"></div></div>
+          <div class="stat"><div class="l">Pick-up ratio</div><div class="v" id="s-pickup"></div></div>
+        </div>
+        <div class="divider"><span class="t">Results · All Time — tap a box to see agents</span><span class="ln"></span></div>
+        <div class="grid">
+          <div class="stat statbtn" onclick="togList('l-transfer', this)"><div class="l">Live call transfers <span class="car">&#9656;</span></div><div class="v" id="s-transfer"></div></div>
+          <div class="stat statbtn" onclick="togList('l-intro', this)"><div class="l">3-way intros <span class="car">&#9656;</span></div><div class="v" id="s-intro"></div></div>
+          <div class="stat statbtn" onclick="togList('l-converted', this)"><div class="l">Converted <span class="car">&#9656;</span></div><div class="v" id="s-converted"></div></div>
+          <div class="stat statbtn" onclick="togList('l-apptset', this)"><div class="l">Appointments set <span class="car">&#9656;</span></div><div class="v" id="s-apptset"></div></div>
+          <div class="stat statbtn" onclick="togList('l-apptmet', this)"><div class="l">Appointments met <span class="car">&#9656;</span></div><div class="v" id="s-apptmet"></div></div>
+          <div class="stat"><div class="l">Met-with ratio</div><div class="v" id="s-metratio"></div></div>
+        </div>
+        <div id="l-apptset" class="aglist" style="display:none"><div class="sect">Appointments set — by agent</div><div class="aglist-bd"></div></div>
+        <div id="l-apptmet" class="aglist" style="display:none"><div class="sect">Appointments met — by agent</div><div class="aglist-bd"></div></div>
+        <div id="l-transfer" class="aglist" style="display:none"><div class="sect">Live transfers — by agent</div><div class="aglist-bd"></div></div>
+        <div id="l-intro" class="aglist" style="display:none"><div class="sect">3-way intros — by agent</div><div class="aglist-bd"></div></div>
+        <div id="l-converted" class="aglist" style="display:none"><div class="sect">Converted — by agent</div><div class="aglist-bd"></div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-hd"><h2>Fello — Felix AI</h2><span class="tagname">FELIX AI HANDOFF</span></div>
+      <div class="card-bd">
+        <div class="divider"><span class="t">Handoffs</span><span class="ln"></span></div>
+        <div class="grid">
+          <div class="stat statbtn" onclick="togList('l-felix', this)"><div class="l">All time <span class="car">&#9656;</span></div><div class="v" id="s-felix"></div></div>
+          <div class="stat"><div class="l">This week</div><div class="v" id="s-felixwk"></div></div>
+        </div>
+        <div class="divider"><span class="t">Appointments</span><span class="ln"></span></div>
+        <div class="grid">
+          <div class="stat statbtn" onclick="togList('l-fapptset', this)"><div class="l">Appointments set <span class="car">&#9656;</span></div><div class="v" id="s-fapptset"></div></div>
+          <div class="stat statbtn" onclick="togList('l-fapptmet', this)"><div class="l">Appointments met <span class="car">&#9656;</span></div><div class="v" id="s-fapptmet"></div></div>
+        </div>
+        <div id="l-fapptset" class="aglist" style="display:none"><div class="sect">Appointments set — by agent</div><div class="aglist-bd"></div></div>
+        <div id="l-fapptmet" class="aglist" style="display:none"><div class="sect">Appointments met — by agent</div><div class="aglist-bd"></div></div>
+        <div id="l-felix" class="aglist" style="display:none"><div class="sect">Handoffs — by agent</div><div class="aglist-bd"></div></div>
+      </div>
+    </div>
+
+  </div>
+  <div class="note" id="note" style="display:none">Transfers, intros, converted, and handoffs are all-time tag counts. Dates on HouseWhisper leads are the day of their answered HouseWhisper call; a dash means the date is not known yet. Week-over-week trends build automatically from daily snapshots — arrows appear once a full week of history exists.</div>
+  <div class="backrow"><a href="/">← Back</a></div>
+</div>
+
+<script>
+// Access is gated server-side; reaching this page means you are already in.
+
+const $g = id => document.getElementById(id);
+const fmtDate = iso => { if (!iso) return ""; const d = new Date(iso); return (d.getMonth()+1) + "/" + d.getDate() + "/" + String(d.getFullYear()).slice(2); };
+
+function arrow(cur, prev) {
+  if (prev === null || prev === undefined) return "";
+  if (cur > prev) return '<span class="up">&#9650;</span>';
+  if (cur < prev) return '<span class="dn">&#9660;</span>';
+  return '<span class="dn">&#8212;</span>';
+}
+function statHTML(cur, prevLabelled) {
+  let h = String(cur);
+  if (prevLabelled) h += " " + prevLabelled;
+  return h;
+}
+function leads(el, list) {
+  const bd = document.querySelector("#" + el + " .aglist-bd");
+  if (!list || !list.length) { bd.innerHTML = '<div style="font-size:12px;color:#a99bb5;padding:4px 6px">None yet</div>'; return; }
+  const by = {};
+  list.forEach(x => { const a = x.agent || "Unassigned"; (by[a] = by[a] || []).push(x); });
+  const agents = Object.keys(by).sort((a, b) => by[b].length - by[a].length || a.localeCompare(b));
+  bd.innerHTML = agents.map((a, i) => {
+    const gid = el + "-g" + i;
+    return '<div onclick="togAg(\'' + gid + '\', this)" style="display:flex;align-items:center;gap:8px;padding:6px 4px;cursor:pointer;border-bottom:1px solid #f7f3fa;transition:background .14s ease" onmouseover="this.style.background=\'#faf0fe\'" onmouseout="this.style.background=\'\'">'
+      + '<span style="font-size:12.5px;font-weight:600;color:#1c1524">' + a + '</span>'
+      + '<span style="margin-left:auto" class="agnum">' + by[a].length + '</span>'
+      + '<span style="color:#c3b5cd;font-size:10px;width:12px" class="agcar">&#9656;</span></div>'
+      + '<div id="' + gid + '" style="display:none">'
+      + by[a].map(x => '<div class="lead"><span class="nm" style="padding-left:18px;font-weight:400;color:#4a4453">' + x.name + '</span><span class="dt">' + (x.date ? fmtDate(x.date) : "&#8212;") + '</span></div>').join("")
+      + '</div>';
+  }).join("");
+}
+function togList(id, tile) {
+  const b = document.getElementById(id);
+  const open = b.style.display === "none";
+  b.style.display = open ? "" : "none";
+  tile.classList.toggle("open", open);
+  tile.querySelector(".car").innerHTML = open ? "&#9662;" : "&#9656;";
+}
+function togAg(gid, hd) {
+  const b = document.getElementById(gid);
+  const open = b.style.display === "none";
+  b.style.display = open ? "" : "none";
+  hd.querySelector(".agcar").innerHTML = open ? "&#9662;" : "&#9656;";
+}
+
+async function load() {
+  try {
+    const r = await fetch("/api/bots/summary");
+    const d = await r.json();
+    if (d.error) throw new Error(d.error);
+
+    $g("hw-week").textContent = "Mon-Sun " + d.weekLabel;
+    const cw = d.calls.thisWeek, lw = d.calls.lastWeek;
+    $g("s-engaged").innerHTML = cw.engaged + " " + arrow(cw.engaged, lw.engaged) + ' <span class="cmp">last wk ' + lw.engaged + "</span>";
+    $g("s-pickup").innerHTML = cw.pickup + "% " + arrow(cw.pickup, lw.pickup) + ' <span class="cmp">last wk ' + lw.pickup + "%</span>";
+    $g("s-dials").innerHTML = cw.dials + " " + arrow(cw.dials, lw.dials) + ' <span class="cmp">last wk ' + lw.dials + "</span>";
+
+    const wd = d.weekDelta;
+    const tagStat = (el, totalNow, key) => {
+      if (wd && wd.now) {
+        const nowD = wd.now[key];
+        const prevD = wd.prev ? wd.prev[key] : null;
+        $g(el).innerHTML = nowD + " " + arrow(nowD, prevD)
+          + ' <span class="cmp">this wk · ' + totalNow + " all time"
+          + (prevD !== null && prevD !== undefined ? " · last wk " + prevD : "") + "</span>";
+      } else {
+        $g(el).innerHTML = totalNow + ' <span class="cmp">all time</span>';
+      }
+    };
+    tagStat("s-transfer", d.tags.transfer, "transfer");
+    tagStat("s-intro", d.tags.intro, "intro");
+    tagStat("s-converted", d.tags.converted, "converted");
+    $g("s-felix").innerHTML = d.tags.felix + "";
+    if (wd && wd.now) {
+      $g("s-felixwk").innerHTML = wd.now.felix + " " + arrow(wd.now.felix, wd.prev ? wd.prev.felix : null)
+        + (wd.prev ? ' <span class="cmp">last wk ' + wd.prev.felix + "</span>" : "");
+    } else {
+      $g("s-felixwk").innerHTML = '<span class="cmp" style="font-size:13px">building history…</span>';
+    }
+
+    if (d.appts) {
+      $g("s-apptset").innerHTML = d.appts.hw.set + "";
+      $g("s-apptmet").innerHTML = d.appts.hw.met + "";
+      $g("s-metratio").innerHTML = (d.appts.hw.set ? Math.round(d.appts.hw.met / d.appts.hw.set * 100) : 0) + "%" + ' <span class="cmp">met of set</span>';
+      $g("s-fapptset").innerHTML = d.appts.felix.set + "";
+      $g("s-fapptmet").innerHTML = d.appts.felix.met + "";
+    }
+    if (d.apptLists) {
+      leads("l-apptset", d.apptLists.hwSet);
+      leads("l-apptmet", d.apptLists.hwMet);
+      leads("l-fapptset", d.apptLists.felixSet);
+      leads("l-fapptmet", d.apptLists.felixMet);
+    }
+    leads("l-transfer", d.recent.transfer);
+    leads("l-intro", d.recent.intro);
+    leads("l-converted", d.recent.converted);
+    leads("l-felix", d.recent.felix);
+
+    $g("loading").style.display = "none";
+    $g("cards").style.display = "";
+    $g("note").style.display = "";
+  } catch (e) {
+    $g("loading").textContent = "Could not reach Follow Up Boss — " + e.message;
+  }
+}
+load();
+</script>
+</body>
+</html>
