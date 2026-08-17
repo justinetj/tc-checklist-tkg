@@ -1257,26 +1257,27 @@ function getDashboardHTML(transactions, tc) {
   // Active transactions whose close date has already passed but aren't marked closed.
   const needsAttention = sorted.filter(([,t]) => (!t.status || t.status === "active") && t.fields?.closeDate && t.fields.closeDate < todayISO);
   const azNow = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Phoenix' }));
-  const wkMon = new Date(azNow); wkMon.setHours(0,0,0,0); wkMon.setDate(wkMon.getDate() - ((azNow.getDay() + 6) % 7));
-  const wkNext = new Date(wkMon); wkNext.setDate(wkNext.getDate() + 7);
-  const wkPrev = new Date(wkMon); wkPrev.setDate(wkPrev.getDate() - 7);
+  // Week runs Friday through Thursday.
+  const wkFri = new Date(azNow); wkFri.setHours(0,0,0,0); wkFri.setDate(wkFri.getDate() - ((azNow.getDay() + 2) % 7));
+  const wkNext = new Date(wkFri); wkNext.setDate(wkNext.getDate() + 7);
+  const wkPrev = new Date(wkFri); wkPrev.setDate(wkPrev.getDate() - 7);
   const inWin = (ts, a, b) => ts >= a.getTime() && ts < b.getTime();
   const isEscrowT = x => x.type === 'buyer' || x.type === 'buyer-new-build' || x.type === 'listing-uc';
   const wkRow = ([,x]) => ({ address: (x.fields?.address || x.address || '(no address)').toUpperCase(), agent: x.fields?.agentPartner1 || '—' });
-  const escNowList = allEntries.filter(([,x]) => isEscrowT(x) && x.createdAt && inWin(x.createdAt, wkMon, wkNext)).map(wkRow);
-  const lisNowList = allEntries.filter(([,x]) => x.type === 'listing' && x.createdAt && inWin(x.createdAt, wkMon, wkNext)).map(wkRow);
+  const escNowList = allEntries.filter(([,x]) => isEscrowT(x) && x.createdAt && inWin(x.createdAt, wkFri, wkNext)).map(wkRow);
+  const lisNowList = allEntries.filter(([,x]) => x.type === 'listing' && x.createdAt && inWin(x.createdAt, wkFri, wkNext)).map(wkRow);
   const wkStats = {
     escNow:  escNowList.length,
-    escPrev: allEntries.filter(([,x]) => isEscrowT(x) && x.createdAt && inWin(x.createdAt, wkPrev, wkMon)).length,
+    escPrev: allEntries.filter(([,x]) => isEscrowT(x) && x.createdAt && inWin(x.createdAt, wkPrev, wkFri)).length,
     lisNow:  lisNowList.length,
-    lisPrev: allEntries.filter(([,x]) => x.type === 'listing' && x.createdAt && inWin(x.createdAt, wkPrev, wkMon)).length,
+    lisPrev: allEntries.filter(([,x]) => x.type === 'listing' && x.createdAt && inWin(x.createdAt, wkPrev, wkFri)).length,
   };
   const wkList = (rows, id) => rows.length ? `<div id="${id}" style="display:none;margin-top:10px;border-top:1px solid #f1ecf5;padding-top:6px">${rows.map(r =>
     `<div style="display:flex;justify-content:space-between;gap:10px;padding:5px 6px;font-size:12px;border-bottom:1px solid #f7f3fa;transition:background .14s ease" onmouseover="this.style.background='#faf0fe';this.style.boxShadow='inset 3px 0 0 #CB2CFB'" onmouseout="this.style.background='';this.style.boxShadow=''">
       <span style="font-weight:600;color:#1c1524">${r.address}</span><span style="color:#66187E;font-weight:600;white-space:nowrap">${r.agent}</span>
     </div>`).join('')}</div>` : '';
   const wkArrow = (cur, prev) => cur > prev ? '<span style="color:#CB2CFB;font-size:15px">▲</span>' : cur < prev ? '<span style="color:#b3a6bf;font-size:15px">▼</span>' : '<span style="color:#b3a6bf;font-size:15px">—</span>';
-  const wkLabel = wkMon.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' }) + ' – ' + new Date(wkNext.getTime() - 86400000).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' });
+  const wkLabel = wkFri.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' }) + ' – ' + new Date(wkNext.getTime() - 86400000).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' });
 
   function makeTable(list, archived, mode) {
     if (list.length === 0) return '<div class="empty">None</div>';
@@ -1419,12 +1420,12 @@ function getDashboardHTML(transactions, tc) {
     <div data-tab="dash">
     <div style="display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap">
       <div style="flex:1;min-width:220px;background:white;border:1.5px solid #eadef0;border-radius:10px;padding:8px 14px;box-shadow:0 2px 8px rgba(102,24,126,.05);${wkStats.escNow ? 'cursor:pointer' : ''}" ${wkStats.escNow ? `onclick="const l=document.getElementById('wk-esc');l.style.display=l.style.display==='none'?'':'none';document.getElementById('wk-esc-car').textContent=l.style.display==='none'?'▾':'▴'"` : ''}>
-        <div style="font-size:9.5px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:#8a7d95">New Escrows This Week <span style="font-weight:400;text-transform:none;letter-spacing:0;color:#b3a6bf">· Mon–Sun ${wkLabel}</span>${wkStats.escNow ? ` <span id="wk-esc-car" style="float:right;color:#CB2CFB">▾</span>` : ''}</div>
+        <div style="font-size:9.5px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:#8a7d95">New Escrows This Week <span style="font-weight:400;text-transform:none;letter-spacing:0;color:#b3a6bf">· Fri–Thu ${wkLabel}</span>${wkStats.escNow ? ` <span id="wk-esc-car" style="float:right;color:#CB2CFB">▾</span>` : ''}</div>
         <div style="display:flex;align-items:baseline;gap:8px;margin-top:1px"><span style="font-size:19px;font-weight:600;color:#66187E">${wkStats.escNow}</span>${wkArrow(wkStats.escNow, wkStats.escPrev)}<span style="font-size:11px;color:#8a7d95">last wk ${wkStats.escPrev}</span></div>
         ${wkList(escNowList, 'wk-esc')}
       </div>
       <div style="flex:1;min-width:220px;background:white;border:1.5px solid #eadef0;border-radius:10px;padding:8px 14px;box-shadow:0 2px 8px rgba(102,24,126,.05);${wkStats.lisNow ? 'cursor:pointer' : ''}" ${wkStats.lisNow ? `onclick="const l=document.getElementById('wk-lis');l.style.display=l.style.display==='none'?'':'none';document.getElementById('wk-lis-car').textContent=l.style.display==='none'?'▾':'▴'"` : ''}>
-        <div style="font-size:9.5px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:#8a7d95">New Listings This Week <span style="font-weight:400;text-transform:none;letter-spacing:0;color:#b3a6bf">· Mon–Sun ${wkLabel}</span>${wkStats.lisNow ? ` <span id="wk-lis-car" style="float:right;color:#CB2CFB">▾</span>` : ''}</div>
+        <div style="font-size:9.5px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:#8a7d95">New Listings This Week <span style="font-weight:400;text-transform:none;letter-spacing:0;color:#b3a6bf">· Fri–Thu ${wkLabel}</span>${wkStats.lisNow ? ` <span id="wk-lis-car" style="float:right;color:#CB2CFB">▾</span>` : ''}</div>
         <div style="display:flex;align-items:baseline;gap:8px;margin-top:1px"><span style="font-size:19px;font-weight:600;color:#66187E">${wkStats.lisNow}</span>${wkArrow(wkStats.lisNow, wkStats.lisPrev)}<span style="font-size:11px;color:#8a7d95">last wk ${wkStats.lisPrev}</span></div>
         ${wkList(lisNowList, 'wk-lis')}
       </div>
@@ -1859,6 +1860,25 @@ function tcLogin(name) {
   if (code === required) { window.location.href = '/?tc=' + encodeURIComponent(name); }
   else if (code !== null) { alert('Incorrect passcode.'); }
 }
+// Justine and Scott get a second screen first: AI Assistants or Transaction Hub.
+// Passcodes stay on the Transaction Hub side; the bot tracker gates itself.
+let choiceFor = null;
+function showChoice(name) {
+  choiceFor = name;
+  document.getElementById('picker').style.display = 'none';
+  document.getElementById('choice').style.display = 'flex';
+  document.getElementById('sub').textContent = name.split(' ')[0] + ' — where would you like to go?';
+}
+function backToPicker() {
+  choiceFor = null;
+  document.getElementById('choice').style.display = 'none';
+  document.getElementById('picker').style.display = 'flex';
+  document.getElementById('sub').textContent = 'Transaction Hub — select your name';
+}
+function choiceHub() {
+  if (choiceFor === 'Justine Johnston') adminLogin();
+  else if (choiceFor) tcLogin(choiceFor);
+}
 function adminLogin() {
   const code = prompt('Enter passcode:');
   if (code === '0001') { window.location.href = '/?tc=admin'; }
@@ -1868,16 +1888,16 @@ function adminLogin() {
 </head>
 <body>
 <div class="logo"><img src="/logo.png" alt="The Kumler Group"></div>
-<div class="sub">Transaction Hub — select your name</div>
-<div class="select-wrap">
+<div class="sub" id="sub">Transaction Hub — select your name</div>
+<div class="select-wrap" id="picker">
   <div class="tc-grid">
     ${(() => {
       const people = [
         { name: 'Joana Guzman',     role: 'Transaction Coordinator', color: '#9333ea', onclick: "tcLogin('Joana Guzman')" },
         { name: 'Ashley Belliveau', role: 'Transaction Coordinator', color: '#0d5c2e', onclick: "tcLogin('Ashley Belliveau')" },
         { name: 'Cinnamon Kumler',  role: 'Listing Coordinator',     color: '#b45309', onclick: "tcLogin('Cinnamon Kumler')" },
-        { name: 'Justine Johnston', role: 'Director of Operations',  color: '#7e22ce', onclick: 'adminLogin()' },
-        { name: 'Scott Kumler',     role: 'Team Lead',               color: '#0f766e', onclick: "tcLogin('Scott Kumler')" },
+        { name: 'Justine Johnston', role: 'Director of Operations',  color: '#7e22ce', onclick: "showChoice('Justine Johnston')" },
+        { name: 'Scott Kumler',     role: 'Team Lead',               color: '#0f766e', onclick: "showChoice('Scott Kumler')" },
       ];
       people.sort((a, b) => a.name.split(' ')[0].localeCompare(b.name.split(' ')[0]));
       return people.map((p) => {
@@ -1891,6 +1911,22 @@ function adminLogin() {
     })()}
   </div>
   <a href="https://kumler-hub.onrender.com" style="margin-top:30px;font-size:12px;font-weight:600;color:#66187E;text-decoration:none;border:1px solid #eadef0;border-radius:99px;padding:8px 20px;background:white">← Back</a>
+</div>
+<!-- Second-step screen shown only for Justine and Scott. -->
+<div class="select-wrap" id="choice" style="display:none">
+  <div class="tc-grid" style="max-width:460px">
+    <a class="tc-card" href="https://kumler-hub.onrender.com/bot-tracker">
+      <div class="tc-avatar"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
+      <div class="tc-name">AI Assistants</div>
+      <div class="tc-role">Bot performance tracker</div>
+    </a>
+    <a class="tc-card" href="javascript:void(0)" onclick="choiceHub()">
+      <div class="tc-avatar"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+      <div class="tc-name">Transaction Hub</div>
+      <div class="tc-role">Buyers, listings &amp; tasks</div>
+    </a>
+  </div>
+  <a href="javascript:void(0)" onclick="backToPicker()" style="margin-top:30px;font-size:12px;font-weight:600;color:#66187E;text-decoration:none;border:1px solid #eadef0;border-radius:99px;padding:8px 20px;background:white">← Back</a>
 </div>
 </body></html>`;
 }
