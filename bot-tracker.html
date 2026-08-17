@@ -68,14 +68,16 @@
           <div class="stat"><div class="l">Engagements</div><div class="v" id="s-engaged"></div></div>
           <div class="stat"><div class="l">Pick-up ratio</div><div class="v" id="s-pickup"></div></div>
         </div>
-        <div class="divider"><span class="t">Results · All Time — tap a box to see agents</span><span class="ln"></span></div>
+        <div class="divider"><span class="t">Results — tap a box to see agents</span><span class="ln"></span></div>
         <div class="grid">
           <div class="stat statbtn" onclick="togList('l-conn', this)"><div class="l">Connections <span class="car">&#9656;</span></div><div class="v" id="s-conn"></div></div>
           <div class="stat"><div class="l">Connections this week</div><div class="v" id="s-connwk"></div></div>
           <div class="stat statbtn" onclick="togList('l-transfer', this)"><div class="l">Live call transfers <span class="car">&#9656;</span></div><div class="v" id="s-transfer"></div></div>
           <div class="stat"><div class="l">Live transfers this week</div><div class="v" id="s-transferwk"></div></div>
           <div class="stat statbtn" onclick="togList('l-intro', this)"><div class="l">3-way intros <span class="car">&#9656;</span></div><div class="v" id="s-intro"></div></div>
+          <div class="stat"><div class="l">3-way intros this week</div><div class="v" id="s-introwk"></div></div>
           <div class="stat statbtn" onclick="togList('l-converted', this)"><div class="l">Converted <span class="car">&#9656;</span></div><div class="v" id="s-converted"></div></div>
+          <div class="stat"><div class="l">Converted this week</div><div class="v" id="s-convertedwk"></div></div>
           <div class="stat statbtn" onclick="togList('l-apptset', this)"><div class="l">Appointments set <span class="car">&#9656;</span></div><div class="v" id="s-apptset"></div></div>
           <div class="stat statbtn" onclick="togList('l-apptmet', this)"><div class="l">Appointments met <span class="car">&#9656;</span></div><div class="v" id="s-apptmet"></div></div>
           <div class="stat"><div class="l">Met-with ratio</div><div class="v" id="s-metratio"></div></div>
@@ -176,37 +178,25 @@ async function load() {
     $g("s-dials").innerHTML = cw.dials + " " + arrow(cw.dials, lw.dials) + ' <span class="cmp">last wk ' + lw.dials + "</span>";
 
     const wd = d.weekDelta;
-    const tagStat = (el, totalNow, key) => {
+    // Every HW result reads as a pair: all-time count, then that week beside it,
+    // the way the Felix handoffs already did.
+    const pairStat = (allEl, wkEl, total, key) => {
+      $g(allEl).innerHTML = total + ' <span class="cmp">all time</span>';
       if (wd && wd.now) {
         const nowD = wd.now[key];
         const prevD = wd.prev ? wd.prev[key] : null;
-        $g(el).innerHTML = nowD + " " + arrow(nowD, prevD)
-          + ' <span class="cmp">this wk · ' + totalNow + " all time"
-          + (prevD !== null && prevD !== undefined ? " · last wk " + prevD : "") + "</span>";
+        $g(wkEl).innerHTML = nowD + " " + arrow(nowD, prevD)
+          + (prevD !== null && prevD !== undefined ? ' <span class="cmp">last wk ' + prevD + "</span>" : "");
       } else {
-        $g(el).innerHTML = totalNow + ' <span class="cmp">all time</span>';
+        $g(wkEl).innerHTML = '<span class="cmp" style="font-size:13px">building history…</span>';
       }
     };
-    // Connections: distinct people across all three HW tags, deduped, so the
+    // Connections are distinct people across all three tags, deduped, so the
     // number is people rather than tag hits.
-    $g("s-conn").innerHTML = d.tags.connections + ' <span class="cmp">all time</span>';
-    if (wd && wd.now) {
-      $g("s-connwk").innerHTML = wd.now.connections + " " + arrow(wd.now.connections, wd.prev ? wd.prev.connections : null)
-        + (wd.prev ? ' <span class="cmp">last wk ' + wd.prev.connections + "</span>" : "");
-    } else {
-      $g("s-connwk").innerHTML = '<span class="cmp" style="font-size:13px">building history…</span>';
-    }
-    // Live transfers lead with the all-time count and carry the week in its own
-    // box, the way the Felix handoffs read.
-    $g("s-transfer").innerHTML = d.tags.transfer + ' <span class="cmp">all time</span>';
-    if (wd && wd.now) {
-      $g("s-transferwk").innerHTML = wd.now.transfer + " " + arrow(wd.now.transfer, wd.prev ? wd.prev.transfer : null)
-        + (wd.prev ? ' <span class="cmp">last wk ' + wd.prev.transfer + "</span>" : "");
-    } else {
-      $g("s-transferwk").innerHTML = '<span class="cmp" style="font-size:13px">building history…</span>';
-    }
-    tagStat("s-intro", d.tags.intro, "intro");
-    tagStat("s-converted", d.tags.converted, "converted");
+    pairStat("s-conn", "s-connwk", d.tags.connections, "connections");
+    pairStat("s-transfer", "s-transferwk", d.tags.transfer, "transfer");
+    pairStat("s-intro", "s-introwk", d.tags.intro, "intro");
+    pairStat("s-converted", "s-convertedwk", d.tags.converted, "converted");
     $g("s-felix").innerHTML = d.tags.felix + "";
     if (wd && wd.now) {
       $g("s-felixwk").innerHTML = wd.now.felix + " " + arrow(wd.now.felix, wd.prev ? wd.prev.felix : null)
