@@ -95,6 +95,12 @@
           <div class="stat statbtn" onclick="togList('l-apptmet', this)"><div class="l">Met <span class="car">&#9656;</span></div><div class="v" id="s-apptmet"></div></div>
           <div class="stat"><div class="l">Met-with ratio</div><div class="v" id="s-metratio"></div></div>
         </div>
+        <div class="divider"><span class="t">Reach-out · all time</span><span class="ln"></span></div>
+        <div class="grid">
+          <div class="stat"><div class="l">Calls placed</div><div class="v" id="s-alldials"></div></div>
+          <div class="stat"><div class="l">Connections</div><div class="v" id="s-allconn"></div></div>
+        </div>
+        <div class="note" style="margin-top:8px;text-align:left">Calls placed is every call on HouseWhisper's record. Connections only counts leads carrying the HW tags, which came later — so the two do not divide into a meaningful rate.</div>
         <div id="l-conn" class="aglist" style="display:none"><div class="sect">Connections — by agent, with how each came in</div><div class="aglist-bd"></div></div>
         <div id="l-apptset" class="aglist" style="display:none"><div class="sect">Appointments set — by agent</div><div class="aglist-bd"></div></div>
         <div id="l-apptmet" class="aglist" style="display:none"><div class="sect">Appointments met — by agent</div><div class="aglist-bd"></div></div>
@@ -191,6 +197,11 @@ async function load() {
     $g("s-dialstoday").innerHTML = td.dials + " " + arrow(td.dials, yd.dials) + ' <span class="cmp">yest ' + yd.dials + "</span>";
     $g("s-answtoday").innerHTML = td.answered + " " + arrow(td.answered, yd.answered) + ' <span class="cmp">yest ' + yd.answered + "</span>";
     $g("s-picktoday").innerHTML = td.pickup + "% " + arrow(td.pickup, yd.pickup) + ' <span class="cmp">yest ' + yd.pickup + "%</span>";
+    // Lifetime reach-out: every call HouseWhisper has placed, against the
+    // people it actually got through to.
+    const ad = d.calls.allDials;
+    $g("s-alldials").innerHTML = ad === null || ad === undefined ? '<span class="cmp" style="font-size:13px">unavailable</span>' : ad.toLocaleString();
+    $g("s-allconn").innerHTML = d.tags.connections + "";
     const cw = d.calls.thisWeek, lw = d.calls.lastWeek;
     $g("s-engaged").innerHTML = cw.engaged + " " + arrow(cw.engaged, lw.engaged) + ' <span class="cmp">last wk ' + lw.engaged + "</span>";
     $g("s-pickup").innerHTML = cw.pickup + "% " + arrow(cw.pickup, lw.pickup) + ' <span class="cmp">last wk ' + lw.pickup + "%</span>";

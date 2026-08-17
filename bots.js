@@ -239,6 +239,11 @@ export function handleBots(req, res) {
         const dayStart = new Date(azNow); dayStart.setHours(0, 0, 0, 0);
         const dayNext = new Date(dayStart); dayNext.setDate(dayNext.getDate() + 1);
         const dayPrev = new Date(dayStart); dayPrev.setDate(dayPrev.getDate() - 1);
+        // All-time reach-out. The metadata total covers every call on record
+        // without paging through them, which is the only affordable way to get
+        // a lifetime figure out of six figures' worth of calls.
+        let allDials = null;
+        try { allDials = ((await fubGet("calls?userId=" + hwId + "&limit=1&fields=id"))._metadata || {}).total ?? null; } catch {}
         let calls = [], truncated = false;
         let callUrl = "calls?userId=" + hwId + "&limit=100";
         for (let page = 0; page < 60; page++) {
@@ -284,7 +289,7 @@ export function handleBots(req, res) {
           tags: { transfer: tTransfer, intro: tIntro, converted: tConverted, felix: tFelix, connections: tConnections },
           connections,
           recent: { transfer: rTransfer.map(({id, ...m}) => m), intro: rIntro.map(({id, ...m}) => m), converted: rConverted.map(({id, ...m}) => m), felix: rFelix.map(({id, ...m}) => m) },
-          calls: { today: callStats(dayStart, dayNext), yesterday: callStats(dayPrev, dayStart), thisWeek: callStats(mon, nextMon), lastWeek: callStats(prevMon, mon), truncated },
+          calls: { today: callStats(dayStart, dayNext), yesterday: callStats(dayPrev, dayStart), thisWeek: callStats(mon, nextMon), lastWeek: callStats(prevMon, mon), allDials, truncated },
           appts,
           apptLists,
           weekDelta,
