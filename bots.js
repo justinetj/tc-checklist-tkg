@@ -183,6 +183,25 @@ export function handleBots(req, res) {
           if (dirty) { snaps0.felixSeen = seen; await botSave(snaps0); }
         } catch { for (const m of rFelix) m.date = null; }
 
+        // Connections: every distinct person carrying any of the three HW tags.
+        // The tags overlap heavily — a transferred lead is usually tagged
+        // converted too — so the union is deduped by person, and each one
+        // carries the routes it came in through.
+        const ROUTE = { transfer: "Live transfer", intro: "3-way intro", converted: "Converted" };
+        const connMap = new Map();
+        for (const [label, list] of [["transfer", rTransfer], ["intro", rIntro], ["converted", rConverted]]) {
+          for (const m of list) {
+            if (!connMap.has(m.id)) connMap.set(m.id, { name: m.name, agent: m.agent, date: m.date || null, created: m.created, routes: [] });
+            const c = connMap.get(m.id);
+            c.routes.push(ROUTE[label]);
+            if (!c.date && m.date) c.date = m.date;
+          }
+        }
+        const connections = [...connMap.values()]
+          .sort((a, b) => String(b.date || b.created || "").localeCompare(String(a.date || a.created || "")))
+          .map(({ created, ...c }) => c);
+        const tConnections = connections.length;
+
         // Appointments: set = booked with a bot lead; met = the meeting happened
         const hwIds = new Set([...rTransfer, ...rIntro, ...rConverted].map(m => m.id));
         const felixIds = new Set(rFelix.map(m => m.id));
@@ -241,21 +260,25 @@ export function handleBots(req, res) {
         try {
           const snaps = await botLoad();
           const today = azNow.toLocaleDateString("en-CA");
-          if (!snaps[today]) { snaps[today] = { transfer: tTransfer, intro: tIntro, converted: tConverted, felix: tFelix }; await botSave(snaps); }
+          if (!snaps[today]) { snaps[today] = { transfer: tTransfer, intro: tIntro, converted: tConverted, felix: tFelix, connections: tConnections }; await botSave(snaps); }
           const monISO = mon.toLocaleDateString("en-CA");
           const prevMonISO = prevMon.toLocaleDateString("en-CA");
           const at = iso => { const ks = Object.keys(snaps).filter(k => k <= iso).sort(); return ks.length ? snaps[ks[ks.length - 1]] : null; };
           const sMon = at(monISO), sPrev = at(prevMonISO);
           if (sMon) {
+            // Snapshots written before connections existed have no such key, so
+            // fall back to the current total for a 0 delta rather than NaN.
+            const cAt = s => (s && s.connections !== undefined ? s.connections : tConnections);
             weekDelta = {
-              now: { transfer: tTransfer - sMon.transfer, intro: tIntro - sMon.intro, converted: tConverted - sMon.converted, felix: tFelix - sMon.felix },
-              prev: sPrev && sPrev !== sMon ? { transfer: sMon.transfer - sPrev.transfer, intro: sMon.intro - sPrev.intro, converted: sMon.converted - sPrev.converted, felix: sMon.felix - sPrev.felix } : null,
+              now: { transfer: tTransfer - sMon.transfer, intro: tIntro - sMon.intro, converted: tConverted - sMon.converted, felix: tFelix - sMon.felix, connections: tConnections - cAt(sMon) },
+              prev: sPrev && sPrev !== sMon ? { transfer: sMon.transfer - sPrev.transfer, intro: sMon.intro - sPrev.intro, converted: sMon.converted - sPrev.converted, felix: sMon.felix - sPrev.felix, connections: cAt(sMon) - cAt(sPrev) } : null,
             };
           }
         } catch {}
 
         const payload = JSON.stringify({
-          tags: { transfer: tTransfer, intro: tIntro, converted: tConverted, felix: tFelix },
+          tags: { transfer: tTransfer, intro: tIntro, converted: tConverted, felix: tFelix, connections: tConnections },
+          connections,
           recent: { transfer: rTransfer.map(({id, ...m}) => m), intro: rIntro.map(({id, ...m}) => m), converted: rConverted.map(({id, ...m}) => m), felix: rFelix.map(({id, ...m}) => m) },
           calls: { thisWeek: callStats(mon, nextMon), lastWeek: callStats(prevMon, mon), truncated },
           appts,
