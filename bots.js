@@ -215,7 +215,6 @@ export function handleBots(req, res) {
           const r = await fubGet(apUrl);
           const batch = r.appointments || [];
           for (const a of batch) {
-            if ((a.start || a.created || "") < "2026-08-01") continue;
             const pids = (a.invitees || []).map(v => v.personId).filter(Boolean);
             const outcome = typeof a.outcome === "string" ? a.outcome : (a.outcome && a.outcome.name) || "";
             const met = MET.has(outcome);
@@ -285,6 +284,20 @@ export function handleBots(req, res) {
           }
         } catch {}
 
+        // Who actually landed this week, so the weekly boxes open the same way
+        // the all-time ones do. Dated by the event itself — the answered HW call
+        // for the HW tags, the day the Felix tag first appeared.
+        const monISO2 = mon.toLocaleDateString("en-CA");
+        const inThisWeek = m => (m.date || "").slice(0, 10) >= monISO2;
+        const strip = ({ id, created, ...m }) => m;
+        const weekly = {
+          transfer: rTransfer.filter(inThisWeek).map(strip),
+          intro: rIntro.filter(inThisWeek).map(strip),
+          converted: rConverted.filter(inThisWeek).map(strip),
+          felix: rFelix.filter(inThisWeek).map(strip),
+          connections: connections.filter(inThisWeek),
+        };
+
         const payload = JSON.stringify({
           tags: { transfer: tTransfer, intro: tIntro, converted: tConverted, felix: tFelix, connections: tConnections },
           connections,
@@ -293,6 +306,7 @@ export function handleBots(req, res) {
           appts,
           apptLists,
           weekDelta,
+          weekly,
           weekLabel: mon.toLocaleDateString("en-US", { month: "numeric", day: "numeric" }) + " - " + new Date(nextMon.getTime() - 864e5).toLocaleDateString("en-US", { month: "numeric", day: "numeric" }),
         });
         botCache = { at: Date.now(), data: payload };

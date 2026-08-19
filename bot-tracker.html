@@ -81,13 +81,13 @@
         <div class="grid colhead"><div>All time</div><div>This week</div></div>
         <div class="grid">
           <div class="stat statbtn" onclick="togList('l-conn', this)"><div class="l">Connections <span class="car">&#9656;</span></div><div class="v" id="s-conn"></div></div>
-          <div class="stat"><div class="l">Connections</div><div class="v" id="s-connwk"></div></div>
+          <div class="stat statbtn" onclick="togList('l-connwk', this)"><div class="l">Connections <span class="car">&#9656;</span></div><div class="v" id="s-connwk"></div></div>
           <div class="stat statbtn" onclick="togList('l-transfer', this)"><div class="l">Live call transfers <span class="car">&#9656;</span></div><div class="v" id="s-transfer"></div></div>
-          <div class="stat"><div class="l">Live call transfers</div><div class="v" id="s-transferwk"></div></div>
+          <div class="stat statbtn" onclick="togList('l-transferwk', this)"><div class="l">Live call transfers <span class="car">&#9656;</span></div><div class="v" id="s-transferwk"></div></div>
           <div class="stat statbtn" onclick="togList('l-intro', this)"><div class="l">3-way intros <span class="car">&#9656;</span></div><div class="v" id="s-intro"></div></div>
-          <div class="stat"><div class="l">3-way intros</div><div class="v" id="s-introwk"></div></div>
+          <div class="stat statbtn" onclick="togList('l-introwk', this)"><div class="l">3-way intros <span class="car">&#9656;</span></div><div class="v" id="s-introwk"></div></div>
           <div class="stat statbtn" onclick="togList('l-converted', this)"><div class="l">Converted <span class="car">&#9656;</span></div><div class="v" id="s-converted"></div></div>
-          <div class="stat"><div class="l">Converted</div><div class="v" id="s-convertedwk"></div></div>
+          <div class="stat statbtn" onclick="togList('l-convertedwk', this)"><div class="l">Converted <span class="car">&#9656;</span></div><div class="v" id="s-convertedwk"></div></div>
         </div>
         <div class="divider"><span class="t">Appointments · all time</span><span class="ln"></span></div>
         <div class="grid3">
@@ -101,6 +101,10 @@
           <div class="stat"><div class="l">Connections</div><div class="v" id="s-allconn"></div></div>
         </div>
         <div class="note" style="margin-top:8px;text-align:left">Calls placed is every call on HouseWhisper's record. Connections only counts leads carrying the HW tags, which came later — so the two do not divide into a meaningful rate.</div>
+        <div id="l-connwk" class="aglist" style="display:none"><div class="sect">Connections this week — by agent</div><div class="aglist-bd"></div></div>
+        <div id="l-transferwk" class="aglist" style="display:none"><div class="sect">Live call transfers this week — by agent</div><div class="aglist-bd"></div></div>
+        <div id="l-introwk" class="aglist" style="display:none"><div class="sect">3-way intros this week — by agent</div><div class="aglist-bd"></div></div>
+        <div id="l-convertedwk" class="aglist" style="display:none"><div class="sect">Converted this week — by agent</div><div class="aglist-bd"></div></div>
         <div id="l-conn" class="aglist" style="display:none"><div class="sect">Connections — by agent, with how each came in</div><div class="aglist-bd"></div></div>
         <div id="l-apptset" class="aglist" style="display:none"><div class="sect">Appointments set — by agent</div><div class="aglist-bd"></div></div>
         <div id="l-apptmet" class="aglist" style="display:none"><div class="sect">Appointments met — by agent</div><div class="aglist-bd"></div></div>
@@ -116,7 +120,7 @@
         <div class="divider"><span class="t">Handoffs</span><span class="ln"></span></div>
         <div class="grid">
           <div class="stat statbtn" onclick="togList('l-felix', this)"><div class="l">All time <span class="car">&#9656;</span></div><div class="v" id="s-felix"></div></div>
-          <div class="stat"><div class="l">This week</div><div class="v" id="s-felixwk"></div></div>
+          <div class="stat statbtn" onclick="togList('l-felixwk', this)"><div class="l">This week <span class="car">&#9656;</span></div><div class="v" id="s-felixwk"></div></div>
         </div>
         <div class="divider"><span class="t">Appointments</span><span class="ln"></span></div>
         <div class="grid">
@@ -126,6 +130,7 @@
         <div id="l-fapptset" class="aglist" style="display:none"><div class="sect">Appointments set — by agent</div><div class="aglist-bd"></div></div>
         <div id="l-fapptmet" class="aglist" style="display:none"><div class="sect">Appointments met — by agent</div><div class="aglist-bd"></div></div>
         <div id="l-felix" class="aglist" style="display:none"><div class="sect">Handoffs — by agent</div><div class="aglist-bd"></div></div>
+        <div id="l-felixwk" class="aglist" style="display:none"><div class="sect">Felix handoffs this week — by agent</div><div class="aglist-bd"></div></div>
       </div>
     </div>
 
@@ -249,6 +254,12 @@ async function load() {
       leads("l-fapptmet", d.apptLists.felixMet);
     }
     leads("l-conn", d.connections, true);
+    const wkly = d.weekly || {};
+    leads("l-connwk", wkly.connections, true);
+    leads("l-transferwk", wkly.transfer);
+    leads("l-introwk", wkly.intro);
+    leads("l-convertedwk", wkly.converted);
+    leads("l-felixwk", wkly.felix);
     leads("l-transfer", d.recent.transfer);
     leads("l-intro", d.recent.intro);
     leads("l-converted", d.recent.converted);
