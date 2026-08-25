@@ -241,14 +241,14 @@ export function handleBots(req, res) {
         // All-time reach-out. The metadata total covers every call on record
         // without paging through them, which is the only affordable way to get
         // a lifetime figure out of six figures' worth of calls.
-        let allDials = null;
-        try { allDials = ((await fubGet("calls?userId=" + hwId + "&limit=1&fields=id"))._metadata || {}).total ?? null; } catch {}
         let calls = [], truncated = false;
         let callUrl = "calls?userId=" + hwId + "&limit=100";
         for (let page = 0; page < 60; page++) {
           const r = await fubGet(callUrl);
           const batch = r.calls || [];
-          calls = calls.concat(batch);
+          // FUB ignores userId on /calls and returns the whole team, so the
+          // filter belongs here. Without it every figure below is team-wide.
+          calls = calls.concat(batch.filter(c => c.userId === hwId));
           if (batch.length && new Date(batch[batch.length - 1].created) < prevMon) break;
           const nxt = (r._metadata || {}).nextLink;
           if (!nxt || !batch.length) break;
@@ -302,7 +302,7 @@ export function handleBots(req, res) {
           tags: { transfer: tTransfer, intro: tIntro, converted: tConverted, felix: tFelix, connections: tConnections },
           connections,
           recent: { transfer: rTransfer.map(({id, ...m}) => m), intro: rIntro.map(({id, ...m}) => m), converted: rConverted.map(({id, ...m}) => m), felix: rFelix.map(({id, ...m}) => m) },
-          calls: { today: callStats(dayStart, dayNext), yesterday: callStats(dayPrev, dayStart), thisWeek: callStats(mon, nextMon), lastWeek: callStats(prevMon, mon), allDials, truncated },
+          calls: { today: callStats(dayStart, dayNext), yesterday: callStats(dayPrev, dayStart), thisWeek: callStats(mon, nextMon), lastWeek: callStats(prevMon, mon), truncated },
           appts,
           apptLists,
           weekDelta,
