@@ -1704,7 +1704,8 @@ function showTab(name) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('on', b.dataset.for === name));
   try { localStorage.tcTab = name; } catch(e) {}
 }
-showTab((function(){ try { return localStorage.tcTab || 'dash'; } catch(e) { return 'dash'; } })());
+// Always land on the dashboard, rather than reopening whatever tab was last used.
+showTab('dash');
 function onTypeChange(val) {
   const isListing = val === 'listing';
   const isUC = val === 'listing-uc';
