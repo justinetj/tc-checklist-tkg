@@ -152,7 +152,7 @@ export function handleBots(req, res) {
       try {
         const TAGS = { transfer: "hw_transfer_call", intro: "hw_3way_intro", converted: "hw_converted", felix: "FELIX AI HANDOFF" };
         const total = async tag => ((await fubGet("people?tags=" + encodeURIComponent(tag) + "&limit=1&fields=id"))._metadata || {}).total || 0;
-        const members = async tag => ((await fubGet("people?tags=" + encodeURIComponent(tag) + "&limit=100&fields=id,name,created,assignedTo&sort=-created")).people || []).map(x => ({ id: x.id, name: x.name || "(no name)", created: x.created, agent: x.assignedTo || "" }));
+        const members = async tag => ((await fubGet("people?tags=" + encodeURIComponent(tag) + "&limit=100&fields=id,name,created,updated,assignedTo,stage&sort=-created")).people || []).map(x => ({ id: x.id, name: x.name || "(no name)", created: x.created, updated: x.updated, agent: x.assignedTo || "", stage: x.stage || "" }));
 
         const [tTransfer, tIntro, tConverted, tFelix, rTransfer, rIntro, rConverted, rFelix, hwId] = await Promise.all([
           total(TAGS.transfer), total(TAGS.intro), total(TAGS.converted), total(TAGS.felix),
@@ -298,6 +298,56 @@ export function handleBots(req, res) {
           connections: connections.filter(inThisWeek),
         };
 
+        // ---- Fello board: Justine's sheet (AI Overviews.xlsx / Fello) merged with live FUB ----
+        // The sheet carries the judgment FUB has no field for — legit vs dead, and her
+        // notes. FUB carries what happened since — stage, owner, last activity. Neither
+        // alone answers "how is Felix doing", so they are joined on the person's name.
+        let fello = null;
+        try {
+          const sheet = JSON.parse(fs.readFileSync(path.join(__dirname, "fello-sheet.json"), "utf8"));
+          const norm = n => String(n || "").toLowerCase().replace(/[^a-z]/g, "");
+          const fubByName = new Map(rFelix.map(m => [norm(m.name), m]));
+          const daysSince = iso => iso ? Math.floor((Date.now() - new Date(iso).getTime()) / 864e5) : null;
+
+          const leads = sheet.rows.map(r => {
+            const f = fubByName.get(norm(r.name));
+            return {
+              name: r.name,
+              agent: r.agent,
+              status: r.status,
+              note: r.note,
+              verdict: r.verdict,
+              fubStage: f ? f.stage : "",
+              fubAgent: f ? f.agent : "",
+              inFub: !!f,
+              cold: f ? daysSince(f.updated) : null,
+            };
+          });
+          const sheetNames = new Set(sheet.rows.map(r => norm(r.name)));
+          const unseen = rFelix.filter(m => !sheetNames.has(norm(m.name)))
+            .map(m => ({ name: m.name, agent: m.agent, fubStage: m.stage, cold: daysSince(m.updated) }));
+
+          const byAgent = {};
+          for (const l of leads) {
+            const k = l.agent || "(unassigned)";
+            byAgent[k] = byAgent[k] || { total: 0, legit: 0 };
+            byAgent[k].total++;
+            if (l.verdict === "legit") byAgent[k].legit++;
+          }
+          fello = {
+            updated: sheet.updated,
+            total: leads.length,
+            assigned: leads.filter(l => l.agent).length,
+            unassigned: leads.filter(l => !l.agent).length,
+            legit: leads.filter(l => l.verdict === "legit").length,
+            dead: leads.filter(l => l.verdict === "dead").length,
+            missingTag: leads.filter(l => !l.inFub).map(l => l.name),
+            unseen,
+            byAgent,
+            leads,
+          };
+        } catch (e) { fello = { error: e.message }; }
+
         const payload = JSON.stringify({
           tags: { transfer: tTransfer, intro: tIntro, converted: tConverted, felix: tFelix, connections: tConnections },
           connections,
@@ -308,6 +358,7 @@ export function handleBots(req, res) {
           weekDelta,
           weekly,
           weekLabel: mon.toLocaleDateString("en-US", { month: "numeric", day: "numeric" }) + " - " + new Date(nextMon.getTime() - 864e5).toLocaleDateString("en-US", { month: "numeric", day: "numeric" }),
+          fello,
         });
         botCache = { at: Date.now(), data: payload };
         res.writeHead(200, { "Content-Type": "application/json" });

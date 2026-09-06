@@ -43,6 +43,35 @@
   .statbtn.open { border-color:#CB2CFB; background:#fdf0ff; }
   .car { color:#c3b5cd; font-size:9px; }
   .agnum { width:30px; text-align:right; font-size:13px; color:#66187E; font-weight:600; font-variant-numeric:tabular-nums; }
+  /* Fello lead board */
+  .fbar { display:flex; height:12px; border-radius:99px; overflow:hidden; background:#f1e7f7; margin:4px 0 8px; }
+  .fbar span { display:block; }
+  .fbar .b-un { background:#d9c7e6; }
+  .fbar .b-dead { background:#9450bb; }
+  .fbar .b-legit { background:#5f1f7a; }
+  .fkey { display:flex; flex-wrap:wrap; gap:12px; font-size:10.5px; color:#8a7d95; margin-bottom:12px; }
+  .fkey i { display:inline-block; width:9px; height:9px; border-radius:2px; margin-right:5px; vertical-align:-1px; font-style:normal; }
+  .ffilter { display:flex; flex-wrap:wrap; gap:6px; margin:10px 0 8px; }
+  .ffilter button { font:inherit; font-size:11px; font-weight:600; color:#66187E; background:#faf5fd; border:1px solid #eadef0;
+                    border-radius:99px; padding:4px 11px; cursor:pointer; transition:border-color .14s, background .14s; }
+  .ffilter button:hover { border-color:#CB2CFB; }
+  .ffilter button.on { background:#66187E; border-color:#66187E; color:#fff; }
+  .ftbl { width:100%; border-collapse:collapse; font-size:12.5px; }
+  .ftbl th { text-align:left; font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:.06em;
+             color:#8a7d95; padding:6px 8px; border-bottom:1.5px solid #f1e7f7; white-space:nowrap; }
+  .ftbl td { padding:7px 8px; border-bottom:1px solid #f7f3fa; vertical-align:top; }
+  .ftbl tr:hover td { background:#faf0fe; }
+  .ftbl tr.legit td:first-child { box-shadow:inset 3px 0 0 #CB2CFB; }
+  .ftbl .nm { font-weight:600; color:#1c1524; }
+  .ftbl .sub { color:#a99bb5; font-size:11px; }
+  .ftbl .un { color:#a99bb5; font-style:italic; }
+  .vpill { font-size:10px; font-weight:600; border-radius:99px; padding:2px 8px; white-space:nowrap; }
+  .v-legit { background:#f3e0fb; color:#66187E; }
+  .v-dead { background:#f2f0f4; color:#9c93a6; }
+  .stagepill { font-size:10.5px; font-weight:600; color:#5f1f7a; background:#f6edfb; border-radius:99px; padding:2px 8px; white-space:nowrap; }
+  .warn { background:#fffbe8; border:1px dashed #e0c65a; border-radius:10px; padding:9px 13px; font-size:11.5px; color:#7a6413; line-height:1.5; margin-top:12px; }
+  .fnote { font-size:11px; color:#a99bb5; margin-top:8px; }
+  .ftblwrap { overflow-x:auto; }
   .note { text-align:center; font-size:11px; color:#a99bb5; margin-top:18px; }
   .backrow { text-align:center; margin-top:26px; }
   .backrow a { font-size:12px; font-weight:600; color:#66187E; text-decoration:none; border:1px solid #eadef0; border-radius:99px; padding:8px 20px; background:white; }
@@ -125,6 +154,39 @@
         <div id="l-fapptmet" class="aglist" style="display:none"><div class="sect">Appointments met — by agent</div><div class="aglist-bd"></div></div>
         <div id="l-felix" class="aglist" style="display:none"><div class="sect">Handoffs — by agent</div><div class="aglist-bd"></div></div>
         <div id="l-felixwk" class="aglist" style="display:none"><div class="sect">Felix handoffs this week — by agent</div><div class="aglist-bd"></div></div>
+
+        <div id="fello-board" style="display:none">
+          <div class="divider"><span class="t">Lead board</span><span class="ln"></span></div>
+          <div class="grid3">
+            <div class="stat"><div class="l">Handed off</div><div class="v" id="f-total"></div></div>
+            <div class="stat"><div class="l">Unclaimed</div><div class="v" id="f-unassigned"></div></div>
+            <div class="stat"><div class="l">Worth working</div><div class="v" id="f-legit"></div></div>
+          </div>
+          <div class="fbar" id="f-bar"></div>
+          <div class="fkey">
+            <span><i style="background:#d9c7e6"></i>Unclaimed</span>
+            <span><i style="background:#9450bb"></i>Claimed, written off</span>
+            <span><i style="background:#5f1f7a"></i>Worth working</span>
+          </div>
+
+          <div class="sect">By agent</div>
+          <div id="f-agents"></div>
+
+          <div class="ffilter" id="f-filters">
+            <button data-f="all" class="on">All</button>
+            <button data-f="legit">Worth working</button>
+            <button data-f="unassigned">Unclaimed</button>
+            <button data-f="moved">FUB disagrees</button>
+          </div>
+          <div class="ftblwrap">
+            <table class="ftbl">
+              <thead><tr><th>Name</th><th>Agent</th><th>Your call</th><th>Where FUB has them</th><th>Quiet</th></tr></thead>
+              <tbody id="f-rows"></tbody>
+            </table>
+          </div>
+          <div id="f-flags"></div>
+          <div class="fnote" id="f-updated"></div>
+        </div>
       </div>
     </div>
 
@@ -137,6 +199,7 @@
 // Access is gated server-side; reaching this page means you are already in.
 
 const $g = id => document.getElementById(id);
+const esc = v => String(v == null ? "" : v).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 const fmtDate = iso => { if (!iso) return ""; const d = new Date(iso); return (d.getMonth()+1) + "/" + d.getDate() + "/" + String(d.getFullYear()).slice(2); };
 
 function arrow(cur, prev) {
@@ -253,6 +316,62 @@ async function load() {
     leads("l-intro", d.recent.intro);
     leads("l-converted", d.recent.converted);
     leads("l-felix", d.recent.felix);
+
+    // ---- Fello lead board ----
+    if (d.fello && !d.fello.error && d.fello.leads) {
+      const f = d.fello;
+      $g("fello-board").style.display = "";
+      $g("f-total").textContent = f.total;
+      $g("f-unassigned").innerHTML = f.unassigned + ' <span class="cmp">' + Math.round(100 * f.unassigned / f.total) + '% of everything Felix sent</span>';
+      $g("f-legit").innerHTML = f.legit + ' <span class="cmp">' + Math.round(100 * f.legit / f.total) + '% of everything Felix sent</span>';
+
+      const claimedDead = f.total - f.unassigned - f.legit;
+      $g("f-bar").innerHTML =
+        '<span class="b-un" style="width:' + (100 * f.unassigned / f.total) + '%"></span>' +
+        '<span class="b-dead" style="width:' + (100 * claimedDead / f.total) + '%"></span>' +
+        '<span class="b-legit" style="width:' + (100 * f.legit / f.total) + '%"></span>';
+
+      const agRows = Object.entries(f.byAgent)
+        .sort((a, b) => b[1].total - a[1].total)
+        .map(([name, v]) => '<div class="lead"><span class="nm">' + esc(name) + '</span>' +
+             '<span><span class="agnum">' + v.total + '</span>' +
+             (v.legit ? ' <span class="vpill v-legit">' + v.legit + ' worth working</span>' : '') + '</span></div>').join("");
+      $g("f-agents").innerHTML = agRows;
+
+      // FUB stages that mean the lead actually moved, whatever the sheet says
+      const MOVED = new Set(["Spoke with Customer","Met with Customer","Appointment Set","Showing Homes","Under Contract","Submitting Offers","Closed"]);
+      const disagrees = l => l.verdict === "dead" && MOVED.has(l.fubStage);
+
+      let filter = "all";
+      const draw = () => {
+        const rows = f.leads.filter(l =>
+          filter === "all" ? true :
+          filter === "legit" ? l.verdict === "legit" :
+          filter === "unassigned" ? !l.agent :
+          disagrees(l));
+        $g("f-rows").innerHTML = rows.length ? rows.map(l =>
+          '<tr class="' + (l.verdict === "legit" ? "legit" : "") + '">' +
+          '<td><div class="nm">' + esc(l.name) + '</div>' + (l.note ? '<div class="sub">' + esc(l.note) + '</div>' : '') + '</td>' +
+          '<td>' + (l.agent ? '<span class="agpill">' + esc(l.agent) + '</span>' : '<span class="un">unclaimed</span>') + '</td>' +
+          '<td>' + (l.verdict === "legit" ? '<span class="vpill v-legit">worth working</span>' : '<span class="vpill v-dead">' + esc(l.status || "written off") + '</span>') + '</td>' +
+          '<td>' + (l.inFub ? (l.fubStage ? '<span class="stagepill">' + esc(l.fubStage) + '</span>' : '<span class="un">—</span>') : '<span class="un">not tagged</span>') + '</td>' +
+          '<td>' + (l.cold == null ? '<span class="un">—</span>' : l.cold + 'd') + '</td>' +
+          '</tr>').join("") : '<tr><td colspan="5" class="un" style="padding:14px 8px">Nothing in this view.</td></tr>';
+      };
+      draw();
+      [...$g("f-filters").querySelectorAll("button")].forEach(b => b.onclick = () => {
+        [...$g("f-filters").querySelectorAll("button")].forEach(x => x.classList.remove("on"));
+        b.classList.add("on"); filter = b.dataset.f; draw();
+      });
+
+      const moved = f.leads.filter(disagrees);
+      const flags = [];
+      if (moved.length) flags.push('<b>' + moved.length + ' written off in your sheet have moved in FUB:</b> ' + moved.map(l => esc(l.name) + " (" + esc(l.fubStage) + ")").join(", "));
+      if (f.missingTag.length) flags.push('<b>' + f.missingTag.length + ' missing the FELIX AI HANDOFF tag in FUB:</b> ' + f.missingTag.map(esc).join(", "));
+      if (f.unseen.length) flags.push('<b>' + f.unseen.length + ' tagged in FUB but not on your sheet:</b> ' + f.unseen.map(u => esc(u.name) + (u.fubStage ? " (" + esc(u.fubStage) + ")" : "")).join(", "));
+      $g("f-flags").innerHTML = flags.length ? '<div class="warn">' + flags.join("<br><br>") + '</div>' : "";
+      $g("f-updated").textContent = "Sheet last read " + f.updated + " — say \u201crefresh Fello\u201d after you update the Excel. Stage and quiet-days come live from Follow Up Boss.";
+    }
 
     $g("loading").style.display = "none";
     $g("cards").style.display = "";

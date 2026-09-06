@@ -1,0 +1,440 @@
+{
+ "updated": "2026-09-06",
+ "source": "AI Overviews.xlsx / Fello",
+ "rows": [
+  {
+   "name": "Brian Oliver",
+   "agent": "Brandi",
+   "status": "Appt Set",
+   "note": "",
+   "verdict": "legit"
+  },
+  {
+   "name": "Aimee Montana",
+   "agent": "Benjamin",
+   "status": "X",
+   "note": "Maybe?",
+   "verdict": "legit"
+  },
+  {
+   "name": "David Chisholm",
+   "agent": "",
+   "status": "Tucson",
+   "note": "JJ referred to Joshua Stanley",
+   "verdict": "dead"
+  },
+  {
+   "name": "Pancho Barasa",
+   "agent": "Time",
+   "status": "X",
+   "note": "",
+   "verdict": "dead"
+  },
+  {
+   "name": "Lisa Lantz Gettman",
+   "agent": "Benjamin",
+   "status": "X",
+   "note": "",
+   "verdict": "dead"
+  },
+  {
+   "name": "Rita Elias",
+   "agent": "Benjamin",
+   "status": "X",
+   "note": "",
+   "verdict": "dead"
+  },
+  {
+   "name": "Francisco Pajaro Sanudo",
+   "agent": "Lake",
+   "status": "X",
+   "note": "",
+   "verdict": "dead"
+  },
+  {
+   "name": "Aiden Meyers",
+   "agent": "Benjamin",
+   "status": "X",
+   "note": "Bought a year ago",
+   "verdict": "dead"
+  },
+  {
+   "name": "Rodney Huffman",
+   "agent": "Brandi",
+   "status": "X",
+   "note": "",
+   "verdict": "dead"
+  },
+  {
+   "name": "Ricardo Tapia",
+   "agent": "Time",
+   "status": "X",
+   "note": "",
+   "verdict": "dead"
+  },
+  {
+   "name": "Jonathan Carranza",
+   "agent": "",
+   "status": "X",
+   "note": "Chelsea tried to reach out, Jordan taking over",
+   "verdict": "dead"
+  },
+  {
+   "name": "Nadeen Ayyoub",
+   "agent": "Brandi",
+   "status": "X",
+   "note": "",
+   "verdict": "dead"
+  },
+  {
+   "name": "Spencer Lehr",
+   "agent": "Doug",
+   "status": "X",
+   "note": "",
+   "verdict": "dead"
+  },
+  {
+   "name": "Paul Clark",
+   "agent": "Benjamin",
+   "status": "X",
+   "note": "",
+   "verdict": "dead"
+  },
+  {
+   "name": "John White",
+   "agent": "Chelsea",
+   "status": "Buyer",
+   "note": "Spoke with but no real outreach",
+   "verdict": "dead"
+  },
+  {
+   "name": "Elena Zamora",
+   "agent": "",
+   "status": "X",
+   "note": "",
+   "verdict": "dead"
+  },
+  {
+   "name": "Kasondra Miller Amos",
+   "agent": "Brandi",
+   "status": "X",
+   "note": "",
+   "verdict": "dead"
+  },
+  {
+   "name": "Brian Hubbard",
+   "agent": "Chelsea",
+   "status": "Seller / Buyer",
+   "note": "",
+   "verdict": "legit"
+  },
+  {
+   "name": "Robert Terry",
+   "agent": "",
+   "status": "Tucson?",
+   "note": "Not referred out",
+   "verdict": "dead"
+  },
+  {
+   "name": "Laura Edith Sandoval",
+   "agent": "Doug",
+   "status": "X",
+   "note": "",
+   "verdict": "dead"
+  },
+  {
+   "name": "Francisco Escalante",
+   "agent": "Doug",
+   "status": "X",
+   "note": "",
+   "verdict": "dead"
+  },
+  {
+   "name": "Alexandra Ashburner",
+   "agent": "",
+   "status": "X",
+   "note": "dead lead",
+   "verdict": "dead"
+  },
+  {
+   "name": "Monse Velasquez",
+   "agent": "Time",
+   "status": "X",
+   "note": "",
+   "verdict": "dead"
+  },
+  {
+   "name": "Jason Perea",
+   "agent": "Lake",
+   "status": "Buyer",
+   "note": "Spoke with customer",
+   "verdict": "dead"
+  },
+  {
+   "name": "Tanya Czuchra",
+   "agent": "",
+   "status": "Agent",
+   "note": "",
+   "verdict": "dead"
+  },
+  {
+   "name": "Thanh Nguyen",
+   "agent": "",
+   "status": "Out of state",
+   "note": "",
+   "verdict": "dead"
+  },
+  {
+   "name": "Andre Nitze",
+   "agent": "",
+   "status": "Out of state",
+   "note": "",
+   "verdict": "dead"
+  },
+  {
+   "name": "Maria Orozco",
+   "agent": "Jessenia",
+   "status": "Renter",
+   "note": "",
+   "verdict": "dead"
+  },
+  {
+   "name": "Linda Ortega",
+   "agent": "",
+   "status": "X",
+   "note": "",
+   "verdict": "dead"
+  },
+  {
+   "name": "Jodi Walters",
+   "agent": "",
+   "status": "Looking for lender",
+   "note": "",
+   "verdict": "dead"
+  },
+  {
+   "name": "Helen Anderson",
+   "agent": "Doug",
+   "status": "Buyer / Seller",
+   "note": "next monday",
+   "verdict": "legit"
+  },
+  {
+   "name": "Walter Jones",
+   "agent": "Time",
+   "status": "X",
+   "note": "NOT Tagged",
+   "verdict": "legit"
+  },
+  {
+   "name": "Sammey Mustafa",
+   "agent": "Time",
+   "status": "X",
+   "note": "Connected with Ryan NOT Tagged",
+   "verdict": "legit"
+  },
+  {
+   "name": "Michelle Murray Viether",
+   "agent": "",
+   "status": "",
+   "note": "",
+   "verdict": "dead"
+  },
+  {
+   "name": "Regina Royster",
+   "agent": "",
+   "status": "Housekeeper",
+   "note": "",
+   "verdict": "dead"
+  },
+  {
+   "name": "PatriciaAnne Lorenz-Ray",
+   "agent": "Roberta",
+   "status": "X",
+   "note": "",
+   "verdict": "dead"
+  },
+  {
+   "name": "Cindy Kerkos-Britt",
+   "agent": "",
+   "status": "X",
+   "note": "dead lead",
+   "verdict": "dead"
+  },
+  {
+   "name": "Justin Gionet",
+   "agent": "Roberta",
+   "status": "X",
+   "note": "",
+   "verdict": "dead"
+  },
+  {
+   "name": "Elena Caballero",
+   "agent": "Time",
+   "status": "X",
+   "note": "",
+   "verdict": "dead"
+  },
+  {
+   "name": "Jamie Zumkley",
+   "agent": "",
+   "status": "X",
+   "note": "",
+   "verdict": "dead"
+  },
+  {
+   "name": "Lonny Vigen",
+   "agent": "Roberta",
+   "status": "X",
+   "note": "",
+   "verdict": "dead"
+  },
+  {
+   "name": "Rex Foley",
+   "agent": "Doug",
+   "status": "X",
+   "note": "",
+   "verdict": "dead"
+  },
+  {
+   "name": "Sonia Corazon",
+   "agent": "",
+   "status": "",
+   "note": "",
+   "verdict": "dead"
+  },
+  {
+   "name": "Rosario Tinoco",
+   "agent": "",
+   "status": "",
+   "note": "NOT Tagged",
+   "verdict": "dead"
+  },
+  {
+   "name": "Marty Springer",
+   "agent": "",
+   "status": "X",
+   "note": "",
+   "verdict": "dead"
+  },
+  {
+   "name": "Matthew Cruz",
+   "agent": "",
+   "status": "X",
+   "note": "",
+   "verdict": "dead"
+  },
+  {
+   "name": "Joshua Ortiz",
+   "agent": "",
+   "status": "X",
+   "note": "",
+   "verdict": "dead"
+  },
+  {
+   "name": "Mary Sturtz",
+   "agent": "",
+   "status": "X",
+   "note": "",
+   "verdict": "dead"
+  },
+  {
+   "name": "Andrew Baker",
+   "agent": "",
+   "status": "X",
+   "note": "",
+   "verdict": "dead"
+  },
+  {
+   "name": "Phil Corliss",
+   "agent": "",
+   "status": "X",
+   "note": "",
+   "verdict": "dead"
+  },
+  {
+   "name": "Robert Carden",
+   "agent": "",
+   "status": "X",
+   "note": "",
+   "verdict": "dead"
+  },
+  {
+   "name": "Lizsandra Tapia",
+   "agent": "",
+   "status": "X",
+   "note": "",
+   "verdict": "dead"
+  },
+  {
+   "name": "Randy Winchel",
+   "agent": "",
+   "status": "X",
+   "note": "",
+   "verdict": "dead"
+  },
+  {
+   "name": "Isaiah Davis",
+   "agent": "",
+   "status": "X",
+   "note": "",
+   "verdict": "dead"
+  },
+  {
+   "name": "Kat Markham",
+   "agent": "",
+   "status": "X",
+   "note": "62 total",
+   "verdict": "dead"
+  },
+  {
+   "name": "Donna Moan",
+   "agent": "",
+   "status": "X",
+   "note": "",
+   "verdict": "dead"
+  },
+  {
+   "name": "Chris Robinson",
+   "agent": "",
+   "status": "X",
+   "note": "Stage Count % of 62",
+   "verdict": "dead"
+  },
+  {
+   "name": "Gay Caudill",
+   "agent": "",
+   "status": "X",
+   "note": "Handed off 62 100%",
+   "verdict": "dead"
+  },
+  {
+   "name": "Kim Hall",
+   "agent": "",
+   "status": "X",
+   "note": "Assigned to an agent 28 45%",
+   "verdict": "dead"
+  },
+  {
+   "name": "Raquel Martinez",
+   "agent": "",
+   "status": "X",
+   "note": "Real contact made 6 10%",
+   "verdict": "dead"
+  },
+  {
+   "name": "Diego Martinez",
+   "agent": "",
+   "status": "X",
+   "note": "Appointments set 2 3%",
+   "verdict": "dead"
+  },
+  {
+   "name": "Kathy Pearson",
+   "agent": "",
+   "status": "X",
+   "note": "Appointments met 1 1.6%",
+   "verdict": "dead"
+  }
+ ]
+}
