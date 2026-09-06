@@ -327,12 +327,23 @@ export function handleBots(req, res) {
           const unseen = rFelix.filter(m => !sheetNames.has(norm(m.name)))
             .map(m => ({ name: m.name, agent: m.agent, fubStage: m.stage, cold: daysSince(m.updated) }));
 
+          // Appointments are matched on the lead, not the agent's name — the sheet
+          // uses first names and FUB uses full ones, so joining on the person avoids it.
+          const setNames = new Set((apptLists.felixSet || []).map(a => norm(a.name)));
+          const metNames = new Set((apptLists.felixMet || []).map(a => norm(a.name)));
+          for (const l of leads) {
+            l.apptSet = setNames.has(norm(l.name));
+            l.apptMet = metNames.has(norm(l.name));
+          }
+
           const byAgent = {};
           for (const l of leads) {
             const k = l.agent || "(unassigned)";
-            byAgent[k] = byAgent[k] || { total: 0, legit: 0 };
+            byAgent[k] = byAgent[k] || { total: 0, legit: 0, set: 0, met: 0 };
             byAgent[k].total++;
             if (l.verdict === "legit") byAgent[k].legit++;
+            if (l.apptSet) byAgent[k].set++;
+            if (l.apptMet) byAgent[k].met++;
           }
           fello = {
             updated: sheet.updated,
@@ -341,6 +352,8 @@ export function handleBots(req, res) {
             unassigned: leads.filter(l => !l.agent).length,
             legit: leads.filter(l => l.verdict === "legit").length,
             dead: leads.filter(l => l.verdict === "dead").length,
+            set: leads.filter(l => l.apptSet).length,
+            met: leads.filter(l => l.apptMet).length,
             missingTag: leads.filter(l => !l.inFub).map(l => l.name),
             unseen,
             byAgent,

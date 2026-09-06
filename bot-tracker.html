@@ -161,6 +161,9 @@
             <div class="stat"><div class="l">Handed off</div><div class="v" id="f-total"></div></div>
             <div class="stat"><div class="l">Unclaimed</div><div class="v" id="f-unassigned"></div></div>
             <div class="stat"><div class="l">Worth working</div><div class="v" id="f-legit"></div></div>
+            <div class="stat"><div class="l">Appointments set</div><div class="v" id="f-set"></div></div>
+            <div class="stat"><div class="l">Appointments met</div><div class="v" id="f-met"></div></div>
+            <div class="stat"><div class="l">Set &rarr; met</div><div class="v" id="f-showrate"></div></div>
           </div>
           <div class="fbar" id="f-bar"></div>
           <div class="fkey">
@@ -180,7 +183,7 @@
           </div>
           <div class="ftblwrap">
             <table class="ftbl">
-              <thead><tr><th>Name</th><th>Agent</th><th>Your call</th><th>Where FUB has them</th><th>Quiet</th></tr></thead>
+              <thead><tr><th>Name</th><th>Agent</th><th>Your call</th><th>Where FUB has them</th><th>Appt / quiet</th></tr></thead>
               <tbody id="f-rows"></tbody>
             </table>
           </div>
@@ -331,12 +334,25 @@ async function load() {
         '<span class="b-dead" style="width:' + (100 * claimedDead / f.total) + '%"></span>' +
         '<span class="b-legit" style="width:' + (100 * f.legit / f.total) + '%"></span>';
 
-      const agRows = Object.entries(f.byAgent)
-        .sort((a, b) => b[1].total - a[1].total)
-        .map(([name, v]) => '<div class="lead"><span class="nm">' + esc(name) + '</span>' +
-             '<span><span class="agnum">' + v.total + '</span>' +
-             (v.legit ? ' <span class="vpill v-legit">' + v.legit + ' worth working</span>' : '') + '</span></div>').join("");
-      $g("f-agents").innerHTML = agRows;
+      const pct = (n, d) => d ? Math.round(100 * n / d) + "%" : "\u2014";
+      $g("f-set").innerHTML = f.set + ' <span class="cmp">' + pct(f.set, f.total) + ' of handoffs</span>';
+      $g("f-met").innerHTML = f.met + ' <span class="cmp">' + pct(f.met, f.total) + ' of handoffs</span>';
+      $g("f-showrate").innerHTML = pct(f.met, f.set) + ' <span class="cmp">of set appointments were met</span>';
+
+      const agRows = '<table class="ftbl"><thead><tr><th>Agent</th><th>Leads</th><th>Worth working</th>' +
+        '<th>Set</th><th>Met</th><th>Set rate</th><th>Show rate</th></tr></thead><tbody>' +
+        Object.entries(f.byAgent)
+          .sort((a, b) => (b[1].set - a[1].set) || (b[1].total - a[1].total))
+          .map(([name, v]) =>
+            '<tr><td class="nm">' + esc(name) + '</td>' +
+            '<td>' + v.total + '</td>' +
+            '<td>' + (v.legit || '<span class="un">0</span>') + '</td>' +
+            '<td>' + (v.set || '<span class="un">0</span>') + '</td>' +
+            '<td>' + (v.met || '<span class="un">0</span>') + '</td>' +
+            '<td>' + pct(v.set, v.total) + '</td>' +
+            '<td>' + pct(v.met, v.set) + '</td></tr>').join("") +
+        '</tbody></table>';
+      $g("f-agents").innerHTML = '<div class="ftblwrap">' + agRows + '</div>';
 
       // FUB stages that mean the lead actually moved, whatever the sheet says
       const MOVED = new Set(["Spoke with Customer","Met with Customer","Appointment Set","Showing Homes","Under Contract","Submitting Offers","Closed"]);
@@ -355,7 +371,7 @@ async function load() {
           '<td>' + (l.agent ? '<span class="agpill">' + esc(l.agent) + '</span>' : '<span class="un">unclaimed</span>') + '</td>' +
           '<td>' + (l.verdict === "legit" ? '<span class="vpill v-legit">worth working</span>' : '<span class="vpill v-dead">' + esc(l.status || "written off") + '</span>') + '</td>' +
           '<td>' + (l.inFub ? (l.fubStage ? '<span class="stagepill">' + esc(l.fubStage) + '</span>' : '<span class="un">—</span>') : '<span class="un">not tagged</span>') + '</td>' +
-          '<td>' + (l.cold == null ? '<span class="un">—</span>' : l.cold + 'd') + '</td>' +
+          '<td>' + (l.apptMet ? '<span class="vpill v-legit">met</span>' : l.apptSet ? '<span class="vpill v-legit">set</span>' : (l.cold == null ? '<span class="un">—</span>' : l.cold + 'd')) + '</td>' +
           '</tr>').join("") : '<tr><td colspan="5" class="un" style="padding:14px 8px">Nothing in this view.</td></tr>';
       };
       draw();
