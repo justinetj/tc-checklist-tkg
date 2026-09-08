@@ -85,14 +85,15 @@
   .fold-n { font-size:11px; color:#a99bb5; flex:1; }
   .fold-c { color:#c3b5cd; font-size:10px; transition:transform .16s ease; }
   .fold.open .fold-c { transform:rotate(90deg); }
-  .fstrip { display:flex; flex-wrap:wrap; gap:5px; margin:0 0 8px; }
-  .fs { flex:1 1 78px; background:#faf5fd; border:1px solid #eadef0; border-radius:8px; padding:6px 9px; }
+  .fstrip { display:flex; flex-wrap:wrap; gap:4px; margin:0 0 7px; }
+  .fs { display:inline-flex; align-items:baseline; gap:5px; flex:0 0 auto; background:#faf5fd;
+        border:1px solid #eadef0; border-radius:99px; padding:3px 10px; white-space:nowrap; }
   .fsbtn { cursor:pointer; transition:border-color .14s, background .14s; }
   .fsbtn:hover { border-color:#CB2CFB; }
   .fsbtn.open { border-color:#CB2CFB; background:#fdf0ff; }
-  .fs-n { display:block; font-size:14px; font-weight:600; color:#66187E; font-variant-numeric:tabular-nums; line-height:1.2; }
-  .fs-l { display:block; font-size:9.5px; font-weight:600; text-transform:uppercase; letter-spacing:.05em; color:#8a7d95; margin-top:1px; }
-  .fs .sub { display:block; font-size:9.5px; color:#a99bb5; font-weight:400; letter-spacing:0; text-transform:none; }
+  .fs-n { font-size:13px; font-weight:600; color:#66187E; font-variant-numeric:tabular-nums; line-height:1.3; }
+  .fs-l { font-size:9.5px; font-weight:600; text-transform:uppercase; letter-spacing:.05em; color:#8a7d95; }
+  .fs .sub { display:none; }
   .fs.hi { background:#f6edfb; border-color:#dcc4ea; }
   .ftbl.compact th { padding:5px 7px; font-size:9.5px; }
   .ftbl.compact td { padding:5px 7px; font-size:12px; }
