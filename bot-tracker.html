@@ -72,6 +72,17 @@
   .warn { background:#fffbe8; border:1px dashed #e0c65a; border-radius:10px; padding:9px 13px; font-size:11.5px; color:#7a6413; line-height:1.5; margin-top:12px; }
   .fnote { font-size:11px; color:#a99bb5; margin-top:8px; }
   .ftblwrap { overflow-x:auto; }
+  .fstrip { display:flex; flex-wrap:wrap; gap:6px; margin:2px 0 10px; }
+  .fs { flex:1 1 88px; background:#faf5fd; border:1px solid #eadef0; border-radius:9px; padding:7px 10px; }
+  .fs-n { display:block; font-size:15px; font-weight:600; color:#66187E; font-variant-numeric:tabular-nums; line-height:1.2; }
+  .fs-l { display:block; font-size:9.5px; font-weight:600; text-transform:uppercase; letter-spacing:.05em; color:#8a7d95; margin-top:1px; }
+  .fs .sub { display:block; font-size:9.5px; color:#a99bb5; font-weight:400; letter-spacing:0; text-transform:none; }
+  .fs.hi { background:#f6edfb; border-color:#dcc4ea; }
+  .ftbl.compact th { padding:5px 7px; font-size:9.5px; }
+  .ftbl.compact td { padding:5px 7px; font-size:12px; }
+  .ftbl.compact .num { text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap; }
+  .rate { font-weight:600; color:#5f1f7a; font-variant-numeric:tabular-nums; }
+  .rate.zero { color:#b3a6bf; font-weight:400; }
   .note { text-align:center; font-size:11px; color:#a99bb5; margin-top:18px; }
   .backrow { text-align:center; margin-top:26px; }
   .backrow a { font-size:12px; font-weight:600; color:#66187E; text-decoration:none; border:1px solid #eadef0; border-radius:99px; padding:8px 20px; background:white; }
@@ -157,13 +168,13 @@
 
         <div id="fello-board" style="display:none">
           <div class="divider"><span class="t">Lead board</span><span class="ln"></span></div>
-          <div class="grid3">
-            <div class="stat"><div class="l">Handed off</div><div class="v" id="f-total"></div></div>
-            <div class="stat"><div class="l">Unclaimed</div><div class="v" id="f-unassigned"></div></div>
-            <div class="stat"><div class="l">Worth working</div><div class="v" id="f-legit"></div></div>
-            <div class="stat"><div class="l">Appointments set</div><div class="v" id="f-set"></div></div>
-            <div class="stat"><div class="l">Appointments met</div><div class="v" id="f-met"></div></div>
-            <div class="stat"><div class="l">Set &rarr; met</div><div class="v" id="f-showrate"></div></div>
+          <div class="fstrip">
+            <div class="fs"><span class="fs-n" id="f-total"></span><span class="fs-l">handed off</span></div>
+            <div class="fs"><span class="fs-n" id="f-unassigned"></span><span class="fs-l">unclaimed</span></div>
+            <div class="fs"><span class="fs-n" id="f-legit"></span><span class="fs-l">worth working</span></div>
+            <div class="fs"><span class="fs-n" id="f-set"></span><span class="fs-l">appts set</span></div>
+            <div class="fs"><span class="fs-n" id="f-met"></span><span class="fs-l">appts met</span></div>
+            <div class="fs hi"><span class="fs-n" id="f-showrate"></span><span class="fs-l">met of set</span></div>
           </div>
           <div class="fbar" id="f-bar"></div>
           <div class="fkey">
@@ -182,7 +193,7 @@
             <button data-f="moved">FUB disagrees</button>
           </div>
           <div class="ftblwrap">
-            <table class="ftbl">
+            <table class="ftbl compact">
               <thead><tr><th>Name</th><th>Agent</th><th>Your call</th><th>Where FUB has them</th><th>Appt / quiet</th></tr></thead>
               <tbody id="f-rows"></tbody>
             </table>
@@ -325,8 +336,8 @@ async function load() {
       const f = d.fello;
       $g("fello-board").style.display = "";
       $g("f-total").textContent = f.total;
-      $g("f-unassigned").innerHTML = f.unassigned + ' <span class="cmp">' + Math.round(100 * f.unassigned / f.total) + '% of everything Felix sent</span>';
-      $g("f-legit").innerHTML = f.legit + ' <span class="cmp">' + Math.round(100 * f.legit / f.total) + '% of everything Felix sent</span>';
+      $g("f-unassigned").innerHTML = f.unassigned + '<span class="sub">' + Math.round(100 * f.unassigned / f.total) + '%</span>';
+      $g("f-legit").innerHTML = f.legit + '<span class="sub">' + Math.round(100 * f.legit / f.total) + '%</span>';
 
       const claimedDead = f.total - f.unassigned - f.legit;
       $g("f-bar").innerHTML =
@@ -335,22 +346,24 @@ async function load() {
         '<span class="b-legit" style="width:' + (100 * f.legit / f.total) + '%"></span>';
 
       const pct = (n, d) => d ? Math.round(100 * n / d) + "%" : "\u2014";
-      $g("f-set").innerHTML = f.set + ' <span class="cmp">' + pct(f.set, f.total) + ' of handoffs</span>';
-      $g("f-met").innerHTML = f.met + ' <span class="cmp">' + pct(f.met, f.total) + ' of handoffs</span>';
-      $g("f-showrate").innerHTML = pct(f.met, f.set) + ' <span class="cmp">of set appointments were met</span>';
+      $g("f-set").innerHTML = f.set + '<span class="sub">' + pct(f.set, f.total) + ' of handoffs</span>';
+      $g("f-met").innerHTML = f.met + '<span class="sub">' + pct(f.met, f.total) + ' of handoffs</span>';
+      $g("f-showrate").innerHTML = pct(f.met, f.set) + '<span class="sub">' + f.met + ' of ' + f.set + '</span>';
 
-      const agRows = '<table class="ftbl"><thead><tr><th>Agent</th><th>Leads</th><th>Worth working</th>' +
-        '<th>Set</th><th>Met</th><th>Set rate</th><th>Show rate</th></tr></thead><tbody>' +
+      const z = n => n ? n : '<span class="un">0</span>';
+      const rate = (n, d) => d ? '<span class="rate' + (n ? '' : ' zero') + '">' + Math.round(100 * n / d) + '%</span>' : '<span class="un">\u2014</span>';
+      const agRows = '<table class="ftbl compact"><thead><tr><th>Agent</th><th class="num">Leads</th><th class="num">Worth</th>' +
+        '<th class="num">Set</th><th class="num">Met</th><th class="num">Set rate</th><th class="num">Met of set</th></tr></thead><tbody>' +
         Object.entries(f.byAgent)
-          .sort((a, b) => (b[1].set - a[1].set) || (b[1].total - a[1].total))
+          .sort((a, b) => (b[1].met - a[1].met) || (b[1].set - a[1].set) || (b[1].total - a[1].total))
           .map(([name, v]) =>
             '<tr><td class="nm">' + esc(name) + '</td>' +
-            '<td>' + v.total + '</td>' +
-            '<td>' + (v.legit || '<span class="un">0</span>') + '</td>' +
-            '<td>' + (v.set || '<span class="un">0</span>') + '</td>' +
-            '<td>' + (v.met || '<span class="un">0</span>') + '</td>' +
-            '<td>' + pct(v.set, v.total) + '</td>' +
-            '<td>' + pct(v.met, v.set) + '</td></tr>').join("") +
+            '<td class="num">' + v.total + '</td>' +
+            '<td class="num">' + z(v.legit) + '</td>' +
+            '<td class="num">' + z(v.set) + '</td>' +
+            '<td class="num">' + z(v.met) + '</td>' +
+            '<td class="num">' + rate(v.set, v.total) + '</td>' +
+            '<td class="num">' + rate(v.met, v.set) + '</td></tr>').join("") +
         '</tbody></table>';
       $g("f-agents").innerHTML = '<div class="ftblwrap">' + agRows + '</div>';
 
