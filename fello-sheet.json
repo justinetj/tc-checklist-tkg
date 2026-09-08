@@ -1,5 +1,5 @@
 {
- "updated": "2026-09-06",
+ "updated": "2026-09-07",
  "source": "AI Overviews.xlsx / Fello",
  "rows": [
   {
@@ -435,6 +435,76 @@
    "status": "X",
    "note": "Appointments met 1 1.6%",
    "verdict": "dead"
+  },
+  {
+   "name": "Julie Apodaca",
+   "agent": "Benjamin",
+   "status": "spoke w on the phone",
+   "note": "",
+   "verdict": "legit"
+  },
+  {
+   "name": "ladonna rapier",
+   "agent": "lake",
+   "status": "met with customer",
+   "note": "showed homes",
+   "verdict": "unmarked"
+  },
+  {
+   "name": "linda taylor",
+   "agent": "chelsea",
+   "status": "spoke w on the phone",
+   "note": "",
+   "verdict": "unmarked"
+  },
+  {
+   "name": "Roni Haught",
+   "agent": "Benjamin",
+   "status": "spoke w on the phone",
+   "note": "long term nurture",
+   "verdict": "unmarked"
+  },
+  {
+   "name": "Dakota Trojn",
+   "agent": "",
+   "status": "No longer looking rented a place",
+   "note": "",
+   "verdict": "unmarked"
+  },
+  {
+   "name": "Evan Marcuson",
+   "agent": "Ben?",
+   "status": "tbd",
+   "note": "",
+   "verdict": "unmarked"
+  },
+  {
+   "name": "Phyllis Williams",
+   "agent": "",
+   "status": "Tucson",
+   "note": "Referral to Joshua",
+   "verdict": "unmarked"
+  },
+  {
+   "name": "Gina Manross",
+   "agent": "Keith",
+   "status": "tbd",
+   "note": "kingman",
+   "verdict": "unmarked"
+  },
+  {
+   "name": "Mattie Harper",
+   "agent": "Lake",
+   "status": "tbd",
+   "note": "",
+   "verdict": "unmarked"
+  },
+  {
+   "name": "GIna Burt",
+   "agent": "",
+   "status": "-",
+   "note": "not a lead",
+   "verdict": "unmarked"
   }
  ]
 }
