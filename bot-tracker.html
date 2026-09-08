@@ -103,52 +103,6 @@
   <div class="cards" id="cards" style="display:none">
 
     <div class="card">
-      <div class="card-hd"><h2>HouseWhisper</h2><span class="pill" id="hw-week"></span></div>
-      <div class="card-bd">
-        <div class="divider"><span class="t">Today · <span id="today-label"></span></span><span class="ln"></span></div>
-        <div class="grid3">
-          <div class="stat"><div class="l">Dials today</div><div class="v" id="s-dialstoday"></div></div>
-          <div class="stat"><div class="l">Answered today</div><div class="v" id="s-answtoday"></div></div>
-          <div class="stat"><div class="l">Pick-up today</div><div class="v" id="s-picktoday"></div></div>
-        </div>
-        <div class="divider"><span class="t">This Week</span><span class="ln"></span></div>
-        <div class="grid3">
-          <div class="stat"><div class="l">Dials</div><div class="v" id="s-dials"></div></div>
-          <div class="stat"><div class="l">Engagements</div><div class="v" id="s-engaged"></div></div>
-          <div class="stat"><div class="l">Pick-up ratio</div><div class="v" id="s-pickup"></div></div>
-        </div>
-        <div class="divider"><span class="t">Results — tap a box to see agents</span><span class="ln"></span></div>
-        <div class="grid colhead"><div>All time</div><div>This week</div></div>
-        <div class="grid">
-          <div class="stat statbtn" onclick="togList('l-conn', this)"><div class="l">Connections <span class="car">&#9656;</span></div><div class="v" id="s-conn"></div></div>
-          <div class="stat statbtn" onclick="togList('l-connwk', this)"><div class="l">Connections <span class="car">&#9656;</span></div><div class="v" id="s-connwk"></div></div>
-          <div class="stat statbtn" onclick="togList('l-transfer', this)"><div class="l">Live call transfers <span class="car">&#9656;</span></div><div class="v" id="s-transfer"></div></div>
-          <div class="stat statbtn" onclick="togList('l-transferwk', this)"><div class="l">Live call transfers <span class="car">&#9656;</span></div><div class="v" id="s-transferwk"></div></div>
-          <div class="stat statbtn" onclick="togList('l-intro', this)"><div class="l">3-way intros <span class="car">&#9656;</span></div><div class="v" id="s-intro"></div></div>
-          <div class="stat statbtn" onclick="togList('l-introwk', this)"><div class="l">3-way intros <span class="car">&#9656;</span></div><div class="v" id="s-introwk"></div></div>
-          <div class="stat statbtn" onclick="togList('l-converted', this)"><div class="l">Converted <span class="car">&#9656;</span></div><div class="v" id="s-converted"></div></div>
-          <div class="stat statbtn" onclick="togList('l-convertedwk', this)"><div class="l">Converted <span class="car">&#9656;</span></div><div class="v" id="s-convertedwk"></div></div>
-        </div>
-        <div class="divider"><span class="t">Appointments · all time</span><span class="ln"></span></div>
-        <div class="grid3">
-          <div class="stat statbtn" onclick="togList('l-apptset', this)"><div class="l">Set <span class="car">&#9656;</span></div><div class="v" id="s-apptset"></div></div>
-          <div class="stat statbtn" onclick="togList('l-apptmet', this)"><div class="l">Met <span class="car">&#9656;</span></div><div class="v" id="s-apptmet"></div></div>
-          <div class="stat"><div class="l">Met-with ratio</div><div class="v" id="s-metratio"></div></div>
-        </div>
-        <div id="l-connwk" class="aglist" style="display:none"><div class="sect">Connections this week — by agent</div><div class="aglist-bd"></div></div>
-        <div id="l-transferwk" class="aglist" style="display:none"><div class="sect">Live call transfers this week — by agent</div><div class="aglist-bd"></div></div>
-        <div id="l-introwk" class="aglist" style="display:none"><div class="sect">3-way intros this week — by agent</div><div class="aglist-bd"></div></div>
-        <div id="l-convertedwk" class="aglist" style="display:none"><div class="sect">Converted this week — by agent</div><div class="aglist-bd"></div></div>
-        <div id="l-conn" class="aglist" style="display:none"><div class="sect">Connections — by agent, with how each came in</div><div class="aglist-bd"></div></div>
-        <div id="l-apptset" class="aglist" style="display:none"><div class="sect">Appointments set — by agent</div><div class="aglist-bd"></div></div>
-        <div id="l-apptmet" class="aglist" style="display:none"><div class="sect">Appointments met — by agent</div><div class="aglist-bd"></div></div>
-        <div id="l-transfer" class="aglist" style="display:none"><div class="sect">Live transfers — by agent</div><div class="aglist-bd"></div></div>
-        <div id="l-intro" class="aglist" style="display:none"><div class="sect">3-way intros — by agent</div><div class="aglist-bd"></div></div>
-        <div id="l-converted" class="aglist" style="display:none"><div class="sect">Converted — by agent</div><div class="aglist-bd"></div></div>
-      </div>
-    </div>
-
-    <div class="card">
       <div class="card-hd"><h2>Fello — Felix AI</h2><span class="tagname">FELIX AI HANDOFF</span></div>
       <div class="card-bd">
         <div class="divider"><span class="t">Handoffs</span><span class="ln"></span></div>
@@ -201,6 +155,52 @@
           <div id="f-flags"></div>
           <div class="fnote" id="f-updated"></div>
         </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-hd"><h2>HouseWhisper</h2><span class="pill" id="hw-week"></span></div>
+      <div class="card-bd">
+        <div class="divider"><span class="t">Today · <span id="today-label"></span></span><span class="ln"></span></div>
+        <div class="grid3">
+          <div class="stat"><div class="l">Dials today</div><div class="v" id="s-dialstoday"></div></div>
+          <div class="stat"><div class="l">Answered today</div><div class="v" id="s-answtoday"></div></div>
+          <div class="stat"><div class="l">Pick-up today</div><div class="v" id="s-picktoday"></div></div>
+        </div>
+        <div class="divider"><span class="t">This Week</span><span class="ln"></span></div>
+        <div class="grid3">
+          <div class="stat"><div class="l">Dials</div><div class="v" id="s-dials"></div></div>
+          <div class="stat"><div class="l">Engagements</div><div class="v" id="s-engaged"></div></div>
+          <div class="stat"><div class="l">Pick-up ratio</div><div class="v" id="s-pickup"></div></div>
+        </div>
+        <div class="divider"><span class="t">Results — tap a box to see agents</span><span class="ln"></span></div>
+        <div class="grid colhead"><div>All time</div><div>This week</div></div>
+        <div class="grid">
+          <div class="stat statbtn" onclick="togList('l-conn', this)"><div class="l">Connections <span class="car">&#9656;</span></div><div class="v" id="s-conn"></div></div>
+          <div class="stat statbtn" onclick="togList('l-connwk', this)"><div class="l">Connections <span class="car">&#9656;</span></div><div class="v" id="s-connwk"></div></div>
+          <div class="stat statbtn" onclick="togList('l-transfer', this)"><div class="l">Live call transfers <span class="car">&#9656;</span></div><div class="v" id="s-transfer"></div></div>
+          <div class="stat statbtn" onclick="togList('l-transferwk', this)"><div class="l">Live call transfers <span class="car">&#9656;</span></div><div class="v" id="s-transferwk"></div></div>
+          <div class="stat statbtn" onclick="togList('l-intro', this)"><div class="l">3-way intros <span class="car">&#9656;</span></div><div class="v" id="s-intro"></div></div>
+          <div class="stat statbtn" onclick="togList('l-introwk', this)"><div class="l">3-way intros <span class="car">&#9656;</span></div><div class="v" id="s-introwk"></div></div>
+          <div class="stat statbtn" onclick="togList('l-converted', this)"><div class="l">Converted <span class="car">&#9656;</span></div><div class="v" id="s-converted"></div></div>
+          <div class="stat statbtn" onclick="togList('l-convertedwk', this)"><div class="l">Converted <span class="car">&#9656;</span></div><div class="v" id="s-convertedwk"></div></div>
+        </div>
+        <div class="divider"><span class="t">Appointments · all time</span><span class="ln"></span></div>
+        <div class="grid3">
+          <div class="stat statbtn" onclick="togList('l-apptset', this)"><div class="l">Set <span class="car">&#9656;</span></div><div class="v" id="s-apptset"></div></div>
+          <div class="stat statbtn" onclick="togList('l-apptmet', this)"><div class="l">Met <span class="car">&#9656;</span></div><div class="v" id="s-apptmet"></div></div>
+          <div class="stat"><div class="l">Met-with ratio</div><div class="v" id="s-metratio"></div></div>
+        </div>
+        <div id="l-connwk" class="aglist" style="display:none"><div class="sect">Connections this week — by agent</div><div class="aglist-bd"></div></div>
+        <div id="l-transferwk" class="aglist" style="display:none"><div class="sect">Live call transfers this week — by agent</div><div class="aglist-bd"></div></div>
+        <div id="l-introwk" class="aglist" style="display:none"><div class="sect">3-way intros this week — by agent</div><div class="aglist-bd"></div></div>
+        <div id="l-convertedwk" class="aglist" style="display:none"><div class="sect">Converted this week — by agent</div><div class="aglist-bd"></div></div>
+        <div id="l-conn" class="aglist" style="display:none"><div class="sect">Connections — by agent, with how each came in</div><div class="aglist-bd"></div></div>
+        <div id="l-apptset" class="aglist" style="display:none"><div class="sect">Appointments set — by agent</div><div class="aglist-bd"></div></div>
+        <div id="l-apptmet" class="aglist" style="display:none"><div class="sect">Appointments met — by agent</div><div class="aglist-bd"></div></div>
+        <div id="l-transfer" class="aglist" style="display:none"><div class="sect">Live transfers — by agent</div><div class="aglist-bd"></div></div>
+        <div id="l-intro" class="aglist" style="display:none"><div class="sect">3-way intros — by agent</div><div class="aglist-bd"></div></div>
+        <div id="l-converted" class="aglist" style="display:none"><div class="sect">Converted — by agent</div><div class="aglist-bd"></div></div>
       </div>
     </div>
 
