@@ -352,14 +352,13 @@ async function load() {
 
       const z = n => n ? n : '<span class="un">0</span>';
       const rate = (n, d) => d ? '<span class="rate' + (n ? '' : ' zero') + '">' + Math.round(100 * n / d) + '%</span>' : '<span class="un">\u2014</span>';
-      const agRows = '<table class="ftbl compact"><thead><tr><th>Agent</th><th class="num">Leads</th><th class="num">Legit</th>' +
+      const agRows = '<table class="ftbl compact"><thead><tr><th>Agent</th><th class="num">Leads</th>' +
         '<th class="num">Set</th><th class="num">Met</th><th class="num">Set rate</th><th class="num">Met of set</th></tr></thead><tbody>' +
         Object.entries(f.byAgent)
           .sort((a, b) => (b[1].met - a[1].met) || (b[1].set - a[1].set) || (b[1].total - a[1].total))
           .map(([name, v]) =>
             '<tr><td class="nm">' + esc(name) + '</td>' +
             '<td class="num">' + v.total + '</td>' +
-            '<td class="num">' + z(v.legit) + '</td>' +
             '<td class="num">' + z(v.set) + '</td>' +
             '<td class="num">' + z(v.met) + '</td>' +
             '<td class="num">' + rate(v.set, v.total) + '</td>' +
