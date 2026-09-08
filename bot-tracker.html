@@ -125,7 +125,7 @@
           <div class="fstrip">
             <div class="fs"><span class="fs-n" id="f-total"></span><span class="fs-l">handed off</span></div>
             <div class="fs"><span class="fs-n" id="f-unassigned"></span><span class="fs-l">unclaimed</span></div>
-            <div class="fs"><span class="fs-n" id="f-legit"></span><span class="fs-l">worth working</span></div>
+            <div class="fs"><span class="fs-n" id="f-legit"></span><span class="fs-l">legit</span></div>
             <div class="fs"><span class="fs-n" id="f-set"></span><span class="fs-l">appts set</span></div>
             <div class="fs"><span class="fs-n" id="f-met"></span><span class="fs-l">appts met</span></div>
             <div class="fs hi"><span class="fs-n" id="f-showrate"></span><span class="fs-l">met of set</span></div>
@@ -142,7 +142,7 @@
 
           <div class="ffilter" id="f-filters">
             <button data-f="all" class="on">All</button>
-            <button data-f="legit">Worth working</button>
+            <button data-f="legit">Legit only</button>
             <button data-f="unassigned">Unclaimed</button>
             <button data-f="moved">FUB disagrees</button>
           </div>
@@ -352,7 +352,7 @@ async function load() {
 
       const z = n => n ? n : '<span class="un">0</span>';
       const rate = (n, d) => d ? '<span class="rate' + (n ? '' : ' zero') + '">' + Math.round(100 * n / d) + '%</span>' : '<span class="un">\u2014</span>';
-      const agRows = '<table class="ftbl compact"><thead><tr><th>Agent</th><th class="num">Leads</th><th class="num">Worth</th>' +
+      const agRows = '<table class="ftbl compact"><thead><tr><th>Agent</th><th class="num">Leads</th><th class="num">Legit</th>' +
         '<th class="num">Set</th><th class="num">Met</th><th class="num">Set rate</th><th class="num">Met of set</th></tr></thead><tbody>' +
         Object.entries(f.byAgent)
           .sort((a, b) => (b[1].met - a[1].met) || (b[1].set - a[1].set) || (b[1].total - a[1].total))
@@ -382,7 +382,7 @@ async function load() {
           '<tr class="' + (l.verdict === "legit" ? "legit" : "") + '">' +
           '<td><div class="nm">' + esc(l.name) + '</div>' + (l.note ? '<div class="sub">' + esc(l.note) + '</div>' : '') + '</td>' +
           '<td>' + (l.agent ? '<span class="agpill">' + esc(l.agent) + '</span>' : '<span class="un">unclaimed</span>') + '</td>' +
-          '<td>' + (l.verdict === "legit" ? '<span class="vpill v-legit">worth working</span>' : '<span class="vpill v-dead">' + esc(l.status || "written off") + '</span>') + '</td>' +
+          '<td>' + (l.verdict === "legit" ? '<span class="vpill v-legit">legit</span>' : '<span class="vpill v-dead">' + esc(l.status || "written off") + '</span>') + '</td>' +
           '<td>' + (l.inFub ? (l.fubStage ? '<span class="stagepill">' + esc(l.fubStage) + '</span>' : '<span class="un">—</span>') : '<span class="un">not tagged</span>') + '</td>' +
           '<td>' + (l.apptMet ? '<span class="vpill v-legit">met</span>' : l.apptSet ? '<span class="vpill v-legit">set</span>' : (l.cold == null ? '<span class="un">—</span>' : l.cold + 'd')) + '</td>' +
           '</tr>').join("") : '<tr><td colspan="5" class="un" style="padding:14px 8px">Nothing in this view.</td></tr>';
