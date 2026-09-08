@@ -74,7 +74,7 @@
   .v-legit { background:#f3e0fb; color:#66187E; }
   .v-dead { background:#f2f0f4; color:#9c93a6; }
   .stagepill { font-size:10.5px; font-weight:600; color:#5f1f7a; background:#f6edfb; border-radius:99px; padding:2px 8px; white-space:nowrap; }
-  .warn { background:#fffbe8; border:1px dashed #e0c65a; border-radius:9px; padding:8px 11px; font-size:11px; color:#7a6413; line-height:1.45; margin-top:10px; }
+  .warn { background:#fffbe8; border:1px dashed #e0c65a; border-radius:9px; padding:8px 11px; font-size:11px; color:#7a6413; line-height:1.45; margin-top:6px; }
   .fnote { font-size:11px; color:#a99bb5; margin-top:8px; }
   .ftblwrap { overflow-x:auto; }
   .fold { display:flex; align-items:center; gap:9px; cursor:pointer; margin:11px 0 0; padding:6px 10px;
@@ -171,7 +171,12 @@
             </table>
           </div>
           </div>
-          <div id="f-flags"></div>
+          <div class="fold" id="f-flagfold" style="display:none" onclick="toggleFlags()">
+            <span class="fold-t">Needs a look</span>
+            <span class="fold-n" id="f-flagcount"></span>
+            <span class="fold-c">&#9656;</span>
+          </div>
+          <div id="f-flags" style="display:none"></div>
           <div class="fnote" id="f-updated"></div>
         </div>
       </div>
@@ -272,6 +277,12 @@ function leads(el, list, showRoutes) {
 function showPane(btn) {
   [...document.querySelectorAll(".tabs .tab")].forEach(b => b.classList.toggle("on", b === btn));
   [...document.querySelectorAll(".pane")].forEach(p => p.style.display = p.id === btn.dataset.pane ? "" : "none");
+}
+function toggleFlags() {
+  const h = document.getElementById("f-flagfold"), b = document.getElementById("f-flags");
+  const open = b.style.display === "none";
+  b.style.display = open ? "" : "none";
+  h.classList.toggle("open", open);
 }
 function toggleFold() {
   const h = document.getElementById("f-fold"), b = document.getElementById("f-body");
@@ -428,7 +439,15 @@ async function load() {
       if (moved.length) flags.push('<b>' + moved.length + ' written off in your sheet have moved in FUB:</b> ' + moved.map(l => esc(l.name) + " (" + esc(l.fubStage) + ")").join(", "));
       if (f.missingTag.length) flags.push('<b>' + f.missingTag.length + ' missing the FELIX AI HANDOFF tag in FUB:</b> ' + f.missingTag.map(esc).join(", "));
       if (f.unseen.length) flags.push('<b>' + f.unseen.length + ' tagged in FUB but not on your sheet:</b> ' + f.unseen.map(u => esc(u.name) + (u.fubStage ? " (" + esc(u.fubStage) + ")" : "")).join(", "));
-      $g("f-flags").innerHTML = flags.length ? '<div class="warn">' + flags.join("<br><br>") + '</div>' : "";
+      if (flags.length) {
+        const n = moved.length + f.missingTag.length + f.unseen.length;
+        $g("f-flagfold").style.display = "flex";
+        $g("f-flagcount").textContent = n + (n === 1 ? " lead" : " leads") + " across " + flags.length + (flags.length === 1 ? " issue" : " issues");
+        $g("f-flags").innerHTML = '<div class="warn">' + flags.join("<br><br>") + '</div>';
+      } else {
+        $g("f-flagfold").style.display = "none";
+        $g("f-flags").innerHTML = "";
+      }
       $g("f-updated").textContent = "Sheet last read " + f.updated + " — say \u201crefresh Fello\u201d after you update the Excel. Stage and quiet-days come live from Follow Up Boss.";
     }
 
