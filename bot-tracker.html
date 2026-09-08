@@ -14,25 +14,30 @@
   .logo img { max-width:min(280px,76vw); height:auto; }
   h1 { text-align:center; font-size:21px; font-weight:600; margin-top:12px; }
   .sub { text-align:center; font-size:13px; color:#7a6d85; margin:6px 0 24px; }
-  .cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(340px,1fr)); gap:18px; }
+  .cards { display:block; }
+  .tabs { display:flex; gap:6px; margin:0 0 11px; }
+  .tabs .tab { font:inherit; font-size:12px; font-weight:600; color:#66187E; background:white; border:1.5px solid #eadef0;
+               border-radius:99px; padding:7px 16px; cursor:pointer; transition:border-color .14s, background .14s, color .14s; }
+  .tabs .tab:hover { border-color:#CB2CFB; }
+  .tabs .tab.on { background:#66187E; border-color:#66187E; color:white; }
   .card { background:white; border:1.5px solid #eadef0; border-radius:16px; overflow:hidden; box-shadow:0 2px 12px rgba(102,24,126,.07); }
-  .card-hd { background:linear-gradient(120deg,#3d0d52,#66187E 55%,#a21caf 135%); color:white; padding:14px 20px; display:flex; justify-content:space-between; align-items:center; }
-  .card-hd h2 { font-size:15px; font-weight:600; }
+  .card-hd { background:linear-gradient(120deg,#3d0d52,#66187E 55%,#a21caf 135%); color:white; padding:11px 18px; display:flex; justify-content:space-between; align-items:center; }
+  .card-hd h2 { font-size:14px; font-weight:600; }
   .card-hd .tagname { font-size:10.5px; opacity:.75; font-weight:400; }
-  .card-bd { padding:13px 18px 15px; }
-  .grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-  .grid3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; }
-  .divider { display:flex; align-items:center; gap:10px; margin:16px 0 8px; }
+  .card-bd { padding:11px 16px 13px; }
+  .grid { display:grid; grid-template-columns:1fr 1fr; gap:7px; }
+  .grid3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:7px; }
+  .divider { display:flex; align-items:center; gap:9px; margin:12px 0 6px; }
   .divider .t { font-size:10.5px; font-weight:600; text-transform:uppercase; letter-spacing:.08em; color:#66187E; white-space:nowrap; }
   .divider .ln { flex:1; height:1.5px; background:#f1e7f7; border-radius:99px; }
-  .stat { background:#faf5fd; border:1px solid #eadef0; border-radius:11px; padding:10px 14px; }
-  .stat .l { font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:.06em; color:#8a7d95; }
-  .stat .v { font-size:20px; font-weight:600; color:#66187E; margin-top:2px; display:flex; align-items:baseline; gap:6px; flex-wrap:wrap; }
+  .stat { background:#faf5fd; border:1px solid #eadef0; border-radius:9px; padding:7px 11px; }
+  .stat .l { font-size:9.5px; font-weight:600; text-transform:uppercase; letter-spacing:.06em; color:#8a7d95; }
+  .stat .v { font-size:16px; font-weight:600; color:#66187E; margin-top:2px; display:flex; align-items:baseline; gap:6px; flex-wrap:wrap; }
   .stat .cmp { font-size:10.5px; color:#8a7d95; font-weight:400; flex-basis:100%; margin-top:1px; white-space:nowrap; }
   .up { color:#CB2CFB; font-size:13px; }
   .dn { color:#b3a6bf; font-size:13px; }
-  .sect { font-size:10.5px; font-weight:600; text-transform:uppercase; letter-spacing:.07em; color:#8a7d95; margin:16px 0 6px; }
-  .lead { display:flex; justify-content:space-between; align-items:center; padding:6px 2px; border-bottom:1px solid #f7f3fa; font-size:12.5px; transition:background .14s ease; }
+  .sect { font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:.07em; color:#8a7d95; margin:11px 0 5px; }
+  .lead { display:flex; justify-content:space-between; align-items:center; padding:4px 2px; border-bottom:1px solid #f7f3fa; font-size:12.5px; transition:background .14s ease; }
   .lead:last-child { border-bottom:none; }
   .lead:hover { background:#faf0fe; box-shadow:inset 3px 0 0 #CB2CFB; }
   .lead .nm { font-weight:600; color:#1c1524; padding-left:6px; }
@@ -44,14 +49,14 @@
   .car { color:#c3b5cd; font-size:9px; }
   .agnum { width:30px; text-align:right; font-size:13px; color:#66187E; font-weight:600; font-variant-numeric:tabular-nums; }
   /* Fello lead board */
-  .fbar { display:flex; height:12px; border-radius:99px; overflow:hidden; background:#f1e7f7; margin:4px 0 8px; }
+  .fbar { display:flex; height:9px; border-radius:99px; overflow:hidden; background:#f1e7f7; margin:4px 0 8px; }
   .fbar span { display:block; }
   .fbar .b-un { background:#d9c7e6; }
   .fbar .b-dead { background:#9450bb; }
   .fbar .b-legit { background:#5f1f7a; }
-  .fkey { display:flex; flex-wrap:wrap; gap:12px; font-size:10.5px; color:#8a7d95; margin-bottom:12px; }
+  .fkey { display:flex; flex-wrap:wrap; gap:10px; font-size:10px; color:#8a7d95; margin-bottom:9px; }
   .fkey i { display:inline-block; width:9px; height:9px; border-radius:2px; margin-right:5px; vertical-align:-1px; font-style:normal; }
-  .ffilter { display:flex; flex-wrap:wrap; gap:6px; margin:10px 0 8px; }
+  .ffilter { display:flex; flex-wrap:wrap; gap:5px; margin:8px 0 6px; }
   .ffilter button { font:inherit; font-size:11px; font-weight:600; color:#66187E; background:#faf5fd; border:1px solid #eadef0;
                     border-radius:99px; padding:4px 11px; cursor:pointer; transition:border-color .14s, background .14s; }
   .ffilter button:hover { border-color:#CB2CFB; }
@@ -69,10 +74,10 @@
   .v-legit { background:#f3e0fb; color:#66187E; }
   .v-dead { background:#f2f0f4; color:#9c93a6; }
   .stagepill { font-size:10.5px; font-weight:600; color:#5f1f7a; background:#f6edfb; border-radius:99px; padding:2px 8px; white-space:nowrap; }
-  .warn { background:#fffbe8; border:1px dashed #e0c65a; border-radius:10px; padding:9px 13px; font-size:11.5px; color:#7a6413; line-height:1.5; margin-top:12px; }
+  .warn { background:#fffbe8; border:1px dashed #e0c65a; border-radius:9px; padding:8px 11px; font-size:11px; color:#7a6413; line-height:1.45; margin-top:10px; }
   .fnote { font-size:11px; color:#a99bb5; margin-top:8px; }
   .ftblwrap { overflow-x:auto; }
-  .fold { display:flex; align-items:center; gap:9px; cursor:pointer; margin:14px 0 0; padding:8px 11px;
+  .fold { display:flex; align-items:center; gap:9px; cursor:pointer; margin:11px 0 0; padding:6px 10px;
           background:#faf5fd; border:1px solid #eadef0; border-radius:9px; transition:border-color .14s, background .14s; }
   .fold:hover { border-color:#CB2CFB; }
   .fold.open { border-color:#CB2CFB; background:#fdf0ff; }
@@ -94,8 +99,8 @@
   .ftbl.compact .num { text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap; }
   .rate { font-weight:600; color:#5f1f7a; font-variant-numeric:tabular-nums; }
   .rate.zero { color:#b3a6bf; font-weight:400; }
-  .note { text-align:center; font-size:11px; color:#a99bb5; margin-top:18px; }
-  .backrow { text-align:center; margin-top:26px; }
+  .note { text-align:center; font-size:10.5px; color:#a99bb5; margin-top:14px; }
+  .backrow { text-align:center; margin-top:18px; }
   .backrow a { font-size:12px; font-weight:600; color:#66187E; text-decoration:none; border:1px solid #eadef0; border-radius:99px; padding:8px 20px; background:white; }
   #loading { text-align:center; color:#8a7d95; font-size:13px; padding:40px 0; }
   .pill { display:inline-block; font-size:10px; font-weight:600; background:rgba(255,255,255,.18); border-radius:99px; padding:3px 10px; }
@@ -111,8 +116,14 @@
   <div class="sub" id="subline">Live from Follow Up Boss</div>
 
   <div id="loading">Pulling live numbers from Follow Up Boss…</div>
+  <div class="tabs" id="tabs" style="display:none">
+    <button class="tab on" data-pane="pane-fello" onclick="showPane(this)">Fello — Felix AI</button>
+    <button class="tab" data-pane="pane-hw" onclick="showPane(this)">HouseWhisper</button>
+  </div>
+
   <div class="cards" id="cards" style="display:none">
 
+    <div class="pane" id="pane-fello">
     <div class="card">
       <div class="card-hd"><h2>Fello — Felix AI</h2><span class="tagname">FELIX AI HANDOFF</span></div>
       <div class="card-bd">
@@ -166,6 +177,9 @@
       </div>
     </div>
 
+    </div>
+
+    <div class="pane" id="pane-hw" style="display:none">
     <div class="card">
       <div class="card-hd"><h2>HouseWhisper</h2><span class="pill" id="hw-week"></span></div>
       <div class="card-bd">
@@ -212,6 +226,7 @@
       </div>
     </div>
 
+    </div>
   </div>
   <div class="note" id="note" style="display:none">Transfers, intros, converted, and handoffs are all-time tag counts. Dates on HouseWhisper leads are the day of their answered HouseWhisper call; a dash means the date is not known yet. Week-over-week trends build automatically from daily snapshots — arrows appear once a full week of history exists.</div>
   <div class="backrow"><a href="/">← Back</a></div>
@@ -253,6 +268,10 @@ function leads(el, list, showRoutes) {
           + '<span class="dt">' + (x.date ? fmtDate(x.date) : "&#8212;") + '</span></div>').join("")
       + '</div>';
   }).join("");
+}
+function showPane(btn) {
+  [...document.querySelectorAll(".tabs .tab")].forEach(b => b.classList.toggle("on", b === btn));
+  [...document.querySelectorAll(".pane")].forEach(p => p.style.display = p.id === btn.dataset.pane ? "" : "none");
 }
 function toggleFold() {
   const h = document.getElementById("f-fold"), b = document.getElementById("f-body");
@@ -414,6 +433,7 @@ async function load() {
     }
 
     $g("loading").style.display = "none";
+    $g("tabs").style.display = "flex";
     $g("cards").style.display = "";
     $g("note").style.display = "";
   } catch (e) {
