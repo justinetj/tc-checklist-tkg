@@ -19,7 +19,7 @@
   .card-hd { background:linear-gradient(120deg,#3d0d52,#66187E 55%,#a21caf 135%); color:white; padding:14px 20px; display:flex; justify-content:space-between; align-items:center; }
   .card-hd h2 { font-size:15px; font-weight:600; }
   .card-hd .tagname { font-size:10.5px; opacity:.75; font-weight:400; }
-  .card-bd { padding:16px 20px 18px; }
+  .card-bd { padding:13px 18px 15px; }
   .grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
   .grid3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; }
   .divider { display:flex; align-items:center; gap:10px; margin:16px 0 8px; }
@@ -72,9 +72,20 @@
   .warn { background:#fffbe8; border:1px dashed #e0c65a; border-radius:10px; padding:9px 13px; font-size:11.5px; color:#7a6413; line-height:1.5; margin-top:12px; }
   .fnote { font-size:11px; color:#a99bb5; margin-top:8px; }
   .ftblwrap { overflow-x:auto; }
-  .fstrip { display:flex; flex-wrap:wrap; gap:6px; margin:2px 0 10px; }
-  .fs { flex:1 1 88px; background:#faf5fd; border:1px solid #eadef0; border-radius:9px; padding:7px 10px; }
-  .fs-n { display:block; font-size:15px; font-weight:600; color:#66187E; font-variant-numeric:tabular-nums; line-height:1.2; }
+  .fold { display:flex; align-items:center; gap:9px; cursor:pointer; margin:14px 0 0; padding:8px 11px;
+          background:#faf5fd; border:1px solid #eadef0; border-radius:9px; transition:border-color .14s, background .14s; }
+  .fold:hover { border-color:#CB2CFB; }
+  .fold.open { border-color:#CB2CFB; background:#fdf0ff; }
+  .fold-t { font-size:10.5px; font-weight:600; text-transform:uppercase; letter-spacing:.07em; color:#66187E; }
+  .fold-n { font-size:11px; color:#a99bb5; flex:1; }
+  .fold-c { color:#c3b5cd; font-size:10px; transition:transform .16s ease; }
+  .fold.open .fold-c { transform:rotate(90deg); }
+  .fstrip { display:flex; flex-wrap:wrap; gap:5px; margin:0 0 8px; }
+  .fs { flex:1 1 78px; background:#faf5fd; border:1px solid #eadef0; border-radius:8px; padding:6px 9px; }
+  .fsbtn { cursor:pointer; transition:border-color .14s, background .14s; }
+  .fsbtn:hover { border-color:#CB2CFB; }
+  .fsbtn.open { border-color:#CB2CFB; background:#fdf0ff; }
+  .fs-n { display:block; font-size:14px; font-weight:600; color:#66187E; font-variant-numeric:tabular-nums; line-height:1.2; }
   .fs-l { display:block; font-size:9.5px; font-weight:600; text-transform:uppercase; letter-spacing:.05em; color:#8a7d95; margin-top:1px; }
   .fs .sub { display:block; font-size:9.5px; color:#a99bb5; font-weight:400; letter-spacing:0; text-transform:none; }
   .fs.hi { background:#f6edfb; border-color:#dcc4ea; }
@@ -105,15 +116,14 @@
     <div class="card">
       <div class="card-hd"><h2>Fello — Felix AI</h2><span class="tagname">FELIX AI HANDOFF</span></div>
       <div class="card-bd">
-        <div class="divider"><span class="t">Handoffs</span><span class="ln"></span></div>
-        <div class="grid">
-          <div class="stat statbtn" onclick="togList('l-felix', this)"><div class="l">All time <span class="car">&#9656;</span></div><div class="v" id="s-felix"></div></div>
-          <div class="stat statbtn" onclick="togList('l-felixwk', this)"><div class="l">This week <span class="car">&#9656;</span></div><div class="v" id="s-felixwk"></div></div>
-        </div>
-        <div class="divider"><span class="t">Appointments</span><span class="ln"></span></div>
-        <div class="grid">
-          <div class="stat statbtn" onclick="togList('l-fapptset', this)"><div class="l">Appointments set <span class="car">&#9656;</span></div><div class="v" id="s-fapptset"></div></div>
-          <div class="stat statbtn" onclick="togList('l-fapptmet', this)"><div class="l">Appointments met <span class="car">&#9656;</span></div><div class="v" id="s-fapptmet"></div></div>
+        <div class="fstrip">
+          <div class="fs fsbtn" onclick="togList('l-felix', this)"><span class="fs-n" id="s-felix"></span><span class="fs-l">handed off <span class="car">&#9656;</span></span></div>
+          <div class="fs fsbtn" onclick="togList('l-felixwk', this)"><span class="fs-n" id="s-felixwk"></span><span class="fs-l">this week <span class="car">&#9656;</span></span></div>
+          <div class="fs"><span class="fs-n" id="f-unassigned"></span><span class="fs-l">unclaimed</span></div>
+          <div class="fs"><span class="fs-n" id="f-legit"></span><span class="fs-l">legit</span></div>
+          <div class="fs fsbtn" onclick="togList('l-fapptset', this)"><span class="fs-n" id="s-fapptset"></span><span class="fs-l">appts set <span class="car">&#9656;</span></span></div>
+          <div class="fs fsbtn" onclick="togList('l-fapptmet', this)"><span class="fs-n" id="s-fapptmet"></span><span class="fs-l">appts met <span class="car">&#9656;</span></span></div>
+          <div class="fs hi"><span class="fs-n" id="f-showrate"></span><span class="fs-l">met of set</span></div>
         </div>
         <div id="l-fapptset" class="aglist" style="display:none"><div class="sect">Appointments set — by agent</div><div class="aglist-bd"></div></div>
         <div id="l-fapptmet" class="aglist" style="display:none"><div class="sect">Appointments met — by agent</div><div class="aglist-bd"></div></div>
@@ -121,15 +131,6 @@
         <div id="l-felixwk" class="aglist" style="display:none"><div class="sect">Felix handoffs this week — by agent</div><div class="aglist-bd"></div></div>
 
         <div id="fello-board" style="display:none">
-          <div class="divider"><span class="t">Lead board</span><span class="ln"></span></div>
-          <div class="fstrip">
-            <div class="fs"><span class="fs-n" id="f-total"></span><span class="fs-l">handed off</span></div>
-            <div class="fs"><span class="fs-n" id="f-unassigned"></span><span class="fs-l">unclaimed</span></div>
-            <div class="fs"><span class="fs-n" id="f-legit"></span><span class="fs-l">legit</span></div>
-            <div class="fs"><span class="fs-n" id="f-set"></span><span class="fs-l">appts set</span></div>
-            <div class="fs"><span class="fs-n" id="f-met"></span><span class="fs-l">appts met</span></div>
-            <div class="fs hi"><span class="fs-n" id="f-showrate"></span><span class="fs-l">met of set</span></div>
-          </div>
           <div class="fbar" id="f-bar"></div>
           <div class="fkey">
             <span><i style="background:#d9c7e6"></i>Unclaimed</span>
@@ -140,6 +141,12 @@
           <div class="sect">By agent</div>
           <div id="f-agents"></div>
 
+          <div class="fold" id="f-fold" onclick="toggleFold()">
+            <span class="fold-t">Client names</span>
+            <span class="fold-n" id="f-count"></span>
+            <span class="fold-c" id="f-caret">&#9656;</span>
+          </div>
+          <div id="f-body" style="display:none">
           <div class="ffilter" id="f-filters">
             <button data-f="all" class="on">All</button>
             <button data-f="legit">Legit only</button>
@@ -151,6 +158,7 @@
               <thead><tr><th>Name</th><th>Agent</th><th>Your call</th><th>Where FUB has them</th><th>Appt / quiet</th></tr></thead>
               <tbody id="f-rows"></tbody>
             </table>
+          </div>
           </div>
           <div id="f-flags"></div>
           <div class="fnote" id="f-updated"></div>
@@ -246,6 +254,12 @@ function leads(el, list, showRoutes) {
       + '</div>';
   }).join("");
 }
+function toggleFold() {
+  const h = document.getElementById("f-fold"), b = document.getElementById("f-body");
+  const open = b.style.display === "none";
+  b.style.display = open ? "" : "none";
+  h.classList.toggle("open", open);
+}
 function togList(id, tile) {
   const b = document.getElementById(id);
   const open = b.style.display === "none";
@@ -335,7 +349,6 @@ async function load() {
     if (d.fello && !d.fello.error && d.fello.leads) {
       const f = d.fello;
       $g("fello-board").style.display = "";
-      $g("f-total").textContent = f.total;
       $g("f-unassigned").innerHTML = f.unassigned + '<span class="sub">' + Math.round(100 * f.unassigned / f.total) + '%</span>';
       $g("f-legit").innerHTML = f.legit + '<span class="sub">' + Math.round(100 * f.legit / f.total) + '%</span>';
 
@@ -346,8 +359,6 @@ async function load() {
         '<span class="b-legit" style="width:' + (100 * f.legit / f.total) + '%"></span>';
 
       const pct = (n, d) => d ? Math.round(100 * n / d) + "%" : "\u2014";
-      $g("f-set").innerHTML = f.set + '<span class="sub">' + pct(f.set, f.total) + ' of handoffs</span>';
-      $g("f-met").innerHTML = f.met + '<span class="sub">' + pct(f.met, f.total) + ' of handoffs</span>';
       $g("f-showrate").innerHTML = pct(f.met, f.set) + '<span class="sub">' + f.met + ' of ' + f.set + '</span>';
 
       const z = n => n ? n : '<span class="un">0</span>';
@@ -355,7 +366,7 @@ async function load() {
       const agRows = '<table class="ftbl compact"><thead><tr><th>Agent</th><th class="num">Leads</th>' +
         '<th class="num">Set</th><th class="num">Met</th><th class="num">Set rate</th><th class="num">Met of set</th></tr></thead><tbody>' +
         Object.entries(f.byAgent)
-          .sort((a, b) => (b[1].met - a[1].met) || (b[1].set - a[1].set) || (b[1].total - a[1].total))
+          .sort((a, b) => (a[0] === "(unassigned)" ? -1 : b[0] === "(unassigned)" ? 1 : 0) || (b[1].total - a[1].total))
           .map(([name, v]) =>
             '<tr><td class="nm">' + esc(name) + '</td>' +
             '<td class="num">' + v.total + '</td>' +
@@ -377,6 +388,7 @@ async function load() {
           filter === "legit" ? l.verdict === "legit" :
           filter === "unassigned" ? !l.agent :
           disagrees(l));
+        $g("f-count").textContent = rows.length + (rows.length === 1 ? " lead" : " leads");
         $g("f-rows").innerHTML = rows.length ? rows.map(l =>
           '<tr class="' + (l.verdict === "legit" ? "legit" : "") + '">' +
           '<td><div class="nm">' + esc(l.name) + '</div>' + (l.note ? '<div class="sub">' + esc(l.note) + '</div>' : '') + '</td>' +
