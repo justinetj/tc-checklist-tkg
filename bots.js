@@ -347,6 +347,8 @@ export function handleBots(req, res) {
               unmarked: leads.filter(l => l.verdict === "unmarked").length,
               set: leads.filter(l => l.apptSet).length,
               met: leads.filter(l => l.apptMet).length,
+              uc: leads.filter(l => l.fubStage === "Under Contract").length,
+              closed: leads.filter(l => l.fubStage === "Closed").length,
               missingTag: leads.filter(l => !l.inFub).map(l => l.name),
               unseen,
               byAgent: Object.values(byAgent),

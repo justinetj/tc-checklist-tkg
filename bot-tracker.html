@@ -139,6 +139,7 @@
           <div class="fs fsbtn" onclick="togList('l-fapptset', this)"><span class="fs-n" id="s-fapptset"></span><span class="fs-l">appts set <span class="car">&#9656;</span></span></div>
           <div class="fs fsbtn" onclick="togList('l-fapptmet', this)"><span class="fs-n" id="s-fapptmet"></span><span class="fs-l">appts met <span class="car">&#9656;</span></span></div>
           <div class="fs hi"><span class="fs-n" id="f-showrate"></span><span class="fs-l">met of set</span></div>
+          <div class="fs"><span class="fs-n" id="f-uc"></span><span class="fs-l">under contract</span></div>
         </div>
         <div id="l-fapptset" class="aglist" style="display:none"><div class="sect">Appointments set — by agent</div><div class="aglist-bd"></div></div>
         <div id="l-fapptmet" class="aglist" style="display:none"><div class="sect">Appointments met — by agent</div><div class="aglist-bd"></div></div>
@@ -214,6 +215,7 @@
           <div class="fs fsbtn" onclick="togList('l-apptset', this)"><span class="fs-n" id="s-apptset"></span><span class="fs-l">appts set <span class="car">&#9656;</span></span></div>
           <div class="fs fsbtn" onclick="togList('l-apptmet', this)"><span class="fs-n" id="s-apptmet"></span><span class="fs-l">appts met <span class="car">&#9656;</span></span></div>
           <div class="fs hi"><span class="fs-n" id="s-metratio"></span><span class="fs-l">met of set</span></div>
+          <div class="fs"><span class="fs-n" id="h-uc"></span><span class="fs-l">under contract</span></div>
         </div>
         <div id="l-connwk" class="aglist" style="display:none"><div class="sect">Connections this week — by agent</div><div class="aglist-bd"></div></div>
         <div id="l-transferwk" class="aglist" style="display:none"><div class="sect">Live call transfers this week — by agent</div><div class="aglist-bd"></div></div>
@@ -484,11 +486,15 @@ async function load() {
         $g("f-unassigned").innerHTML = f.unassigned + '<span class="sub">' + Math.round(100 * f.unassigned / f.total) + '%</span>';
         $g("f-legit").innerHTML = f.legit + '<span class="sub">' + Math.round(100 * f.legit / f.total) + '%</span>';
         $g("f-showrate").innerHTML = pct(f.met, f.set) + '<span class="sub">' + f.met + ' of ' + f.set + '</span>';
+        $g("f-uc").innerHTML = f.uc + (f.closed ? '<span class="sub">+' + f.closed + ' closed</span>' : '');
         $g("f-updated").textContent = "Sheet last read " + f.updated + ". Say \u201crefresh Fello\u201d after you update the Excel. Stage and quiet days come live from Follow Up Boss.";
       }
       drawBoard(f, { board:"fello-board", bar:"f-bar", agents:"f-agents", filters:"f-filters",
                      rows:"f-rows", count:"f-count", flagfold:"f-flagfold", flagcount:"f-flagcount", flags:"f-flags" },
                 "live");
+    }
+    if (d.hwBoard && !d.hwBoard.error) {
+      $g("h-uc").innerHTML = d.hwBoard.uc + (d.hwBoard.closed ? '<span class="sub">+' + d.hwBoard.closed + ' closed</span>' : '');
     }
     drawBoard(d.hwBoard, { board:"hw-board", bar:"h-bar", agents:"h-agents", filters:"h-filters",
                            rows:"h-rows", count:"h-count", flagfold:"h-flagfold", flagcount:"h-flagcount", flags:"h-flags" },
