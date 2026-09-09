@@ -141,6 +141,7 @@
         </div>
         <div class="fsrow"><span class="fsrow-l">Leads</span>
           <div class="fs"><span class="fs-n" id="f-total"></span><span class="fs-l">total</span></div>
+          <div class="fs"><span class="fs-n" id="f-assigned"></span><span class="fs-l">assigned</span></div>
           <div class="fs"><span class="fs-n" id="f-unassigned"></span><span class="fs-l">unassigned</span></div>
           <div class="fs hi"><span class="fs-n" id="f-legit"></span><span class="fs-l">hot</span></div>
         </div>
@@ -215,6 +216,7 @@
 
         <div class="fsrow" style="margin-top:9px"><span class="fsrow-l">Leads</span>
           <div class="fs"><span class="fs-n" id="h-total"></span><span class="fs-l">total</span></div>
+          <div class="fs"><span class="fs-n" id="h-assigned"></span><span class="fs-l">assigned</span></div>
           <div class="fs"><span class="fs-n" id="h-unassigned"></span><span class="fs-l">unassigned</span></div>
           <div class="fs hi"><span class="fs-n" id="h-hot"></span><span class="fs-l">hot</span></div>
         </div>
@@ -518,6 +520,7 @@ async function load() {
       const f = d.fello;
       if (!f.error && f.leads) {
         $g("f-total").textContent = f.total;
+        $g("f-assigned").innerHTML = f.assigned + '<span class="sub">' + Math.round(100 * f.assigned / f.total) + '%</span>';
         $g("f-unassigned").innerHTML = f.unassigned + '<span class="sub">' + Math.round(100 * f.unassigned / f.total) + '%</span>';
         $g("f-legit").innerHTML = f.legit + '<span class="sub">' + Math.round(100 * f.legit / f.total) + '%</span>';
         $g("f-showrate").innerHTML = pct(f.met, f.set) + '<span class="sub">' + f.met + ' of ' + f.set + '</span>';
@@ -531,6 +534,7 @@ async function load() {
     if (d.hwBoard && !d.hwBoard.error) {
       const h = d.hwBoard;
       $g("h-total").textContent = h.total;
+      $g("h-assigned").innerHTML = h.assigned + '<span class="sub">' + Math.round(100 * h.assigned / h.total) + '%</span>';
       $g("h-unassigned").innerHTML = h.unassigned + '<span class="sub">' + Math.round(100 * h.unassigned / h.total) + '%</span>';
       $g("h-hot").innerHTML = h.legit + '<span class="sub">' + Math.round(100 * h.legit / h.total) + '%</span>';
       $g("h-uc").innerHTML = h.uc + (h.closed ? '<span class="sub">+' + h.closed + ' closed</span>' : '');
