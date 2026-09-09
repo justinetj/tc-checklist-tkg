@@ -135,11 +135,14 @@
     <div class="card">
       <div class="card-hd"><h2>Fello — Felix AI</h2><span class="tagname">FELIX AI HANDOFF</span></div>
       <div class="card-bd">
-        <div class="fsrow"><span class="fsrow-l">Volume</span>
-          <div class="fs fsbtn" onclick="togList('l-felix', this)"><span class="fs-n" id="s-felix"></span><span class="fs-l">handed off <span class="car">&#9656;</span></span></div>
+        <div class="fsrow"><span class="fsrow-l">Handoffs</span>
+          <div class="fs fsbtn" onclick="togList('l-felix', this)"><span class="fs-n" id="s-felix"></span><span class="fs-l">all time <span class="car">&#9656;</span></span></div>
           <div class="fs fsbtn" onclick="togList('l-felixwk', this)"><span class="fs-n" id="s-felixwk"></span><span class="fs-l">this week <span class="car">&#9656;</span></span></div>
-          <div class="fs"><span class="fs-n" id="f-unassigned"></span><span class="fs-l">unclaimed</span></div>
-          <div class="fs"><span class="fs-n" id="f-legit"></span><span class="fs-l">hot</span></div>
+        </div>
+        <div class="fsrow"><span class="fsrow-l">Leads</span>
+          <div class="fs"><span class="fs-n" id="f-total"></span><span class="fs-l">total</span></div>
+          <div class="fs"><span class="fs-n" id="f-unassigned"></span><span class="fs-l">unassigned</span></div>
+          <div class="fs hi"><span class="fs-n" id="f-legit"></span><span class="fs-l">hot</span></div>
         </div>
         <div class="fsrow"><span class="fsrow-l">Outcomes</span>
           <div class="fs fsbtn" onclick="togList('l-fapptset', this)"><span class="fs-n" id="s-fapptset"></span><span class="fs-l">appts set <span class="car">&#9656;</span></span></div>
@@ -230,7 +233,12 @@
           </table>
         </div>
 
-        <div class="fsrow" style="margin-top:9px"><span class="fsrow-l">Outcomes</span>
+        <div class="fsrow" style="margin-top:9px"><span class="fsrow-l">Leads</span>
+          <div class="fs"><span class="fs-n" id="h-total"></span><span class="fs-l">total</span></div>
+          <div class="fs"><span class="fs-n" id="h-unassigned"></span><span class="fs-l">unassigned</span></div>
+          <div class="fs hi"><span class="fs-n" id="h-hot"></span><span class="fs-l">hot</span></div>
+        </div>
+        <div class="fsrow"><span class="fsrow-l">Outcomes</span>
           <div class="fs fsbtn" onclick="togList('l-apptset', this)"><span class="fs-n" id="s-apptset"></span><span class="fs-l">appts set <span class="car">&#9656;</span></span></div>
           <div class="fs fsbtn" onclick="togList('l-apptmet', this)"><span class="fs-n" id="s-apptmet"></span><span class="fs-l">appts met <span class="car">&#9656;</span></span></div>
           <div class="fs hi"><span class="fs-n" id="s-metratio"></span><span class="fs-l">met of set</span></div>
@@ -503,6 +511,7 @@ async function load() {
     if (d.fello) {
       const f = d.fello;
       if (!f.error && f.leads) {
+        $g("f-total").textContent = f.total;
         $g("f-unassigned").innerHTML = f.unassigned + '<span class="sub">' + Math.round(100 * f.unassigned / f.total) + '%</span>';
         $g("f-legit").innerHTML = f.legit + '<span class="sub">' + Math.round(100 * f.legit / f.total) + '%</span>';
         $g("f-showrate").innerHTML = pct(f.met, f.set) + '<span class="sub">' + f.met + ' of ' + f.set + '</span>';
@@ -514,7 +523,11 @@ async function load() {
                 "hot");
     }
     if (d.hwBoard && !d.hwBoard.error) {
-      $g("h-uc").innerHTML = d.hwBoard.uc + (d.hwBoard.closed ? '<span class="sub">+' + d.hwBoard.closed + ' closed</span>' : '');
+      const h = d.hwBoard;
+      $g("h-total").textContent = h.total;
+      $g("h-unassigned").innerHTML = h.unassigned + '<span class="sub">' + Math.round(100 * h.unassigned / h.total) + '%</span>';
+      $g("h-hot").innerHTML = h.legit + '<span class="sub">' + Math.round(100 * h.legit / h.total) + '%</span>';
+      $g("h-uc").innerHTML = h.uc + (h.closed ? '<span class="sub">+' + h.closed + ' closed</span>' : '');
     }
     drawBoard(d.hwBoard, { board:"hw-board", bar:"h-bar", agents:"h-agents", filters:"h-filters",
                            rows:"h-rows", count:"h-count", flagfold:"h-flagfold", flagcount:"h-flagcount", flags:"h-flags" },
