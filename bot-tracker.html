@@ -213,26 +213,6 @@
           <div class="fs hi"><span class="fs-n" id="s-pickup"></span><span class="fs-l">pick-up</span></div>
         </div>
 
-        <div class="ftblwrap" style="margin-top:9px">
-          <table class="ftbl compact restbl">
-            <thead><tr><th>Results</th><th class="num">This week</th><th class="num">All time</th></tr></thead>
-            <tbody>
-              <tr><td class="nm">Connections</td>
-                  <td class="num hit" onclick="togList('l-connwk', this)"><span id="s-connwk"></span></td>
-                  <td class="num hit" onclick="togList('l-conn', this)"><span id="s-conn"></span></td></tr>
-              <tr><td class="nm">Live call transfers</td>
-                  <td class="num hit" onclick="togList('l-transferwk', this)"><span id="s-transferwk"></span></td>
-                  <td class="num hit" onclick="togList('l-transfer', this)"><span id="s-transfer"></span></td></tr>
-              <tr><td class="nm">3-way intros</td>
-                  <td class="num hit" onclick="togList('l-introwk', this)"><span id="s-introwk"></span></td>
-                  <td class="num hit" onclick="togList('l-intro', this)"><span id="s-intro"></span></td></tr>
-              <tr><td class="nm">Converted</td>
-                  <td class="num hit" onclick="togList('l-convertedwk', this)"><span id="s-convertedwk"></span></td>
-                  <td class="num hit" onclick="togList('l-converted', this)"><span id="s-converted"></span></td></tr>
-            </tbody>
-          </table>
-        </div>
-
         <div class="fsrow" style="margin-top:9px"><span class="fsrow-l">Leads</span>
           <div class="fs"><span class="fs-n" id="h-total"></span><span class="fs-l">total</span></div>
           <div class="fs"><span class="fs-n" id="h-unassigned"></span><span class="fs-l">unassigned</span></div>
@@ -279,6 +259,32 @@
                 <tbody id="h-rows"></tbody>
               </table>
             </div>
+          </div>
+          <div class="fold" id="h-resfold" onclick="toggleF('h-resfold','h-resbody')">
+            <span class="fold-t">Call outcomes</span>
+            <span class="fold-n">Connections, transfers, intros, converted</span>
+            <span class="fold-c">&#9656;</span>
+          </div>
+          <div id="h-resbody" style="display:none">
+        <div class="ftblwrap" style="margin-top:9px">
+          <table class="ftbl compact restbl">
+            <thead><tr><th>Results</th><th class="num">This week</th><th class="num">All time</th></tr></thead>
+            <tbody>
+              <tr><td class="nm">Connections</td>
+                  <td class="num hit" onclick="togList('l-connwk', this)"><span id="s-connwk"></span></td>
+                  <td class="num hit" onclick="togList('l-conn', this)"><span id="s-conn"></span></td></tr>
+              <tr><td class="nm">Live call transfers</td>
+                  <td class="num hit" onclick="togList('l-transferwk', this)"><span id="s-transferwk"></span></td>
+                  <td class="num hit" onclick="togList('l-transfer', this)"><span id="s-transfer"></span></td></tr>
+              <tr><td class="nm">3-way intros</td>
+                  <td class="num hit" onclick="togList('l-introwk', this)"><span id="s-introwk"></span></td>
+                  <td class="num hit" onclick="togList('l-intro', this)"><span id="s-intro"></span></td></tr>
+              <tr><td class="nm">Converted</td>
+                  <td class="num hit" onclick="togList('l-convertedwk', this)"><span id="s-convertedwk"></span></td>
+                  <td class="num hit" onclick="togList('l-converted', this)"><span id="s-converted"></span></td></tr>
+            </tbody>
+          </table>
+        </div>
           </div>
           <div class="fold" id="h-flagfold" style="display:none" onclick="toggleF('h-flagfold','h-flags')">
             <span class="fold-t">Needs a look</span>
