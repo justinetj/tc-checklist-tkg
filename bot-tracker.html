@@ -135,7 +135,7 @@
           <div class="fs fsbtn" onclick="togList('l-felix', this)"><span class="fs-n" id="s-felix"></span><span class="fs-l">handed off <span class="car">&#9656;</span></span></div>
           <div class="fs fsbtn" onclick="togList('l-felixwk', this)"><span class="fs-n" id="s-felixwk"></span><span class="fs-l">this week <span class="car">&#9656;</span></span></div>
           <div class="fs"><span class="fs-n" id="f-unassigned"></span><span class="fs-l">unclaimed</span></div>
-          <div class="fs"><span class="fs-n" id="f-legit"></span><span class="fs-l">legit</span></div>
+          <div class="fs"><span class="fs-n" id="f-legit"></span><span class="fs-l">live</span></div>
           <div class="fs fsbtn" onclick="togList('l-fapptset', this)"><span class="fs-n" id="s-fapptset"></span><span class="fs-l">appts set <span class="car">&#9656;</span></span></div>
           <div class="fs fsbtn" onclick="togList('l-fapptmet', this)"><span class="fs-n" id="s-fapptmet"></span><span class="fs-l">appts met <span class="car">&#9656;</span></span></div>
           <div class="fs hi"><span class="fs-n" id="f-showrate"></span><span class="fs-l">met of set</span></div>
@@ -164,7 +164,7 @@
           <div id="f-body" style="display:none">
           <div class="ffilter" id="f-filters">
             <button data-f="all" class="on">All</button>
-            <button data-f="legit">Legit only</button>
+            <button data-f="legit">Live only</button>
             <button data-f="unassigned">Unclaimed</button>
             <button data-f="moved">FUB disagrees</button>
           </div>
@@ -488,7 +488,7 @@ async function load() {
       }
       drawBoard(f, { board:"fello-board", bar:"f-bar", agents:"f-agents", filters:"f-filters",
                      rows:"f-rows", count:"f-count", flagfold:"f-flagfold", flagcount:"f-flagcount", flags:"f-flags" },
-                "worth working");
+                "live");
     }
     drawBoard(d.hwBoard, { board:"hw-board", bar:"h-bar", agents:"h-agents", filters:"h-filters",
                            rows:"h-rows", count:"h-count", flagfold:"h-flagfold", flagcount:"h-flagcount", flags:"h-flags" },
