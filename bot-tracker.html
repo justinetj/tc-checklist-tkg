@@ -89,6 +89,10 @@
   .fsrow { display:flex; flex-wrap:wrap; align-items:center; gap:4px; margin:0 0 5px; }
   .fsrow-l { font-size:9.5px; font-weight:700; text-transform:uppercase; letter-spacing:.07em;
              color:#b3a6bf; min-width:62px; margin-right:2px; }
+  .restbl { max-width:520px; }
+  .restbl td.hit { cursor:pointer; font-weight:600; color:#66187E; transition:background .14s; }
+  .restbl td.hit:hover { background:#faf0fe; }
+  .restbl td.hit.open { background:#fdf0ff; box-shadow:inset 0 0 0 1px #CB2CFB; }
   .fs { display:inline-flex; align-items:baseline; gap:5px; flex:0 0 auto; background:#faf5fd;
         border:1px solid #eadef0; border-radius:99px; padding:3px 10px; white-space:nowrap; }
   .fsbtn { cursor:pointer; transition:border-color .14s, background .14s; }
@@ -195,25 +199,38 @@
     <div class="card">
       <div class="card-hd"><h2>HouseWhisper</h2><span class="pill" id="hw-week"></span></div>
       <div class="card-bd">
-        <div class="fsrow"><span class="fsrow-l">Today <span id="today-label"></span></span>
+        <div class="fsrow"><span class="fsrow-l">Calls today <span id="today-label"></span></span>
           <div class="fs"><span class="fs-n" id="s-dialstoday"></span><span class="fs-l">dials</span></div>
           <div class="fs"><span class="fs-n" id="s-answtoday"></span><span class="fs-l">answered</span></div>
-          <div class="fs"><span class="fs-n" id="s-picktoday"></span><span class="fs-l">pick-up</span></div>
+          <div class="fs hi"><span class="fs-n" id="s-picktoday"></span><span class="fs-l">pick-up</span></div>
         </div>
-        <div class="fsrow"><span class="fsrow-l">This week</span>
+        <div class="fsrow"><span class="fsrow-l">Calls this week</span>
           <div class="fs"><span class="fs-n" id="s-dials"></span><span class="fs-l">dials</span></div>
           <div class="fs"><span class="fs-n" id="s-engaged"></span><span class="fs-l">engagements</span></div>
-          <div class="fs"><span class="fs-n" id="s-pickup"></span><span class="fs-l">pick-up</span></div>
-          <div class="fs fsbtn" onclick="togList('l-connwk', this)"><span class="fs-n" id="s-connwk"></span><span class="fs-l">connections <span class="car">&#9656;</span></span></div>
-          <div class="fs fsbtn" onclick="togList('l-transferwk', this)"><span class="fs-n" id="s-transferwk"></span><span class="fs-l">transfers <span class="car">&#9656;</span></span></div>
-          <div class="fs fsbtn" onclick="togList('l-introwk', this)"><span class="fs-n" id="s-introwk"></span><span class="fs-l">intros <span class="car">&#9656;</span></span></div>
-          <div class="fs fsbtn" onclick="togList('l-convertedwk', this)"><span class="fs-n" id="s-convertedwk"></span><span class="fs-l">converted <span class="car">&#9656;</span></span></div>
+          <div class="fs hi"><span class="fs-n" id="s-pickup"></span><span class="fs-l">pick-up</span></div>
         </div>
-        <div class="fsrow"><span class="fsrow-l">All time</span>
-          <div class="fs fsbtn" onclick="togList('l-conn', this)"><span class="fs-n" id="s-conn"></span><span class="fs-l">connections <span class="car">&#9656;</span></span></div>
-          <div class="fs fsbtn" onclick="togList('l-transfer', this)"><span class="fs-n" id="s-transfer"></span><span class="fs-l">transfers <span class="car">&#9656;</span></span></div>
-          <div class="fs fsbtn" onclick="togList('l-intro', this)"><span class="fs-n" id="s-intro"></span><span class="fs-l">intros <span class="car">&#9656;</span></span></div>
-          <div class="fs fsbtn" onclick="togList('l-converted', this)"><span class="fs-n" id="s-converted"></span><span class="fs-l">converted <span class="car">&#9656;</span></span></div>
+
+        <div class="ftblwrap" style="margin-top:9px">
+          <table class="ftbl compact restbl">
+            <thead><tr><th>Results</th><th class="num">This week</th><th class="num">All time</th></tr></thead>
+            <tbody>
+              <tr><td class="nm">Connections</td>
+                  <td class="num hit" onclick="togList('l-connwk', this)"><span id="s-connwk"></span></td>
+                  <td class="num hit" onclick="togList('l-conn', this)"><span id="s-conn"></span></td></tr>
+              <tr><td class="nm">Live call transfers</td>
+                  <td class="num hit" onclick="togList('l-transferwk', this)"><span id="s-transferwk"></span></td>
+                  <td class="num hit" onclick="togList('l-transfer', this)"><span id="s-transfer"></span></td></tr>
+              <tr><td class="nm">3-way intros</td>
+                  <td class="num hit" onclick="togList('l-introwk', this)"><span id="s-introwk"></span></td>
+                  <td class="num hit" onclick="togList('l-intro', this)"><span id="s-intro"></span></td></tr>
+              <tr><td class="nm">Converted</td>
+                  <td class="num hit" onclick="togList('l-convertedwk', this)"><span id="s-convertedwk"></span></td>
+                  <td class="num hit" onclick="togList('l-converted', this)"><span id="s-converted"></span></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="fsrow" style="margin-top:9px"><span class="fsrow-l">Outcomes</span>
           <div class="fs fsbtn" onclick="togList('l-apptset', this)"><span class="fs-n" id="s-apptset"></span><span class="fs-l">appts set <span class="car">&#9656;</span></span></div>
           <div class="fs fsbtn" onclick="togList('l-apptmet', this)"><span class="fs-n" id="s-apptmet"></span><span class="fs-l">appts met <span class="car">&#9656;</span></span></div>
           <div class="fs hi"><span class="fs-n" id="s-metratio"></span><span class="fs-l">met of set</span></div>
@@ -328,7 +345,8 @@ function togList(id, tile) {
   const open = b.style.display === "none";
   b.style.display = open ? "" : "none";
   tile.classList.toggle("open", open);
-  tile.querySelector(".car").innerHTML = open ? "&#9662;" : "&#9656;";
+  const car = tile.querySelector(".car");
+  if (car) car.innerHTML = open ? "&#9662;" : "&#9656;";
 }
 function togAg(gid, hd) {
   const b = document.getElementById(gid);
