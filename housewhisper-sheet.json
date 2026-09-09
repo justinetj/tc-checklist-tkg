@@ -1,0 +1,118 @@
+{
+ "updated": "2026-09-08",
+ "source": "AI Overviews.xlsx / Housewhisper",
+ "rows": [
+  {
+   "name": "David Flores",
+   "agent": "arielle jaime",
+   "status": "appt set",
+   "note": "no show",
+   "verdict": "dead"
+  },
+  {
+   "name": "Lupe Kimball",
+   "agent": "Kira de'lanae",
+   "status": "spoke with customer",
+   "note": "",
+   "verdict": "dead"
+  },
+  {
+   "name": "Edgardo Cazares",
+   "agent": "",
+   "status": "nurture",
+   "note": "time got it now in pond",
+   "verdict": "dead"
+  },
+  {
+   "name": "Andrea Dorris",
+   "agent": "Darlena Bartley",
+   "status": "SHowing Homes",
+   "note": "doing rental now",
+   "verdict": "dead"
+  },
+  {
+   "name": "Dana",
+   "agent": "",
+   "status": "transferred then released",
+   "note": "",
+   "verdict": "dead"
+  },
+  {
+   "name": "Mahdi Nashli",
+   "agent": "Lake",
+   "status": "nurture",
+   "note": "",
+   "verdict": "dead"
+  },
+  {
+   "name": "Jesus",
+   "agent": "Time",
+   "status": "nurture",
+   "note": "",
+   "verdict": "dead"
+  },
+  {
+   "name": "Mellen simba",
+   "agent": "ben",
+   "status": "showing homes",
+   "note": "prequal!",
+   "verdict": "legit"
+  },
+  {
+   "name": "Ed boler",
+   "agent": "Jessenia zinner",
+   "status": "attempted contact",
+   "note": "",
+   "verdict": "dead"
+  },
+  {
+   "name": "James Brady",
+   "agent": "Akanksha",
+   "status": "attempted contact",
+   "note": "",
+   "verdict": "dead"
+  },
+  {
+   "name": "Arturo Elenzano",
+   "agent": "ROberta",
+   "status": "spoke with",
+   "note": "nurture",
+   "verdict": "dead"
+  },
+  {
+   "name": "liam maher",
+   "agent": "Arielle jaime",
+   "status": "nurture",
+   "note": "",
+   "verdict": "dead"
+  },
+  {
+   "name": "Anita Howard",
+   "agent": "Time",
+   "status": "Nurture",
+   "note": "",
+   "verdict": "dead"
+  },
+  {
+   "name": "Mauricia",
+   "agent": "",
+   "status": "lead",
+   "note": "",
+   "verdict": "dead"
+  },
+  {
+   "name": "Salvador Osuna",
+   "agent": "ROebrt",
+   "status": "nurture",
+   "note": "",
+   "verdict": "dead"
+  },
+  {
+   "name": "Kay Reh",
+   "agent": "Darlan",
+   "status": "nurtuer",
+   "note": "",
+   "verdict": "dead"
+  }
+ ]
+}

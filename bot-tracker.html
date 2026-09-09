@@ -226,6 +226,42 @@
         <div id="l-conn" class="aglist" style="display:none"><div class="sect">Connections — by agent, with how each came in</div><div class="aglist-bd"></div></div>
         <div id="l-apptset" class="aglist" style="display:none"><div class="sect">Appointments set — by agent</div><div class="aglist-bd"></div></div>
         <div id="l-apptmet" class="aglist" style="display:none"><div class="sect">Appointments met — by agent</div><div class="aglist-bd"></div></div>
+
+        <div id="hw-board" style="display:none">
+          <div class="fbar" id="h-bar"></div>
+          <div class="fkey">
+            <span><i style="background:#d9c7e6"></i>Unassigned</span>
+            <span><i style="background:#9450bb"></i>Assigned, written off</span>
+            <span><i style="background:#5f1f7a"></i>Live</span>
+          </div>
+          <div class="sect">By agent</div>
+          <div id="h-agents"></div>
+          <div class="fold" id="h-fold" onclick="toggleF('h-fold','h-body')">
+            <span class="fold-t">Client names</span>
+            <span class="fold-n" id="h-count"></span>
+            <span class="fold-c">&#9656;</span>
+          </div>
+          <div id="h-body" style="display:none">
+            <div class="ffilter" id="h-filters">
+              <button data-f="all" class="on">All</button>
+              <button data-f="legit">Live only</button>
+              <button data-f="unassigned">Unassigned</button>
+              <button data-f="moved">FUB disagrees</button>
+            </div>
+            <div class="ftblwrap">
+              <table class="ftbl compact">
+                <thead><tr><th>Name</th><th>Agent</th><th>Your call</th><th>Where FUB has them</th><th>Appt / quiet</th></tr></thead>
+                <tbody id="h-rows"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="fold" id="h-flagfold" style="display:none" onclick="toggleF('h-flagfold','h-flags')">
+            <span class="fold-t">Needs a look</span>
+            <span class="fold-n" id="h-flagcount"></span>
+            <span class="fold-c">&#9656;</span>
+          </div>
+          <div id="h-flags" style="display:none"></div>
+        </div>
         <div id="l-transfer" class="aglist" style="display:none"><div class="sect">Live transfers — by agent</div><div class="aglist-bd"></div></div>
         <div id="l-intro" class="aglist" style="display:none"><div class="sect">3-way intros — by agent</div><div class="aglist-bd"></div></div>
         <div id="l-converted" class="aglist" style="display:none"><div class="sect">Converted — by agent</div><div class="aglist-bd"></div></div>
@@ -279,18 +315,14 @@ function showPane(btn) {
   [...document.querySelectorAll(".tabs .tab")].forEach(b => b.classList.toggle("on", b === btn));
   [...document.querySelectorAll(".pane")].forEach(p => p.style.display = p.id === btn.dataset.pane ? "" : "none");
 }
-function toggleFlags() {
-  const h = document.getElementById("f-flagfold"), b = document.getElementById("f-flags");
+function toggleF(headId, bodyId) {
+  const h = document.getElementById(headId), b = document.getElementById(bodyId);
   const open = b.style.display === "none";
   b.style.display = open ? "" : "none";
   h.classList.toggle("open", open);
 }
-function toggleFold() {
-  const h = document.getElementById("f-fold"), b = document.getElementById("f-body");
-  const open = b.style.display === "none";
-  b.style.display = open ? "" : "none";
-  h.classList.toggle("open", open);
-}
+const toggleFlags = () => toggleF("f-flagfold", "f-flags");
+const toggleFold   = () => toggleF("f-fold", "f-body");
 function togList(id, tile) {
   const b = document.getElementById(id);
   const open = b.style.display === "none";
@@ -376,81 +408,95 @@ async function load() {
     leads("l-converted", d.recent.converted);
     leads("l-felix", d.recent.felix);
 
-    // ---- Fello lead board ----
-    if (d.fello && !d.fello.error && d.fello.leads) {
-      const f = d.fello;
-      $g("fello-board").style.display = "";
-      $g("f-unassigned").innerHTML = f.unassigned + '<span class="sub">' + Math.round(100 * f.unassigned / f.total) + '%</span>';
-      $g("f-legit").innerHTML = f.legit + '<span class="sub">' + Math.round(100 * f.legit / f.total) + '%</span>';
+    // ---- lead boards: same renderer for Fello and HouseWhisper ----
+    const MOVED = new Set(["Spoke with Customer","Met with Customer","Appointment Set","Showing Homes","Under Contract","Submitting Offers","Closed"]);
+    const pct = (n, d) => d ? Math.round(100 * n / d) + "%" : "\u2014";
+
+    function drawBoard(f, ids, liveLabel) {
+      if (!f || f.error || !f.leads) return;
+      $g(ids.board).style.display = "";
 
       const claimedDead = f.total - f.unassigned - f.legit;
-      $g("f-bar").innerHTML =
+      $g(ids.bar).innerHTML =
         '<span class="b-un" style="width:' + (100 * f.unassigned / f.total) + '%"></span>' +
         '<span class="b-dead" style="width:' + (100 * claimedDead / f.total) + '%"></span>' +
         '<span class="b-legit" style="width:' + (100 * f.legit / f.total) + '%"></span>';
 
-      const pct = (n, d) => d ? Math.round(100 * n / d) + "%" : "\u2014";
-      $g("f-showrate").innerHTML = pct(f.met, f.set) + '<span class="sub">' + f.met + ' of ' + f.set + '</span>';
-
       const z = n => n ? n : '<span class="un">0</span>';
-      const rate = (n, d) => d ? '<span class="rate' + (n ? '' : ' zero') + '">' + Math.round(100 * n / d) + '%</span>' : '<span class="un">\u2014</span>';
-      const agRows = '<table class="ftbl compact"><thead><tr><th>Agent</th><th class="num">Leads</th>' +
-        '<th class="num">Set</th><th class="num">Met</th><th class="num">Set rate</th><th class="num">Met of set</th></tr></thead><tbody>' +
-        Object.entries(f.byAgent)
-          .sort((a, b) => (a[0] === "(unassigned)" ? -1 : b[0] === "(unassigned)" ? 1 : 0) || (b[1].total - a[1].total))
-          .map(([name, v]) =>
-            '<tr><td class="nm">' + esc(name) + '</td>' +
+      const rate = (n, d) => d ? '<span class="rate' + (n ? '' : ' zero') + '">' + Math.round(100 * n / d) + '%</span>'
+                              : '<span class="un">\u2014</span>';
+      $g(ids.agents).innerHTML = '<div class="ftblwrap"><table class="ftbl compact">' +
+        '<thead><tr><th>Agent</th><th class="num">Leads</th><th class="num">Set</th><th class="num">Met</th>' +
+        '<th class="num">Set rate</th><th class="num">Met of set</th></tr></thead><tbody>' +
+        f.byAgent.slice().sort((a, b) =>
+            (a.label === "(unassigned)" ? -1 : b.label === "(unassigned)" ? 1 : 0) || (b.total - a.total))
+          .map(v => '<tr><td class="nm">' + esc(v.label) + '</td>' +
             '<td class="num">' + v.total + '</td>' +
             '<td class="num">' + z(v.set) + '</td>' +
             '<td class="num">' + z(v.met) + '</td>' +
             '<td class="num">' + rate(v.set, v.total) + '</td>' +
             '<td class="num">' + rate(v.met, v.set) + '</td></tr>').join("") +
-        '</tbody></table>';
-      $g("f-agents").innerHTML = '<div class="ftblwrap">' + agRows + '</div>';
+        '</tbody></table></div>';
 
-      // FUB stages that mean the lead actually moved, whatever the sheet says
-      const MOVED = new Set(["Spoke with Customer","Met with Customer","Appointment Set","Showing Homes","Under Contract","Submitting Offers","Closed"]);
       const disagrees = l => l.verdict === "dead" && MOVED.has(l.fubStage);
-
       let filter = "all";
       const draw = () => {
         const rows = f.leads.filter(l =>
           filter === "all" ? true :
           filter === "legit" ? l.verdict === "legit" :
-          filter === "unassigned" ? !l.agent :
-          disagrees(l));
-        $g("f-count").textContent = rows.length + (rows.length === 1 ? " lead" : " leads");
-        $g("f-rows").innerHTML = rows.length ? rows.map(l =>
+          filter === "unassigned" ? !l.agent : disagrees(l));
+        $g(ids.count).textContent = rows.length + (rows.length === 1 ? " lead" : " leads");
+        $g(ids.rows).innerHTML = rows.length ? rows.map(l =>
           '<tr class="' + (l.verdict === "legit" ? "legit" : "") + '">' +
           '<td><div class="nm">' + esc(l.name) + '</div>' + (l.note ? '<div class="sub">' + esc(l.note) + '</div>' : '') + '</td>' +
-          '<td>' + (l.agent ? '<span class="agpill">' + esc(l.agent) + '</span>' : '<span class="un">unclaimed</span>') + '</td>' +
-          '<td>' + (l.verdict === "legit" ? '<span class="vpill v-legit">legit</span>' : '<span class="vpill v-dead">' + esc(l.status || "written off") + '</span>') + '</td>' +
-          '<td>' + (l.inFub ? (l.fubStage ? '<span class="stagepill">' + esc(l.fubStage) + '</span>' : '<span class="un">—</span>') : '<span class="un">not tagged</span>') + '</td>' +
-          '<td>' + (l.apptMet ? '<span class="vpill v-legit">met</span>' : l.apptSet ? '<span class="vpill v-legit">set</span>' : (l.cold == null ? '<span class="un">—</span>' : l.cold + 'd')) + '</td>' +
-          '</tr>').join("") : '<tr><td colspan="5" class="un" style="padding:14px 8px">Nothing in this view.</td></tr>';
+          '<td>' + (l.agent ? '<span class="agpill">' + esc(l.agent) + '</span>' : '<span class="un">unassigned</span>') + '</td>' +
+          '<td>' + (l.verdict === "legit" ? '<span class="vpill v-legit">' + liveLabel + '</span>'
+                   : l.verdict === "unmarked" ? '<span class="un">not marked</span>'
+                   : '<span class="vpill v-dead">' + esc(l.status || "written off") + '</span>') + '</td>' +
+          '<td>' + (l.inFub ? (l.fubStage ? '<span class="stagepill">' + esc(l.fubStage) + '</span>' : '<span class="un">\u2014</span>')
+                   : '<span class="un">not tagged</span>') + '</td>' +
+          '<td>' + (l.apptMet ? '<span class="vpill v-legit">met</span>' : l.apptSet ? '<span class="vpill v-legit">set</span>'
+                   : (l.cold == null ? '<span class="un">\u2014</span>' : l.cold + 'd')) + '</td></tr>').join("")
+          : '<tr><td colspan="5" class="un" style="padding:14px 8px">Nothing in this view.</td></tr>';
       };
       draw();
-      [...$g("f-filters").querySelectorAll("button")].forEach(b => b.onclick = () => {
-        [...$g("f-filters").querySelectorAll("button")].forEach(x => x.classList.remove("on"));
+      [...$g(ids.filters).querySelectorAll("button")].forEach(b => b.onclick = () => {
+        [...$g(ids.filters).querySelectorAll("button")].forEach(x => x.classList.remove("on"));
         b.classList.add("on"); filter = b.dataset.f; draw();
       });
 
       const moved = f.leads.filter(disagrees);
       const flags = [];
       if (moved.length) flags.push('<b>' + moved.length + ' written off in your sheet have moved in FUB:</b> ' + moved.map(l => esc(l.name) + " (" + esc(l.fubStage) + ")").join(", "));
-      if (f.missingTag.length) flags.push('<b>' + f.missingTag.length + ' missing the FELIX AI HANDOFF tag in FUB:</b> ' + f.missingTag.map(esc).join(", "));
+      if (f.unmarked) flags.push('<b>' + f.unmarked + ' rows are not marked live or dead in the sheet.</b>');
+      if (f.missingTag.length) flags.push('<b>' + f.missingTag.length + ' on your sheet are not tagged in FUB:</b> ' + f.missingTag.map(esc).join(", "));
       if (f.unseen.length) flags.push('<b>' + f.unseen.length + ' tagged in FUB but not on your sheet:</b> ' + f.unseen.map(u => esc(u.name) + (u.fubStage ? " (" + esc(u.fubStage) + ")" : "")).join(", "));
       if (flags.length) {
-        const n = moved.length + f.missingTag.length + f.unseen.length;
-        $g("f-flagfold").style.display = "flex";
-        $g("f-flagcount").textContent = n + (n === 1 ? " lead" : " leads") + " across " + flags.length + (flags.length === 1 ? " issue" : " issues");
-        $g("f-flags").innerHTML = '<div class="warn">' + flags.join("<br><br>") + '</div>';
+        const n = moved.length + f.unmarked + f.missingTag.length + f.unseen.length;
+        $g(ids.flagfold).style.display = "flex";
+        $g(ids.flagcount).textContent = n + (n === 1 ? " lead" : " leads") + " across " + flags.length + (flags.length === 1 ? " issue" : " issues");
+        $g(ids.flags).innerHTML = '<div class="warn">' + flags.join("<br><br>") + '</div>';
       } else {
-        $g("f-flagfold").style.display = "none";
-        $g("f-flags").innerHTML = "";
+        $g(ids.flagfold).style.display = "none";
+        $g(ids.flags).innerHTML = "";
       }
-      $g("f-updated").textContent = "Sheet last read " + f.updated + " — say \u201crefresh Fello\u201d after you update the Excel. Stage and quiet-days come live from Follow Up Boss.";
     }
+
+    if (d.fello) {
+      const f = d.fello;
+      if (!f.error && f.leads) {
+        $g("f-unassigned").innerHTML = f.unassigned + '<span class="sub">' + Math.round(100 * f.unassigned / f.total) + '%</span>';
+        $g("f-legit").innerHTML = f.legit + '<span class="sub">' + Math.round(100 * f.legit / f.total) + '%</span>';
+        $g("f-showrate").innerHTML = pct(f.met, f.set) + '<span class="sub">' + f.met + ' of ' + f.set + '</span>';
+        $g("f-updated").textContent = "Sheet last read " + f.updated + ". Say \u201crefresh Fello\u201d after you update the Excel. Stage and quiet days come live from Follow Up Boss.";
+      }
+      drawBoard(f, { board:"fello-board", bar:"f-bar", agents:"f-agents", filters:"f-filters",
+                     rows:"f-rows", count:"f-count", flagfold:"f-flagfold", flagcount:"f-flagcount", flags:"f-flags" },
+                "worth working");
+    }
+    drawBoard(d.hwBoard, { board:"hw-board", bar:"h-bar", agents:"h-agents", filters:"h-filters",
+                           rows:"h-rows", count:"h-count", flagfold:"h-flagfold", flagcount:"h-flagcount", flags:"h-flags" },
+              "live");
 
     $g("loading").style.display = "none";
     $g("tabs").style.display = "flex";

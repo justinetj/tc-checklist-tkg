@@ -298,68 +298,68 @@ export function handleBots(req, res) {
           connections: connections.filter(inThisWeek),
         };
 
-        // ---- Fello board: Justine's sheet (AI Overviews.xlsx / Fello) merged with live FUB ----
-        // The sheet carries the judgment FUB has no field for — legit vs dead, and her
-        // notes. FUB carries what happened since — stage, owner, last activity. Neither
-        // alone answers "how is Felix doing", so they are joined on the person's name.
-        let fello = null;
-        try {
-          const sheet = JSON.parse(fs.readFileSync(path.join(__dirname, "fello-sheet.json"), "utf8"));
-          const norm = n => String(n || "").toLowerCase().replace(/[^a-z]/g, "");
-          const fubByName = new Map(rFelix.map(m => [norm(m.name), m]));
-          const daysSince = iso => iso ? Math.floor((Date.now() - new Date(iso).getTime()) / 864e5) : null;
+        // ---- Lead boards: Justine's sheet (AI Overviews.xlsx) merged with live FUB ----
+        // The sheet carries the judgment FUB has no field for (live vs written off, and her
+        // notes). FUB carries what happened since (stage, owner, last activity). Neither alone
+        // answers "how is this assistant doing", so they are joined on the person's name.
+        const norm = n => String(n || "").toLowerCase().replace(/[^a-z]/g, "");
+        const daysSince = iso => iso ? Math.floor((Date.now() - new Date(iso).getTime()) / 864e5) : null;
+        const titleCase = n => String(n || "").replace(/\S+/g, w => w[0].toUpperCase() + w.slice(1).toLowerCase());
 
-          const leads = sheet.rows.map(r => {
-            const f = fubByName.get(norm(r.name));
+        const buildBoard = (file, fubList, apptSet, apptMet) => {
+          try {
+            const sheet = JSON.parse(fs.readFileSync(path.join(__dirname, file), "utf8"));
+            const fubByName = new Map(fubList.map(m => [norm(m.name), m]));
+            const setNames = new Set((apptSet || []).map(a => norm(a.name)));
+            const metNames = new Set((apptMet || []).map(a => norm(a.name)));
+
+            const leads = sheet.rows.map(r => {
+              const f = fubByName.get(norm(r.name));
+              return {
+                name: r.name, agent: r.agent, status: r.status, note: r.note, verdict: r.verdict,
+                fubStage: f ? f.stage : "", inFub: !!f,
+                cold: f ? daysSince(f.updated) : null,
+                apptSet: setNames.has(norm(r.name)), apptMet: metNames.has(norm(r.name)),
+              };
+            });
+            const sheetNames = new Set(sheet.rows.map(r => norm(r.name)));
+            const unseen = fubList.filter(m => !sheetNames.has(norm(m.name)))
+              .map(m => ({ name: m.name, agent: m.agent, fubStage: m.stage, cold: daysSince(m.updated) }));
+
+            // agents are typed by hand, so spelling drifts — group case-insensitively
+            const byAgent = {};
+            for (const l of leads) {
+              const key = l.agent ? norm(l.agent) : "";
+              const label = l.agent ? titleCase(l.agent) : "(unassigned)";
+              byAgent[key] = byAgent[key] || { label, total: 0, legit: 0, set: 0, met: 0 };
+              byAgent[key].total++;
+              if (l.verdict === "legit") byAgent[key].legit++;
+              if (l.apptSet) byAgent[key].set++;
+              if (l.apptMet) byAgent[key].met++;
+            }
             return {
-              name: r.name,
-              agent: r.agent,
-              status: r.status,
-              note: r.note,
-              verdict: r.verdict,
-              fubStage: f ? f.stage : "",
-              fubAgent: f ? f.agent : "",
-              inFub: !!f,
-              cold: f ? daysSince(f.updated) : null,
+              updated: sheet.updated,
+              total: leads.length,
+              assigned: leads.filter(l => l.agent).length,
+              unassigned: leads.filter(l => !l.agent).length,
+              legit: leads.filter(l => l.verdict === "legit").length,
+              dead: leads.filter(l => l.verdict === "dead").length,
+              unmarked: leads.filter(l => l.verdict === "unmarked").length,
+              set: leads.filter(l => l.apptSet).length,
+              met: leads.filter(l => l.apptMet).length,
+              missingTag: leads.filter(l => !l.inFub).map(l => l.name),
+              unseen,
+              byAgent: Object.values(byAgent),
+              leads,
             };
-          });
-          const sheetNames = new Set(sheet.rows.map(r => norm(r.name)));
-          const unseen = rFelix.filter(m => !sheetNames.has(norm(m.name)))
-            .map(m => ({ name: m.name, agent: m.agent, fubStage: m.stage, cold: daysSince(m.updated) }));
+          } catch (e) { return { error: e.message }; }
+        };
 
-          // Appointments are matched on the lead, not the agent's name — the sheet
-          // uses first names and FUB uses full ones, so joining on the person avoids it.
-          const setNames = new Set((apptLists.felixSet || []).map(a => norm(a.name)));
-          const metNames = new Set((apptLists.felixMet || []).map(a => norm(a.name)));
-          for (const l of leads) {
-            l.apptSet = setNames.has(norm(l.name));
-            l.apptMet = metNames.has(norm(l.name));
-          }
-
-          const byAgent = {};
-          for (const l of leads) {
-            const k = l.agent || "(unassigned)";
-            byAgent[k] = byAgent[k] || { total: 0, legit: 0, set: 0, met: 0 };
-            byAgent[k].total++;
-            if (l.verdict === "legit") byAgent[k].legit++;
-            if (l.apptSet) byAgent[k].set++;
-            if (l.apptMet) byAgent[k].met++;
-          }
-          fello = {
-            updated: sheet.updated,
-            total: leads.length,
-            assigned: leads.filter(l => l.agent).length,
-            unassigned: leads.filter(l => !l.agent).length,
-            legit: leads.filter(l => l.verdict === "legit").length,
-            dead: leads.filter(l => l.verdict === "dead").length,
-            set: leads.filter(l => l.apptSet).length,
-            met: leads.filter(l => l.apptMet).length,
-            missingTag: leads.filter(l => !l.inFub).map(l => l.name),
-            unseen,
-            byAgent,
-            leads,
-          };
-        } catch (e) { fello = { error: e.message }; }
+        const hwMembers = [...connMap.values()].map(c => ({ name: c.name, agent: c.agent, stage: "", updated: null }));
+        const fello = buildBoard("fello-sheet.json", rFelix, apptLists.felixSet, apptLists.felixMet);
+        const hwBoard = buildBoard("housewhisper-sheet.json",
+          [...new Map([...rTransfer, ...rIntro, ...rConverted].map(m => [m.id, m])).values()],
+          apptLists.hwSet, apptLists.hwMet);
 
         const payload = JSON.stringify({
           tags: { transfer: tTransfer, intro: tIntro, converted: tConverted, felix: tFelix, connections: tConnections },
@@ -372,6 +372,7 @@ export function handleBots(req, res) {
           weekly,
           weekLabel: mon.toLocaleDateString("en-US", { month: "numeric", day: "numeric" }) + " - " + new Date(nextMon.getTime() - 864e5).toLocaleDateString("en-US", { month: "numeric", day: "numeric" }),
           fello,
+          hwBoard,
         });
         botCache = { at: Date.now(), data: payload };
         res.writeHead(200, { "Content-Type": "application/json" });
