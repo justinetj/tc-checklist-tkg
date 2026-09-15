@@ -1862,10 +1862,10 @@ function getTCSelectHTML() {
   .sub { text-align:center; font-size:14px; font-weight:400; color:#7a6d85; margin-top:22px; }
   .select-wrap { display:flex; flex-direction:column; align-items:center; padding:26px 20px 0; }
   .tc-grid { display:flex; flex-wrap:wrap; gap:16px; justify-content:center; max-width:760px; }
-  .tc-card { background:white; border-radius:16px; box-shadow:0 2px 10px rgba(102,24,126,.06); padding:26px 24px; cursor:pointer; text-align:center; width:210px; border:1.5px solid #eadef0; transition:all .15s; text-decoration:none; color:inherit; }
+  .tc-card { background:white; border-radius:16px; box-shadow:0 2px 10px rgba(102,24,126,.06); padding:26px 24px; cursor:pointer; text-align:center; width:245px; border:1.5px solid #eadef0; transition:all .15s; text-decoration:none; color:inherit; }
   .tc-card:hover { transform:translateY(-3px); border-color:#CB2CFB; box-shadow:0 10px 28px rgba(102,24,126,.16); }
   .tc-avatar { width:56px; height:56px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:20px; font-weight:600; color:white; margin:0 auto 12px; background:linear-gradient(135deg,#66187E,#CB2CFB); }
-  .tc-name { font-size:15px; font-weight:600; color:#1c1524; }
+  .tc-name { font-size:15px; font-weight:600; color:#1c1524; white-space:nowrap; }
   .tc-role { font-size:12px; color:#8a7d95; margin-top:3px; font-weight:400; }
   .foot { text-align:center; padding:16px; font-size:10.5px; font-weight:500; letter-spacing:.14em; text-transform:uppercase; color:#c3b5cd; }
   /* Passcode card — replaces the browser's prompt() */
@@ -1889,18 +1889,17 @@ function tcLogin(name) {
 <div class="logo"><img src="/logo.png" alt="The Kumler Group"></div>
 <div class="sub" id="sub">Transaction Hub — select your role</div>
 <div class="select-wrap" id="picker">
-  <div class="tc-grid">
+  <div class="tc-grid" style="max-width:506px">
     ${(() => {
       const roles = [
-        { name: ROLE_TC,   initials: 'TC',  sub: 'Buyers &amp; listings under contract' },
-        { name: ROLE_LC,   initials: 'LC',  sub: 'Listings before under contract' },
-        { name: ROLE_LEAD, initials: 'TL',  sub: 'Every transaction' },
-        { name: ROLE_DOO,  initials: 'DOO', sub: 'Every transaction' },
+        { name: ROLE_TC,   initials: 'TC'  },
+        { name: ROLE_LC,   initials: 'LC'  },
+        { name: ROLE_LEAD, initials: 'TL'  },
+        { name: ROLE_DOO,  initials: 'DOO' },
       ];
       return roles.map(r => `<a class="tc-card" href="javascript:void(0)" onclick="tcLogin('${r.name}')">
           <div class="tc-avatar">${r.initials}</div>
           <div class="tc-name">${r.name}</div>
-          <div class="tc-role">${r.sub}</div>
         </a>`).join('');
     })()}
   </div>
