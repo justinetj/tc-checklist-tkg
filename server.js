@@ -1404,7 +1404,7 @@ function getDashboardHTML(transactions, tc) {
 <div class="header">
   <div>
     <div style="display:flex;align-items:center;gap:10px">
-      <a href="/checklist" style="color:rgba(255,255,255,.7);text-decoration:none;font-size:12px;font-weight:600;border:1px solid rgba(255,255,255,.3);border-radius:99px;padding:3px 11px">← Back</a>
+      <a href="/" style="color:rgba(255,255,255,.7);text-decoration:none;font-size:12px;font-weight:600;border:1px solid rgba(255,255,255,.3);border-radius:99px;padding:3px 11px">← Back</a>
       <h1 style="font-weight:600">The Kumler Group — Transaction Hub</h1>
     </div>
     <p>${isAdmin ? 'Viewing all transactions (Admin)' : `All transactions — tasks for <strong>${tc}</strong>`}</p>
@@ -1847,66 +1847,6 @@ const ADMIN_TCS = ["Scott Kumler", ROLE_LEAD];
 // The moment a listing goes Under Contract, its tasks hand off to the assigned TC.
 const LISTING_COORDS = ["Cinnamon Kumler", ROLE_LC];
 
-function getTCSelectHTML() {
-  return `<!DOCTYPE html>
-<html lang="en"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>The Kumler Group — Transaction Hub</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27><circle cx=%2750%27 cy=%2750%27 r=%2748%27 fill=%27%23CB2CFB%27/><path d=%27M28 52 50 34 72 52%27 stroke=%27white%27 stroke-width=%278%27 fill=%27none%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27/><path d=%27M34 50 V74 H66 V50%27 stroke=%27white%27 stroke-width=%278%27 fill=%27none%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27/></svg>">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<style>
-  * { box-sizing:border-box; margin:0; padding:0; }
-  body { font-family:'Inter',-apple-system,Helvetica,sans-serif; background:#fdfbfe; color:#1c1524; min-height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center; padding:30px 0; }
-  .logo { text-align:center; padding:0 20px; }
-  .logo img { max-width:min(380px,84vw); height:auto; }
-  .sub { text-align:center; font-size:14px; font-weight:400; color:#7a6d85; margin-top:22px; }
-  .select-wrap { display:flex; flex-direction:column; align-items:center; padding:26px 20px 0; }
-  .tc-grid { display:flex; flex-wrap:wrap; gap:16px; justify-content:center; max-width:760px; }
-  .tc-card { background:white; border-radius:16px; box-shadow:0 2px 10px rgba(102,24,126,.06); padding:26px 24px; cursor:pointer; text-align:center; width:245px; border:1.5px solid #eadef0; transition:all .15s; text-decoration:none; color:inherit; }
-  .tc-card:hover { transform:translateY(-3px); border-color:#CB2CFB; box-shadow:0 10px 28px rgba(102,24,126,.16); }
-  .tc-avatar { width:56px; height:56px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:20px; font-weight:600; color:white; margin:0 auto 12px; background:linear-gradient(135deg,#66187E,#CB2CFB); }
-  .tc-name { font-size:15px; font-weight:600; color:#1c1524; white-space:nowrap; }
-  .tc-role { font-size:12px; color:#8a7d95; margin-top:3px; font-weight:400; }
-  .foot { text-align:center; padding:16px; font-size:10.5px; font-weight:500; letter-spacing:.14em; text-transform:uppercase; color:#c3b5cd; }
-  /* Passcode card — replaces the browser's prompt() */
-  .pad-wrap { position:fixed; inset:0; background:rgba(28,21,36,.32); backdrop-filter:blur(2px); display:none; align-items:center; justify-content:center; padding:20px; z-index:50; }
-  .pad { background:white; border:1.5px solid #eadef0; border-radius:16px; box-shadow:0 18px 50px rgba(102,24,126,.22); padding:30px 28px; width:100%; max-width:330px; text-align:center; }
-  .pad h2 { font-size:16px; font-weight:600; color:#1c1524; }
-  .pad p { font-size:12.5px; color:#8a7d95; margin-top:6px; font-weight:400; }
-  .pad input { width:100%; margin-top:18px; padding:11px 14px; font-family:inherit; font-size:15px; text-align:center; letter-spacing:.3em; border:1.5px solid #eadef0; border-radius:10px; outline:none; color:#1c1524; }
-  .pad input:focus { border-color:#CB2CFB; }
-  .pad button { width:100%; margin-top:12px; padding:11px; font-family:inherit; font-size:13px; font-weight:600; color:white; background:linear-gradient(135deg,#66187E,#CB2CFB); border:0; border-radius:10px; cursor:pointer; }
-  .pad .cancel { margin-top:10px; background:none; color:#8a7d95; font-weight:500; }
-  .pad .err { margin-top:14px; font-size:12px; font-weight:600; color:#b3005c; }
-</style>
-<script>
-function tcLogin(name) {
-  window.location.href = '/checklist?tc=' + encodeURIComponent(name);
-}
-</script>
-</head>
-<body>
-<div class="logo"><img src="/logo.png" alt="The Kumler Group"></div>
-<div class="sub" id="sub">Transaction Hub — select your role</div>
-<div class="select-wrap" id="picker">
-  <div class="tc-grid" style="max-width:506px">
-    ${(() => {
-      const roles = [
-        { name: ROLE_TC,   initials: 'TC'  },
-        { name: ROLE_LC,   initials: 'LC'  },
-        { name: ROLE_LEAD, initials: 'TL'  },
-        { name: ROLE_DOO,  initials: 'DOO' },
-      ];
-      return roles.map(r => `<a class="tc-card" href="javascript:void(0)" onclick="tcLogin('${r.name}')">
-          <div class="tc-avatar">${r.initials}</div>
-          <div class="tc-name">${r.name}</div>
-        </a>`).join('');
-    })()}
-  </div>
-  <a href="/" style="margin-top:30px;font-size:12px;font-weight:600;color:#66187E;text-decoration:none;border:1px solid #eadef0;border-radius:99px;padding:8px 20px;background:white">← Back</a>
-</div>
-</body></html>`;
-}
 
 const HUB_PAGE = `<!DOCTYPE html>
 <html lang="en">
@@ -2442,13 +2382,10 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (pathname === "/checklist") {
-    let tc = url.searchParams.get('tc');
+    // Straight into the Transaction Hub - there is no role screen any more.
+    // A ?tc= in the URL still scopes the view for anyone who has such a link.
+    let tc = url.searchParams.get('tc') || '';
     if (tc === ROLE_DOO) tc = 'admin';
-    if (!tc) {
-      res.writeHead(200, { "Content-Type": "text/html" });
-      res.end(getTCSelectHTML());
-      return;
-    }
     const data = await loadData();
     res.writeHead(200, { "Content-Type": "text/html" });
     res.end(getDashboardHTML(data.transactions, tc));
