@@ -593,7 +593,7 @@ function getHTML(transaction, id, tc, related = []) {
 <body>
 <div class="header">
   <div style="flex:1">
-    <div><a href="/?tc=${tc}">← All Transactions</a></div>
+    <div><a href="/checklist?tc=${tc}">← All Transactions</a></div>
     <h1>${transaction.address || 'No address'} <span class="badge">${transaction.type === 'buyer' ? 'Buyer - Resale' : transaction.type === 'buyer-new-build' ? 'Buyer - New Build' : transaction.type}</span></h1>
   </div>
   <div style="text-align:right;font-size:13px;color:#cba8e0">${done}/${total} complete</div>
@@ -1022,7 +1022,7 @@ function delGate(label) {
   if (!delGate('this file')) return;
   const r = await fetch('/api/transactions/' + TXN_ID, { method:'DELETE' });
   if (!r.ok) { const j = await r.json().catch(function(){ return {}; }); alert(j.error || 'Could not delete.'); return; }
-  window.location = '/?tc=' + encodeURIComponent(${JSON.stringify(tc)});
+  window.location = '/checklist?tc=' + encodeURIComponent(${JSON.stringify(tc)});
 }
 async function setTxnStatus(status, force) {
   const res = await fetch('/api/transactions/' + TXN_ID + '/status', {
@@ -1404,7 +1404,7 @@ function getDashboardHTML(transactions, tc) {
 <div class="header">
   <div>
     <div style="display:flex;align-items:center;gap:10px">
-      <a href="/" style="color:rgba(255,255,255,.7);text-decoration:none;font-size:12px;font-weight:600;border:1px solid rgba(255,255,255,.3);border-radius:99px;padding:3px 11px">← Back</a>
+      <a href="/checklist" style="color:rgba(255,255,255,.7);text-decoration:none;font-size:12px;font-weight:600;border:1px solid rgba(255,255,255,.3);border-radius:99px;padding:3px 11px">← Back</a>
       <h1 style="font-weight:600">The Kumler Group — Transaction Hub</h1>
     </div>
     <p>${isAdmin ? 'Viewing all transactions (Admin)' : `All transactions — tasks for <strong>${tc}</strong>`}</p>
@@ -1865,71 +1865,9 @@ function getTCSelectHTML() {
   .pad .err { margin-top:14px; font-size:12px; font-weight:600; color:#b3005c; }
 </style>
 <script>
-const TC_PASSCODES = { 'Joana Guzman': '5211', 'Cinnamon Kumler': '0007', 'Scott Kumler': '0070' };
-// Styled passcode card, in place of the browser's prompt(). onOk gets the code
-// and returns false to report a wrong one without closing.
-function askPasscode(who, onOk) {
-  const pad = document.getElementById('pad');
-  const input = document.getElementById('pad-input');
-  const err = document.getElementById('pad-err');
-  document.getElementById('pad-who').textContent = who;
-  err.style.display = 'none';
-  input.value = '';
-  pad.style.display = 'flex';
-  setTimeout(() => input.focus(), 30);
-  pad.dataset.pending = '1';
-  pad._submit = () => {
-    if (onOk(input.value) === false) {
-      err.style.display = '';
-      input.value = '';
-      input.focus();
-    }
-  };
-}
-function padClose() {
-  const pad = document.getElementById('pad');
-  pad.style.display = 'none';
-  pad.dataset.pending = '';
-}
 function tcLogin(name) {
-  const required = TC_PASSCODES[name];
-  if (!required) { window.location.href = '/?tc=' + encodeURIComponent(name); return; }
-  askPasscode(name.split(' ')[0], code => {
-    if (code !== required) return false;
-    window.location.href = '/?tc=' + encodeURIComponent(name);
-  });
+  window.location.href = '/checklist?tc=' + encodeURIComponent(name);
 }
-// Justine and Scott get a second screen first: AI Assistants or Transaction Hub.
-// Passcodes stay on the Transaction Hub side; the bot tracker gates itself.
-let choiceFor = null;
-function showChoice(name) {
-  choiceFor = name;
-  document.getElementById('picker').style.display = 'none';
-  document.getElementById('choice').style.display = 'flex';
-  document.getElementById('sub').textContent = name.split(' ')[0] + ' — where would you like to go?';
-}
-function backToPicker() {
-  choiceFor = null;
-  document.getElementById('choice').style.display = 'none';
-  document.getElementById('picker').style.display = 'flex';
-  document.getElementById('sub').textContent = 'Transaction Hub — select your name';
-}
-function choiceHub() {
-  if (choiceFor === 'Justine Johnston') adminLogin();
-  else if (choiceFor) tcLogin(choiceFor);
-}
-function adminLogin() {
-  askPasscode('Justine', code => {
-    if (code !== '0001') return false;
-    window.location.href = '/?tc=admin';
-  });
-}
-document.addEventListener('keydown', e => {
-  const pad = document.getElementById('pad');
-  if (!pad || pad.dataset.pending !== '1') return;
-  if (e.key === 'Enter') { e.preventDefault(); pad._submit(); }
-  if (e.key === 'Escape') padClose();
-});
 </script>
 </head>
 <body>
@@ -1942,8 +1880,8 @@ document.addEventListener('keydown', e => {
         { name: 'Joana Guzman',     role: 'Transaction Coordinator', color: '#9333ea', onclick: "tcLogin('Joana Guzman')" },
         { name: 'Ashley Belliveau', role: 'Transaction Coordinator', color: '#0d5c2e', onclick: "tcLogin('Ashley Belliveau')" },
         { name: 'Cinnamon Kumler',  role: 'Listing Coordinator',     color: '#b45309', onclick: "tcLogin('Cinnamon Kumler')" },
-        { name: 'Justine Johnston', role: 'Director of Operations',  color: '#7e22ce', onclick: "showChoice('Justine Johnston')" },
-        { name: 'Scott Kumler',     role: 'Team Lead',               color: '#0f766e', onclick: "showChoice('Scott Kumler')" },
+        { name: 'Justine Johnston', role: 'Director of Operations',  color: '#7e22ce', onclick: "tcLogin('Justine Johnston')" },
+        { name: 'Scott Kumler',     role: 'Team Lead',               color: '#0f766e', onclick: "tcLogin('Scott Kumler')" },
       ];
       people.sort((a, b) => a.name.split(' ')[0].localeCompare(b.name.split(' ')[0]));
       return people.map((p) => {
@@ -1956,36 +1894,98 @@ document.addEventListener('keydown', e => {
       }).join('');
     })()}
   </div>
-  <a href="https://kumler-hub.onrender.com" style="margin-top:30px;font-size:12px;font-weight:600;color:#66187E;text-decoration:none;border:1px solid #eadef0;border-radius:99px;padding:8px 20px;background:white">← Back</a>
-</div>
-<!-- Second-step screen shown only for Justine and Scott. -->
-<div class="select-wrap" id="choice" style="display:none">
-  <div class="tc-grid" style="max-width:460px">
-    <a class="tc-card" href="/bot-tracker">
-      <div class="tc-avatar"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
-      <div class="tc-name">AI Assistants</div>
-      <div class="tc-role">Bot performance tracker</div>
-    </a>
-    <a class="tc-card" href="javascript:void(0)" onclick="choiceHub()">
-      <div class="tc-avatar"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
-      <div class="tc-name">Transaction Hub</div>
-      <div class="tc-role">Buyers, listings &amp; tasks</div>
-    </a>
-  </div>
-  <a href="javascript:void(0)" onclick="backToPicker()" style="margin-top:30px;font-size:12px;font-weight:600;color:#66187E;text-decoration:none;border:1px solid #eadef0;border-radius:99px;padding:8px 20px;background:white">← Back</a>
-</div>
-<div class="pad-wrap" id="pad" onclick="if(event.target===this)padClose()">
-  <div class="pad">
-    <h2 id="pad-who">Passcode</h2>
-    <p>Enter your passcode to continue.</p>
-    <input id="pad-input" type="password" inputmode="numeric" autocomplete="off">
-    <button type="button" onclick="document.getElementById('pad')._submit()">Continue</button>
-    <button type="button" class="cancel" onclick="padClose()">Cancel</button>
-    <div class="err" id="pad-err" style="display:none">Incorrect passcode.</div>
-  </div>
+  <a href="/" style="margin-top:30px;font-size:12px;font-weight:600;color:#66187E;text-decoration:none;border:1px solid #eadef0;border-radius:99px;padding:8px 20px;background:white">← Back</a>
 </div>
 </body></html>`;
 }
+
+const HUB_PAGE = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>THE HUB — The Kumler Group</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'Inter',sans-serif; background:#fdfbfe; color:#1c1524; min-height:100vh; display:flex; flex-direction:column; }
+  .wrap { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:40px 20px 30px; }
+  .logo { text-align:center; margin-bottom:8px; }
+  .logo img { max-width:min(420px,86vw); height:auto; }
+  .prompt { margin:30px 0 20px; font-size:14.5px; font-weight:400; color:#7a6d85; letter-spacing:.01em; }
+  .cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,270px)); gap:18px; justify-content:center; width:100%; max-width:640px; }
+  .card { background:white; border:1.5px solid #eadef0; border-radius:18px; padding:30px 24px; text-align:center; cursor:pointer;
+    transition:transform .12s, box-shadow .12s, border-color .12s; box-shadow:0 2px 10px rgba(102,24,126,.06); }
+  .card:hover { transform:translateY(-3px); border-color:#CB2CFB; box-shadow:0 10px 28px rgba(102,24,126,.16); }
+  .card .ico { width:58px; height:58px; margin:0 auto; border-radius:50%; background:#f7effc; display:flex; align-items:center; justify-content:center; color:#66187E; }
+  .card .ico svg { width:26px; height:26px; }
+  .card h2 { font-size:17px; font-weight:600; margin-top:12px; color:#1c1524; }
+  .card p { font-size:12.5px; color:#8a7d95; margin-top:6px; font-weight:400; line-height:1.5; }
+  .tiles { display:none; width:100%; max-width:640px; }
+  .card .who { font-size:11px; color:#a99bb5; font-weight:400; margin-top:5px; line-height:1.4; }
+  .tiles-label { grid-column:1/-1; width:100%; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.12em; color:#a21caf; margin:10px 0 0; display:flex; align-items:center; gap:10px; }
+  .tiles-label::after { content:""; flex:1; height:1.5px; background:#f1e7f7; border-radius:99px; }
+  .tiles.on, .cards.on { display:grid; }
+  .cards { display:none; }
+  .tiles { grid-template-columns:1fr; gap:13px; }
+  .tile { display:flex; align-items:center; gap:16px; background:white; border:1.5px solid #eadef0; border-radius:15px; padding:18px 22px;
+    cursor:pointer; transition:transform .12s, border-color .12s, box-shadow .12s; box-shadow:0 2px 8px rgba(102,24,126,.05); text-decoration:none; color:inherit; }
+  .tile:hover { transform:translateY(-2px); border-color:#CB2CFB; box-shadow:0 8px 22px rgba(102,24,126,.14); }
+  .tile .ico { width:46px; height:46px; border-radius:12px; background:linear-gradient(135deg,#66187E,#CB2CFB); display:flex; align-items:center; justify-content:center; color:white; flex-shrink:0; }
+  .tile .ico svg { width:21px; height:21px; }
+  .go svg { width:17px; height:17px; }
+  .tile .tx { flex:1; }
+  .tile h3 { font-size:15px; font-weight:600; }
+  .tile p { font-size:12px; color:#8a7d95; font-weight:400; margin-top:2px; }
+  .tile .go { font-size:18px; color:#CB2CFB; font-weight:600; }
+  .tile.soon { opacity:.55; cursor:default; }
+  .tile.soon:hover { transform:none; border-color:#eadef0; box-shadow:0 2px 8px rgba(102,24,126,.05); }
+  .back { display:none; margin-top:24px; background:none; border:1px solid #eadef0; border-radius:99px; padding:7px 18px;
+    font-family:inherit; font-size:12px; font-weight:600; color:#66187E; cursor:pointer; }
+  .back:hover { border-color:#CB2CFB; }
+  .back.on { display:inline-block; }
+  .foot { text-align:center; padding:16px; font-size:10.5px; font-weight:500; letter-spacing:.14em; text-transform:uppercase; color:#c3b5cd; }
+  .foot .dot { color:#CB2CFB; }
+  /* Passcode card — replaces the browser's prompt() */
+  .pad-wrap { position:fixed; inset:0; background:rgba(28,21,36,.32); backdrop-filter:blur(2px); display:none; align-items:center; justify-content:center; padding:20px; z-index:50; }
+  .pad { background:white; border:1.5px solid #eadef0; border-radius:16px; box-shadow:0 18px 50px rgba(102,24,126,.22); padding:30px 28px; width:100%; max-width:330px; text-align:center; }
+  .pad h2 { font-size:16px; font-weight:600; color:#1c1524; }
+  .pad p { font-size:12.5px; color:#8a7d95; margin-top:6px; font-weight:400; }
+  .pad input { width:100%; margin-top:18px; padding:11px 14px; font-family:inherit; font-size:15px; text-align:center; letter-spacing:.3em; border:1.5px solid #eadef0; border-radius:10px; outline:none; color:#1c1524; }
+  .pad input:focus { border-color:#CB2CFB; }
+  .pad button { width:100%; margin-top:12px; padding:11px; font-family:inherit; font-size:13px; font-weight:600; color:white; background:linear-gradient(135deg,#66187E,#CB2CFB); border:0; border-radius:10px; cursor:pointer; }
+  .pad .cancel { margin-top:10px; background:none; color:#8a7d95; font-weight:500; }
+  .pad .err { margin-top:14px; font-size:12px; font-weight:600; color:#b3005c; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="logo">
+    <img src="/logo.png" alt="The Kumler Group — Keeping It Real Estate">
+  </div>
+  <div class="prompt">Welcome to <b style="color:#66187E">THE HUB</b> — where would you like to go?</div>
+  <div class="tiles on" id="main">
+    <a class="tile" href="/checklist">
+      <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+      <div class="tx"><h3>Transaction Hub</h3><p>Buyers, listings &amp; tasks</p></div>
+      <div class="go">&rarr;</div>
+    </a>
+    <a class="tile" href="https://kumler-agent-hub.onrender.com">
+      <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg></div>
+      <div class="tx"><h3>Agent On-boarding &amp; Off-boarding</h3><p>Bringing agents on and winding them down</p></div>
+      <div class="go">&rarr;</div>
+    </a>
+    <a class="tile" href="/bot-tracker">
+      <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
+      <div class="tx"><h3>AI Assistants</h3><p>Bot performance tracker</p></div>
+      <div class="go">&rarr;</div>
+    </a>
+  </div>
+</div>
+<div class="foot">The Kumler Group <span class="dot">&middot;</span> Phoenix, AZ</div>
+</body>
+</html>`;
 
 // ─── SERVER ──────────────────────────────────────────────────────────────────
 
@@ -2422,7 +2422,16 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  // THE HUB is the front door for the whole team. The checklist itself now
+  // lives at /checklist; every API route below is unchanged, so the Formstack
+  // webhook keeps posting to the same address.
   if (pathname === "/" || pathname === "") {
+    res.writeHead(200, { "Content-Type": "text/html" });
+    res.end(HUB_PAGE);
+    return;
+  }
+
+  if (pathname === "/checklist") {
     const tc = url.searchParams.get('tc');
     if (!tc) {
       res.writeHead(200, { "Content-Type": "text/html" });

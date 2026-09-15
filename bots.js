@@ -1,7 +1,6 @@
 // AI Assistants (bot tracker) — ported from kumler-hub so it lives on the same
 // service as the TC checklist. Pulls live from Follow Up Boss; snapshots go to
 // the shared bot_store table, so the history built up in the hub carries over.
-import crypto from "crypto";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -14,49 +13,7 @@ export function setBotPool(p) { pool = p; }
 const BOT_PATHS = ["/bot-tracker", "/bot-tracker/login", "/api/bots/summary"];
 export const isBotPath = pathname => BOT_PATHS.includes(pathname);
 
-// ── Bot tracker access gate ──────────────────────────────────────────────────
-// The tracker lists real FUB lead names, so the passcode is checked here rather
-// than in the page — on a public URL a client-side check is readable in source.
-// BOT_SECRET keeps sessions alive across restarts; without it, a restart just
-// means everyone signs in again.
-const BOT_PASSCODE = process.env.BOT_PASSCODE || "3315";
-const BOT_SECRET = process.env.BOT_SECRET || crypto.randomBytes(32).toString("hex");
-const botToken = () => crypto.createHmac("sha256", BOT_SECRET).update(BOT_PASSCODE).digest("hex");
-function botAuthed(req) {
-  const raw = req.headers.cookie || "";
-  const hit = raw.split(";").map(c => c.trim()).find(c => c.startsWith("bt="));
-  if (!hit) return false;
-  const got = Buffer.from(hit.slice(3));
-  const want = Buffer.from(botToken());
-  return got.length === want.length && crypto.timingSafeEqual(got, want);
-}
-function botLoginPage(err) {
-  return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>AI Assistants — The Kumler Group</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<style>
-  * { box-sizing:border-box; margin:0; padding:0; }
-  body { font-family:'Inter',-apple-system,Helvetica,sans-serif; background:#fdfbfe; color:#1c1524; min-height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center; padding:30px 20px; }
-  .card { background:white; border:1.5px solid #eadef0; border-radius:16px; box-shadow:0 2px 10px rgba(102,24,126,.06); padding:30px 28px; width:100%; max-width:330px; text-align:center; }
-  h1 { font-size:16px; font-weight:600; }
-  p { font-size:12.5px; color:#8a7d95; margin-top:6px; }
-  input { width:100%; margin-top:18px; padding:11px 14px; font-family:inherit; font-size:15px; text-align:center; letter-spacing:.3em; border:1.5px solid #eadef0; border-radius:10px; outline:none; }
-  input:focus { border-color:#CB2CFB; }
-  button { width:100%; margin-top:12px; padding:11px; font-family:inherit; font-size:13px; font-weight:600; color:white; background:linear-gradient(135deg,#66187E,#CB2CFB); border:0; border-radius:10px; cursor:pointer; }
-  .err { margin-top:14px; font-size:12px; font-weight:600; color:#b3005c; }
-  .back { display:inline-block; margin-top:22px; font-size:12px; font-weight:600; color:#66187E; text-decoration:none; border:1px solid #eadef0; border-radius:99px; padding:8px 20px; background:white; }
-</style></head><body>
-<form class="card" method="POST" action="/bot-tracker/login">
-  <h1>AI Assistants</h1>
-  <p>Enter the passcode to continue.</p>
-  <input name="code" type="password" inputmode="numeric" autocomplete="off" autofocus>
-  <button type="submit">Continue</button>
-  ${err ? '<div class="err">Incorrect passcode.</div>' : ""}
-</form>
-<a class="back" href="/">← Back</a>
-</body></html>`;
-}
+// The bot tracker is open to anyone with the link — no passcode.
 
 // ── AI bot tracker (FUB) ─────────────────────────────────────────────────────
 // Key comes from the env var if one is set, otherwise from bot_store in the
@@ -114,36 +71,16 @@ async function botSave(snaps) {
 // Only called for paths isBotPath() claims, so every branch below answers the
 // request and the caller does not fall through to its own routing.
 export function handleBots(req, res) {
-  if (req.url.split("?")[0] === "/bot-tracker/login" && req.method === "POST") {
-    let body = "";
-    req.on("data", c => { body += c; if (body.length > 1e4) req.destroy(); });
-    req.on("end", () => {
-      const code = new URLSearchParams(body).get("code") || "";
-      if (code !== BOT_PASSCODE) {
-        res.writeHead(401, { "Content-Type": "text/html" });
-        return res.end(botLoginPage(true));
-      }
-      res.writeHead(302, {
-        "Set-Cookie": `bt=${botToken()}; HttpOnly; SameSite=Lax; Path=/; Max-Age=43200${req.headers["x-forwarded-proto"] === "https" ? "; Secure" : ""}`,
-        Location: "/bot-tracker",
-      });
-      res.end();
-    });
-    return;
+  // Nothing to sign in to any more; send old form posts to the tracker.
+  if (req.url.split("?")[0] === "/bot-tracker/login") {
+    res.writeHead(302, { Location: "/bot-tracker" });
+    return res.end();
   }
   if (req.url.split("?")[0] === "/bot-tracker") {
-    if (!botAuthed(req)) {
-      res.writeHead(200, { "Content-Type": "text/html" });
-      return res.end(botLoginPage(false));
-    }
     res.writeHead(200, { "Content-Type": "text/html" });
     return res.end(fs.readFileSync(path.join(__dirname, "bot-tracker.html")));
   }
   if (req.url.split("?")[0] === "/api/bots/summary") {
-    if (!botAuthed(req)) {
-      res.writeHead(401, { "Content-Type": "application/json" });
-      return res.end('{"error":"unauthorized"}');
-    }
     if (botCache.data && Date.now() - botCache.at < 10 * 60 * 1000) {
       res.writeHead(200, { "Content-Type": "application/json" });
       return res.end(botCache.data);
