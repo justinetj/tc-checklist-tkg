@@ -379,7 +379,7 @@ function getHTML(transaction, id, tc, related = []) {
   } else if (LISTING_COORDS.includes(tc)) {
     tasksHidden = !isPreUCListing;                                    // listing coordinator: only pre-UC listings
   } else {
-    tasksHidden = isPreUCListing || (assignedTC && assignedTC !== tc); // TC: everything except the listing-input phase
+    tasksHidden = isPreUCListing || (assignedTC && !tcOwns(tc, assignedTC)); // TC: everything except the listing-input phase
   }
 
   // Group items by day label
@@ -1142,7 +1142,7 @@ function getDashboardHTML(transactions, tc) {
   const isAdmin = !tc || tc === 'admin' || ADMIN_TCS.includes(tc);
   // Admin + coordinators (Joana/Ashley/Cinnamon) get the right-side task panel.
   // Leadership (Scott/Doug) don't — they get the full-width table.
-  const showDashTasks = tc === 'admin' || TC_NAMES.includes(tc);
+  const showDashTasks = tc === 'admin' || TC_NAMES.includes(tc) || tc === ROLE_TC || tc === ROLE_LC;
   function earliestDue(t) {
     const items = txnItems(t);
     const fields = t.fields || {};
@@ -1171,7 +1171,7 @@ function getDashboardHTML(transactions, tc) {
     if (LISTING_COORDS.includes(tc)) return isPreUCListingT;   // listing coordinator: pre-UC listings only
     if (isPreUCListingT) return false;                          // pre-UC listings belong to the listing coordinator
     const assigned = t.fields?.tcName || '';
-    return assigned === tc || assigned === '';
+    return tcOwns(tc, assigned) || assigned === '';
   };
 
   function fmt(dateStr) { if (!dateStr) return '—'; const [y,m,d] = dateStr.split('-'); return `${+m}/${+d}/${y.slice(2)}`; }
@@ -1240,7 +1240,7 @@ function getDashboardHTML(transactions, tc) {
   const popupTasks = [];
   if (!isAdmin) {
     for (const [pid, t] of allEntries) {
-      if ((t.fields?.tcName) !== tc || t.status === 'closed' || t.status === 'cancelled') continue;
+      if (!tcOwns(tc, t.fields?.tcName) || t.status === 'closed' || t.status === 'cancelled') continue;
       for (const mtk of (t.manualTasks || [])) {
         if (!mtk.done && mtk.due && mtk.due <= todayAZ()) {
           popupTasks.push({ id: pid, address: t.address || '(no address)', text: mtk.text, due: mtk.due });
@@ -1823,14 +1823,29 @@ document.getElementById('modal').addEventListener('click', function(e) {
 </body></html>`;
 }
 
+// ── Sign-in roles ────────────────────────────────────────────────────────────
+// The sign-in screen offers roles, not people. The TC card covers both TCs'
+// files, since the screen no longer says which TC is looking. Assigning a
+// transaction still uses real names (Joana, Ashley, Cinnamon) — see the tcName
+// and lcName dropdowns on a transaction.
+const ROLE_TC   = "Transaction Coordinator";
+const ROLE_LC   = "Listing Coordinator";
+const ROLE_LEAD = "Team Lead";
+const ROLE_DOO  = "Director of Operations";
+// Whose files the Transaction Coordinator card shows.
+const TC_ROLE_NAMES = ["Joana Guzman", "Ashley Belliveau"];
+// Does the signed-in role (or person) own a transaction assigned to `assigned`?
+const tcOwns = (tc, assigned) => tc === ROLE_TC ? TC_ROLE_NAMES.includes(assigned) : assigned === tc;
+
+// Real people, matched against incoming Formstack names — roles never go here.
 const TC_NAMES = ["Joana Guzman", "Ashley Belliveau", "Cinnamon Kumler"];
 const TC_COLORS = ["#9333ea", "#0d5c2e", "#b45309"];
 const TC_ROLES = { "Cinnamon Kumler": "Listing Coordinator" };
 // People with full admin-level access (see all transactions AND all tasks)
-const ADMIN_TCS = ["Scott Kumler"];
+const ADMIN_TCS = ["Scott Kumler", ROLE_LEAD];
 // Listing Coordinators: own the listing-INPUT (pre–Under Contract) tasks only.
 // The moment a listing goes Under Contract, its tasks hand off to the assigned TC.
-const LISTING_COORDS = ["Cinnamon Kumler"];
+const LISTING_COORDS = ["Cinnamon Kumler", ROLE_LC];
 
 function getTCSelectHTML() {
   return `<!DOCTYPE html>
@@ -1872,26 +1887,21 @@ function tcLogin(name) {
 </head>
 <body>
 <div class="logo"><img src="/logo.png" alt="The Kumler Group"></div>
-<div class="sub" id="sub">Transaction Hub — select your name</div>
+<div class="sub" id="sub">Transaction Hub — select your role</div>
 <div class="select-wrap" id="picker">
   <div class="tc-grid">
     ${(() => {
-      const people = [
-        { name: 'Joana Guzman',     role: 'Transaction Coordinator', color: '#9333ea', onclick: "tcLogin('Joana Guzman')" },
-        { name: 'Ashley Belliveau', role: 'Transaction Coordinator', color: '#0d5c2e', onclick: "tcLogin('Ashley Belliveau')" },
-        { name: 'Cinnamon Kumler',  role: 'Listing Coordinator',     color: '#b45309', onclick: "tcLogin('Cinnamon Kumler')" },
-        { name: 'Justine Johnston', role: 'Director of Operations',  color: '#7e22ce', onclick: "tcLogin('Justine Johnston')" },
-        { name: 'Scott Kumler',     role: 'Team Lead',               color: '#0f766e', onclick: "tcLogin('Scott Kumler')" },
+      const roles = [
+        { name: ROLE_TC,   initials: 'TC',  sub: 'Buyers &amp; listings under contract' },
+        { name: ROLE_LC,   initials: 'LC',  sub: 'Listings before under contract' },
+        { name: ROLE_LEAD, initials: 'TL',  sub: 'Every transaction' },
+        { name: ROLE_DOO,  initials: 'DOO', sub: 'Every transaction' },
       ];
-      people.sort((a, b) => a.name.split(' ')[0].localeCompare(b.name.split(' ')[0]));
-      return people.map((p) => {
-        const initials = p.name.split(' ').map(w => w[0]).join('');
-        return `<a class="tc-card" href="javascript:void(0)" onclick="${p.onclick}">
-          <div class="tc-avatar">${initials}</div>
-          <div class="tc-name">${p.name}</div>
-          <div class="tc-role">${p.role}</div>
-        </a>`;
-      }).join('');
+      return roles.map(r => `<a class="tc-card" href="javascript:void(0)" onclick="tcLogin('${r.name}')">
+          <div class="tc-avatar">${r.initials}</div>
+          <div class="tc-name">${r.name}</div>
+          <div class="tc-role">${r.sub}</div>
+        </a>`).join('');
     })()}
   </div>
   <a href="/" style="margin-top:30px;font-size:12px;font-weight:600;color:#66187E;text-decoration:none;border:1px solid #eadef0;border-radius:99px;padding:8px 20px;background:white">← Back</a>
@@ -2399,7 +2409,8 @@ const server = http.createServer(async (req, res) => {
     const data = await loadData();
     const tx = data.transactions[txMatch[1]];
     if (!tx) { res.writeHead(404); res.end("Not found"); return; }
-    const tc = url.searchParams.get('tc') || '';
+    let tc = url.searchParams.get('tc') || '';
+    if (tc === ROLE_DOO) tc = 'admin';
     // Cross-links between the sides of the same deal: linkedListingId points
     // from a child file (buy side / UC file) to its listing; show chips both ways.
     const chipFor = t => (t.type === 'buyer' || t.type === 'buyer-new-build') ? ['Linked Buy Side', 'View Buy Side']
@@ -2432,7 +2443,8 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (pathname === "/checklist") {
-    const tc = url.searchParams.get('tc');
+    let tc = url.searchParams.get('tc');
+    if (tc === ROLE_DOO) tc = 'admin';
     if (!tc) {
       res.writeHead(200, { "Content-Type": "text/html" });
       res.end(getTCSelectHTML());
