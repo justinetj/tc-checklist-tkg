@@ -1704,8 +1704,8 @@ function showTab(name) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('on', b.dataset.for === name));
   try { localStorage.tcTab = name; } catch(e) {}
 }
-// Always land on the dashboard, rather than reopening whatever tab was last used.
-showTab('dash');
+// Land on the transaction list, not the dashboard summary.
+showTab('buyers');
 function onTypeChange(val) {
   const isListing = val === 'listing';
   const isUC = val === 'listing-uc';
