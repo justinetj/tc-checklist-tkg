@@ -1017,7 +1017,7 @@ async function deleteManualTask(id) {
 }
 async function adminDeleteTxn() {
 function delGate(label) {
-  return confirm('Do you want to delete ' + label + '? This cannot be undone.');
+  return confirm('Delete ' + label + '?\\n\\nIt moves to the Deleted tab, where anyone can restore it.');
 }
   if (!delGate('this file')) return;
   const r = await fetch('/api/transactions/' + TXN_ID, { method:'DELETE' });
@@ -1158,7 +1158,11 @@ function getDashboardHTML(transactions, tc) {
     }
     return earliest || '9999-99-99';
   }
-  const allEntries = Object.entries(transactions).sort((a,b) => {
+  // Deleted files are held back from every list and shown only on the Deleted tab.
+  const deletedEntries = Object.entries(transactions)
+    .filter(([,t]) => t.deleted)
+    .sort((a,b) => (b[1].deletedAt || 0) - (a[1].deletedAt || 0));
+  const allEntries = Object.entries(transactions).filter(([,t]) => !t.deleted).sort((a,b) => {
     const da = earliestDue(a[1]), db = earliestDue(b[1]);
     if (da !== db) return da < db ? -1 : 1;
     return b[1].createdAt - a[1].createdAt;
@@ -1417,7 +1421,18 @@ function getDashboardHTML(transactions, tc) {
     <div class="tab-bar">
       <button class="tab-btn" data-for="dash" onclick="showTab('dash')"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Dashboard${needsAttention.length + pending.length ? ` <span class="tab-badge">${needsAttention.length + pending.length}</span>` : ''}</button>
       <button class="tab-btn" data-for="buyers" onclick="showTab('buyers')"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> Buyers (${active.length + listingUC.length})</button>
+      ${deletedEntries.length ? `<button class="tab-btn" data-for="deleted" onclick="showTab('deleted')"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg> Deleted (${deletedEntries.length})</button>` : ''}
       <button class="tab-btn" data-for="listings" onclick="showTab('listings')"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M20.59 13.41 11 3.83A2 2 0 0 0 9.59 3.24H4a1 1 0 0 0-1 1v5.59a2 2 0 0 0 .59 1.41l9.58 9.59a2 2 0 0 0 2.83 0l4.59-4.59a2 2 0 0 0 0-2.83z"/><circle cx="7.5" cy="7.5" r=".5"/></svg> Listings (${listings.length})</button>
+    </div>
+    <div data-tab="deleted">
+      <div class="shd shd-blue"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg> Deleted files &mdash; nothing here is gone for good</div>
+      <div class="card" style="margin-bottom:14px">
+        ${deletedEntries.length === 0 ? '<div class="empty">Nothing deleted.</div>' : `<div style="overflow-x:auto"><table><thead><tr><th>Address</th><th>Client</th><th>Agent</th><th>Deleted</th><th></th></tr></thead><tbody>${deletedEntries.map(([id, t]) => {
+          const f = t.fields || {};
+          const when = t.deletedAt ? new Date(t.deletedAt).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: '2-digit' }) : '\u2014';
+          return `<tr><td><strong>${(t.address || '(no address)')}</strong></td><td>${f.clientName || t.clientName || '\u2014'}</td><td>${f.agentPartner1 || '\u2014'}</td><td>${when}</td><td style="text-align:right"><button onclick="restoreTxn('${id}')" style="background:#faf0ff;color:#4a1160;border:none;padding:5px 12px;border-radius:5px;font-size:11.5px;font-weight:600;cursor:pointer">Restore</button></td></tr>`;
+        }).join('')}</tbody></table></div>`}
+      </div>
     </div>
     <div data-tab="dash">
     <div style="display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap">
@@ -1691,7 +1706,12 @@ ${popupTasks.length ? `
 <script>
 const IS_ADMIN = ${JSON.stringify(isAdmin)};
 function delGate(label) {
-  return confirm('Do you want to delete ' + label + '? This cannot be undone.');
+  return confirm('Delete ' + label + '?\\n\\nIt moves to the Deleted tab, where anyone can restore it.');
+}
+async function restoreTxn(id) {
+  const r = await fetch('/api/transactions/' + id + '/restore', { method:'POST' });
+  if (!r.ok) { alert('Could not restore that file.'); return; }
+  location.reload();
 }
 async function adminDelete(id) {
   if (!delGate('this file')) return;
@@ -2078,8 +2098,11 @@ const server = http.createServer(async (req, res) => {
   if (req.method === "DELETE" && deleteMatch) {
     const delId = deleteMatch[1];
     const blocked = await withData(data => {
-      if (Object.values(data.transactions).find(t => t.linkedListingId === delId)) return true;
-      delete data.transactions[delId];
+      if (Object.values(data.transactions).find(t => !t.deleted && t.linkedListingId === delId)) return true;
+      // Soft delete: the file drops out of every list, but the record stays so a
+      // mistaken delete can be undone from the Deleted tab.
+      const t = data.transactions[delId];
+      if (t) { t.deleted = true; t.deletedAt = Date.now(); }
       return false;
     });
     if (blocked) {
@@ -2087,6 +2110,17 @@ const server = http.createServer(async (req, res) => {
       res.end(JSON.stringify({ ok: false, error: 'This transaction has a linked Listing UC and cannot be deleted.' }));
       return;
     }
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ ok: true }));
+    return;
+  }
+
+  const restoreMatch = pathname.match(/^\/api\/transactions\/([^/]+)\/restore$/);
+  if (req.method === "POST" && restoreMatch) {
+    await withData(data => {
+      const t = data.transactions[restoreMatch[1]];
+      if (t) { delete t.deleted; delete t.deletedAt; }
+    });
     res.writeHead(200, { "Content-Type": "application/json" });
     res.end(JSON.stringify({ ok: true }));
     return;
