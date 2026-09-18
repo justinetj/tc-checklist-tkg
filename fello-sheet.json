@@ -1,6 +1,6 @@
 {
- "updated": "2026-09-08",
- "source": "AI Overviews.xlsx / Fello",
+ "updated": "2026-09-17",
+ "source": "AI Overviews.xlsx - Fello tab (verdict from row fill colour)",
  "rows": [
   {
    "name": "Brian Oliver",
@@ -504,6 +504,48 @@
    "agent": "",
    "status": "-",
    "note": "not a lead",
+   "verdict": "unmarked"
+  },
+  {
+   "name": "Robert Tomlinson",
+   "agent": "scott",
+   "status": "spoke with",
+   "note": "",
+   "verdict": "unmarked"
+  },
+  {
+   "name": "Destiny Michelson",
+   "agent": "brandi",
+   "status": "x",
+   "note": "",
+   "verdict": "unmarked"
+  },
+  {
+   "name": "Luis Rios",
+   "agent": "brandi",
+   "status": "x",
+   "note": "",
+   "verdict": "unmarked"
+  },
+  {
+   "name": "Robert Berry",
+   "agent": "time",
+   "status": "x",
+   "note": "",
+   "verdict": "unmarked"
+  },
+  {
+   "name": "Laryssa Rosales",
+   "agent": "jessenia",
+   "status": "spoke with",
+   "note": "not looking to buy or sell",
+   "verdict": "unmarked"
+  },
+  {
+   "name": "Fisnike Mirzo",
+   "agent": "brandi",
+   "status": "speaking with customer",
+   "note": "",
    "verdict": "unmarked"
   }
  ]
