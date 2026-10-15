@@ -21,6 +21,7 @@ setBotPool(pool);
 async function initDB() {
   await pool.query(`CREATE TABLE IF NOT EXISTS store (key TEXT PRIMARY KEY, value JSONB NOT NULL)`);
   await pool.query(`INSERT INTO store (key, value) VALUES ('data', '{"transactions":{}}') ON CONFLICT (key) DO NOTHING`);
+  await pool.query(`INSERT INTO store (key, value) VALUES ('doo', '{"logs":{}}') ON CONFLICT (key) DO NOTHING`);
 }
 
 async function loadData() {
@@ -1945,9 +1946,9 @@ const HUB_PAGE = `<!DOCTYPE html>
       <div class="tx"><h3>Agent On-boarding &amp; Off-boarding</h3><p>Bringing agents on and winding them down</p></div>
       <div class="go">&rarr;</div>
     </a>
-    <a class="tile" href="/bot-tracker">
-      <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
-      <div class="tx"><h3>AI Assistants</h3><p>Bot performance tracker</p></div>
+    <a class="tile" href="/doo">
+      <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
+      <div class="tx"><h3>DOO Daily Checklist</h3><p>Daily QC run-through &amp; notes</p></div>
       <div class="go">&rarr;</div>
     </a>
   </div>
@@ -1955,6 +1956,218 @@ const HUB_PAGE = `<!DOCTYPE html>
 <div class="foot">The Kumler Group <span class="dot">&middot;</span> Phoenix, AZ</div>
 </body>
 </html>`;
+
+// ─── DOO DAILY CHECKLIST ─────────────────────────────────────────────────────
+// Justine's own daily run-through. Lives on THE HUB so it is reachable from any
+// machine; state is one row in `store` keyed by day, so nothing rolls forward —
+// each day starts clean, the way a daily checklist should.
+const DOO_ITEMS = [
+  { id: "d1",  label: "Any closed transactions today?" },
+  { id: "d18", label: "Any cancellations today?" },
+  { id: "d2",  label: "New listings coming to market?" },
+  { id: "d11", label: "New escrows and listings updated?" },
+  { id: "d5",  label: "Team leads — any new / follow-ups needed?" },
+  { id: "d14", label: "Check daily HW leads" },
+  { id: "d15", label: "Check daily Fello handoffs" },
+  { id: "d21", label: "Listen to Zillow calls" },
+  { id: "d29", label: "Check onboarding & offboarding" },
+  { id: "d6",  label: "MONDAYS — Check Maverick alerts", day: 1 },
+  { id: "d7",  label: "MONDAYS — Trash leads in pond?", day: 1 },
+  { id: "d8",  label: "MONDAYS — Send weekly seller email", day: 1 },
+  { id: "d17", label: "MONDAYS — Send team reminder for Tuesday Tech", day: 1 },
+  { id: "d26", label: "TUESDAYS — Fello deep dive", day: 2 },
+  { id: "d27", label: "TUESDAYS — House Whisper deep dive", day: 2 },
+  { id: "d30", label: "TUESDAYS — Check in with interviewed recruits", day: 2 },
+  { id: "d20", label: "WEDNESDAYS — Write and schedule blog", day: 3 },
+  { id: "d23", label: "WEDNESDAYS — Maverick nudges", day: 3 },
+  { id: "d9",  label: "FRIDAYS — QC Progress check", day: 5 },
+  { id: "d13", label: "FRIDAYS — Confirm Tuesday tech guest", day: 5 },
+  { id: "d19", label: "FRIDAYS — Send Scott blog post for next Tuesday", day: 5 },
+  { id: "d10", label: "END OF MONTH — Review ISA leads", endOfMonth: true },
+  { id: "d12", label: "END OF MONTH — NEW ISA calling number (changes on the 1st)", endOfMonth: true },
+  { id: "d22", label: "END OF MONTH — Workbook updates", endOfMonth: true },
+  { id: "d28", label: "MONTH END", firstOfMonth: true },
+  { id: "d28a", label: "Past agents", indent: true, firstOfMonth: true },
+];
+
+// Tuesdays also carry last week's contract QC, appended under the daily list.
+const DOO_TUESDAY_ITEMS = [
+  { id: "t1", label: "Title?" },
+  { id: "t2", label: "Home warranty?" },
+  { id: "t3", label: "Lending?" },
+  { id: "t4", label: "Zillow payments — logged & amount verified?" },
+  { id: "t5", label: "Zillow status — updated to correct status?" },
+  { id: "t6", label: "FUB status — updated for all transactions?" },
+  { id: "t7", label: "Commission splits verified?" },
+];
+
+function dooDayInfo(dateKey) {
+  const d = new Date(dateKey + "T12:00:00");
+  const dow = d.getDay();
+  const lastDay = new Date(d.getFullYear(), d.getMonth() + 1, 0);
+  const lastBiz = new Date(lastDay);
+  while (lastBiz.getDay() === 0 || lastBiz.getDay() === 6) lastBiz.setDate(lastBiz.getDate() - 1);
+  return {
+    date: d,
+    dow,
+    dayName: d.toLocaleDateString("en-US", { weekday: "long" }),
+    dateLabel: d.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }),
+    isTuesday: dow === 2,
+    isEndOfMonth: d.getDate() === lastBiz.getDate() && d.getMonth() === lastBiz.getMonth(),
+    isFirstOfMonth: d.getDate() === 1,
+  };
+}
+
+function dooVisibleItems(info) {
+  return DOO_ITEMS.filter(i =>
+    (i.day === undefined || i.day === info.dow) &&
+    (!i.endOfMonth || info.isEndOfMonth) &&
+    (!i.firstOfMonth || info.isFirstOfMonth));
+}
+
+function dooShift(dateKey, days) {
+  const d = new Date(dateKey + "T12:00:00");
+  d.setDate(d.getDate() + days);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+function dooEscape(s) {
+  return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+
+function getDooHTML(dateKey, entry, isToday) {
+  const checked = (entry && entry.checked) || {};
+  const note = (entry && entry.note) || "";
+  const info = dooDayInfo(dateKey);
+  const daily = dooVisibleItems(info);
+  const tue = info.isTuesday ? DOO_TUESDAY_ITEMS : [];
+  const all = daily.concat(tue);
+  const done = all.filter(i => checked[i.id]).length;
+
+  const row = i => `
+    <label class="drow${checked[i.id] ? " on" : ""}${i.indent ? " sub" : ""}" for="x-${i.id}">
+      <input type="checkbox" id="x-${i.id}" ${checked[i.id] ? "checked" : ""} onchange="tick('${i.id}', this.checked)">
+      <span class="dlabel">${dooEscape(i.label)}</span>
+    </label>`;
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DOO Daily Checklist — The Kumler Group</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'Inter',sans-serif; background:#fdfbfe; color:#1c1524; padding:0 0 60px; }
+  .topbar { background:linear-gradient(135deg,#66187E,#CB2CFB); color:white; padding:14px 22px; display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap; }
+  .topbar h1 { font-size:16px; font-weight:600; letter-spacing:.01em; }
+  .topbar .home { color:white; text-decoration:none; font-size:12px; font-weight:600; border:1px solid rgba(255,255,255,.45); border-radius:99px; padding:6px 14px; }
+  .topbar .home:hover { background:rgba(255,255,255,.14); }
+  .wrap { max-width:720px; margin:0 auto; padding:20px 16px 0; }
+  .daterow { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:14px; flex-wrap:wrap; }
+  .daterow .when { font-size:14px; font-weight:600; color:#1c1524; }
+  .daterow .when span { color:#8a7d95; font-weight:400; }
+  .nav { display:flex; gap:7px; }
+  .nav a { text-decoration:none; font-size:12px; font-weight:600; color:#66187E; border:1px solid #eadef0; background:white; border-radius:99px; padding:6px 13px; }
+  .nav a:hover { border-color:#CB2CFB; }
+  .nav a.now { background:#f7effc; }
+  .card { background:white; border:1.5px solid #eadef0; border-radius:16px; overflow:hidden; box-shadow:0 2px 10px rgba(102,24,126,.06); }
+  .chead { background:#66187E; color:white; padding:10px 16px; display:flex; align-items:center; justify-content:space-between; font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:.06em; }
+  .subhdr { background:#faf5fd; color:#5b2470; padding:8px 16px; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.07em; border-top:1px solid #f1e7f7; border-bottom:1px solid #f1e7f7; }
+  .drow { display:flex; align-items:flex-start; gap:11px; padding:9px 16px; border-top:1px solid #f6f1f9; cursor:pointer; }
+  .drow:first-of-type { border-top:0; }
+  .drow:hover { background:#fdfaff; }
+  .drow.sub { padding-left:40px; }
+  .drow input { appearance:none; -webkit-appearance:none; width:17px; height:17px; margin-top:1px; flex:none; border:1.5px solid #c3b5cd; border-radius:4px; background:white; cursor:pointer; display:grid; place-content:center; }
+  .drow input:checked { background:#66187E; border-color:#66187E; }
+  .drow input:checked::after { content:""; width:9px; height:5px; border-left:2px solid white; border-bottom:2px solid white; transform:rotate(-45deg) translate(1px,-1px); }
+  .dlabel { font-size:14px; line-height:1.45; }
+  .drow.on .dlabel { color:#a99bb5; text-decoration:line-through; }
+  .notes { margin-top:18px; }
+  .notes h2 { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:#a21caf; margin-bottom:8px; }
+  .notes textarea { width:100%; min-height:150px; resize:vertical; background:white; border:1.5px solid #eadef0; border-radius:14px; padding:13px 15px; font-family:inherit; font-size:14px; line-height:1.6; color:#1c1524; outline:none; }
+  .notes textarea:focus { border-color:#CB2CFB; }
+  .saved { font-size:11px; font-weight:600; color:#8a7d95; margin-top:7px; min-height:15px; letter-spacing:.03em; }
+  .foot { text-align:center; padding:26px 16px 0; font-size:10.5px; font-weight:500; letter-spacing:.14em; text-transform:uppercase; color:#c3b5cd; }
+  @media (max-width:520px) { .drow.sub { padding-left:32px; } .wrap { padding-top:14px; } }
+</style>
+</head>
+<body>
+<div class="topbar">
+  <h1>DOO Daily Checklist</h1>
+  <a class="home" href="/">&larr; THE HUB</a>
+</div>
+<div class="wrap">
+  <div class="daterow">
+    <div class="when">${info.dayName}, ${info.dateLabel}${isToday ? '' : ' <span>(not today)</span>'}</div>
+    <div class="nav">
+      <a href="/doo?date=${dooShift(dateKey, -1)}">&lsaquo; Prev</a>
+      <a class="now" href="/doo">Today</a>
+      <a href="/doo?date=${dooShift(dateKey, 1)}">Next &rsaquo;</a>
+    </div>
+  </div>
+  <div class="card">
+    <div class="chead"><span>Daily QC</span><span id="count">${done}/${all.length}</span></div>
+    ${daily.map(row).join("")}
+    ${tue.length ? `<div class="subhdr">Tuesday &mdash; Contract QC (previous week)</div>${tue.map(row).join("")}` : ""}
+  </div>
+  <div class="notes">
+    <h2>Notes &mdash; ${info.dateLabel}</h2>
+    <textarea id="note" placeholder="Anything worth remembering from today…" onchange="saveNote(this.value)">${dooEscape(note)}</textarea>
+    <div class="saved" id="saved"></div>
+  </div>
+  <div class="foot">The Kumler Group &middot; Phoenix, AZ</div>
+</div>
+<script>
+  var DATE = ${JSON.stringify(dateKey)};
+  var TOTAL = ${all.length};
+  function flash(t) { document.getElementById('saved').textContent = t; }
+  function tick(id, checked) {
+    var row = document.getElementById('x-' + id).closest('.drow');
+    if (row) row.classList.toggle('on', checked);
+    var n = document.querySelectorAll('.drow input:checked').length;
+    document.getElementById('count').textContent = n + '/' + TOTAL;
+    fetch('/api/doo/check', { method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ date: DATE, id: id, checked: checked }) })
+      .catch(function () { flash('Could not save that check — reload and try again'); });
+  }
+  function saveNote(v) {
+    flash('Saving…');
+    fetch('/api/doo/note', { method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ date: DATE, note: v }) })
+      .then(function () { flash('Saved'); })
+      .catch(function () { flash('Could not save — copy your note before leaving'); });
+  }
+</script>
+</body>
+</html>`;
+}
+
+async function loadDoo() {
+  const r = await pool.query(`SELECT value FROM store WHERE key = 'doo'`);
+  return r.rows[0]?.value || { logs: {} };
+}
+
+async function saveDoo(d) {
+  await pool.query(`INSERT INTO store (key, value) VALUES ('doo', $1)
+                    ON CONFLICT (key) DO UPDATE SET value = $1`, [JSON.stringify(d)]);
+}
+
+// Same single-writer queue as the transactions blob: two quick clicks must not
+// each load the day's log and save over one another.
+let dooChain = Promise.resolve();
+function withDoo(mutate) {
+  const run = dooChain.then(async () => {
+    const d = await loadDoo();
+    if (!d.logs) d.logs = {};
+    const result = await mutate(d);
+    await saveDoo(d);
+    return result;
+  });
+  dooChain = run.catch(() => {});
+  return run;
+}
 
 // ─── SERVER ──────────────────────────────────────────────────────────────────
 
@@ -2423,6 +2636,43 @@ const server = http.createServer(async (req, res) => {
     const data = await loadData();
     res.writeHead(200, { "Content-Type": "text/html" });
     res.end(getDashboardHTML(data.transactions, tc));
+    return;
+  }
+
+  // DOO Daily Checklist — Justine's own daily run-through
+  if (pathname === "/doo") {
+    const q = url.searchParams.get("date") || "";
+    const dateKey = /^\d{4}-\d{2}-\d{2}$/.test(q) ? q : todayAZ();
+    const doo = await loadDoo();
+    res.writeHead(200, { "Content-Type": "text/html" });
+    res.end(getDooHTML(dateKey, (doo.logs || {})[dateKey], dateKey === todayAZ()));
+    return;
+  }
+
+  if (req.method === "POST" && (pathname === "/api/doo/check" || pathname === "/api/doo/note")) {
+    let body = "";
+    req.on("data", d => body += d);
+    req.on("end", async () => {
+      try {
+        const p = JSON.parse(body);
+        const dateKey = /^\d{4}-\d{2}-\d{2}$/.test(p.date || "") ? p.date : todayAZ();
+        await withDoo(d => {
+          const entry = d.logs[dateKey] || (d.logs[dateKey] = { checked: {}, note: "" });
+          if (!entry.checked) entry.checked = {};
+          if (pathname === "/api/doo/check") {
+            if (p.checked) entry.checked[p.id] = true;
+            else delete entry.checked[p.id];
+          } else {
+            entry.note = String(p.note == null ? "" : p.note);
+          }
+        });
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ ok: true }));
+      } catch (err) {
+        res.writeHead(400, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ ok: false, error: String(err && err.message || err) }));
+      }
+    });
     return;
   }
 
