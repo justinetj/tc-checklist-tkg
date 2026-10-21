@@ -2129,6 +2129,14 @@ function getDooHTML(dateKey, entry, isToday) {
   .drow input:checked::after { content:""; width:9px; height:5px; border-left:2px solid white; border-bottom:2px solid white; transform:rotate(-45deg) translate(1px,-1px); }
   .dlabel { font-size:14px; line-height:1.45; }
   .drow.on .dlabel { color:#a99bb5; text-decoration:line-through; }
+  .reflinks { margin-top:22px; padding-top:16px; border-top:1.5px solid #eadef0; }
+  .reflinks h2 { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:#a21caf; margin-bottom:9px; }
+  .reflinks a { display:flex; align-items:center; justify-content:space-between; gap:12px;
+    background:white; border:1.5px solid #eadef0; border-radius:14px; padding:12px 15px;
+    font-size:14px; font-weight:600; color:#1c1524; text-decoration:none; }
+  .reflinks a + a { margin-top:8px; }
+  .reflinks a span { color:#CB2CFB; font-weight:400; }
+  .reflinks a:hover { border-color:#CB2CFB; }
   .notes { margin-top:18px; }
   .notes h2 { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:#a21caf; margin-bottom:8px; }
   .notes textarea { width:100%; min-height:150px; resize:vertical; background:white; border:1.5px solid #eadef0; border-radius:14px; padding:13px 15px; font-family:inherit; font-size:14px; line-height:1.6; color:#1c1524; outline:none; }
@@ -2161,6 +2169,10 @@ function getDooHTML(dateKey, entry, isToday) {
     <h2>Notes &mdash; ${info.dateLabel}</h2>
     <textarea id="note" placeholder="Anything worth remembering from today…" onchange="saveNote(this.value)">${dooEscape(note)}</textarea>
     <div class="saved" id="saved"></div>
+  </div>
+  <div class="reflinks">
+    <h2>Reference</h2>
+    <a href="/meetings?user=DOO">Monthly Group Meetings<span>&rarr;</span></a>
   </div>
   <div class="foot">The Kumler Group &middot; Phoenix, AZ</div>
 </div>
