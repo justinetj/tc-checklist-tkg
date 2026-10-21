@@ -5,6 +5,7 @@ import { fileURLToPath } from "url";
 import crypto from "crypto";
 import pg from "pg";
 import { isBotPath, handleBots, setBotPool } from "./bots.js";
+import { isMeetingPath, meetingsHTML, normalize as normMeetings, rosterNames } from "./meetings.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -1869,6 +1870,45 @@ const ADMIN_TCS = ["Scott Kumler", ROLE_LEAD];
 const LISTING_COORDS = ["Cinnamon Kumler", ROLE_LC];
 
 
+
+// ─── MONTHLY GROUP MEETINGS ──────────────────────────────────────────────────
+// Moved here from the agent hub. The rows stay in onboard_store under 'meetings',
+// the same table and key the agent hub used, so existing sign-ups carry over.
+const ADMIN_USER = "DOO";
+
+function readJsonBody(req) {
+  return new Promise(resolve => {
+    let raw = "";
+    req.on("data", c => { raw += c; if (raw.length > 1e6) req.destroy(); });
+    req.on("end", () => { try { resolve(JSON.parse(raw || "{}")); } catch { resolve({}); } });
+    req.on("error", () => resolve({}));
+  });
+}
+
+let meetInit;
+async function initMeetings() {
+  if (!meetInit) meetInit = pool.query(`CREATE TABLE IF NOT EXISTS onboard_store (key TEXT PRIMARY KEY, value JSONB NOT NULL)`);
+  await meetInit;
+}
+async function loadMeetings() {
+  await initMeetings();
+  const r = await pool.query(`SELECT value FROM onboard_store WHERE key = 'meetings'`);
+  return normMeetings(r.rows[0]?.value);
+}
+let meetQueue = Promise.resolve();
+function withMeetings(fn) {
+  const job = meetQueue.then(async () => {
+    const m = await loadMeetings();
+    const out = fn(m);
+    await pool.query(
+      `INSERT INTO onboard_store (key, value) VALUES ('meetings', $1)
+       ON CONFLICT (key) DO UPDATE SET value = $1`, [JSON.stringify(m)]);
+    return out;
+  });
+  meetQueue = job.catch(() => {});
+  return job;
+}
+
 const HUB_PAGE = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1949,6 +1989,11 @@ const HUB_PAGE = `<!DOCTYPE html>
     <a class="tile" href="/doo">
       <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
       <div class="tx"><h3>DOO Daily Checklist</h3><p>Daily QC run-through &amp; notes</p></div>
+      <div class="go">&rarr;</div>
+    </a>
+    <a class="tile" href="/meetings">
+      <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+      <div class="tx"><h3>Monthly Group Meetings</h3><p>Pick a date &amp; see who is signed up</p></div>
       <div class="go">&rarr;</div>
     </a>
   </div>
@@ -2674,6 +2719,71 @@ const server = http.createServer(async (req, res) => {
       }
     });
     return;
+  }
+
+
+  // ── Monthly Group Meetings ──────────────────────────────
+  if (isMeetingPath(pathname)) {
+    const isAdmin = (url.searchParams.get("user") || "") === ADMIN_USER;
+    if (req.method === "GET" && pathname === "/meetings") {
+      const m = await loadMeetings();
+      res.writeHead(200, { "Content-Type": "text/html" });
+      return res.end(meetingsHTML(m, isAdmin));
+    }
+    if (req.method === "POST") {
+      const b = await readJsonBody(req);
+      const json = (code, payload) => { res.writeHead(code, { "Content-Type": "application/json" }); res.end(JSON.stringify(payload)); };
+
+      if (pathname === "/api/meetings/signup") {
+        const agent = String(b.agent || "").trim();
+        const dateId = String(b.dateId || "");
+        if (!rosterNames().includes(agent)) return json(400, { error: "Not a name on the roster." });
+        // Cap and duplicate checks run inside the write queue, so the last
+        // seat cannot be handed to two people at once.
+        const out = await withMeetings(m => {
+          const d = m.dates.find(x => x.id === dateId);
+          if (!d) return { error: "That date is gone." };
+          if (m.signups[agent]) return { error: "You are already booked." };
+          const taken = Object.values(m.signups).filter(v => v === dateId).length;
+          if (taken >= m.cap) return { error: "That date just filled up." };
+          m.signups[agent] = dateId;
+          return { ok: true };
+        });
+        return out.error ? json(409, out) : json(200, out);
+      }
+
+      if (!isAdmin) return json(403, { error: "Operations only." });
+
+      if (pathname === "/api/meetings/remove") {
+        const agent = String(b.agent || "");
+        await withMeetings(m => { delete m.signups[agent]; });
+        return json(200, { ok: true });
+      }
+      if (pathname === "/api/meetings/config") {
+        const cap = Number(b.cap) > 0 ? Math.floor(Number(b.cap)) : 9;
+        const lines = Array.isArray(b.dates) ? b.dates : [];
+        const parsed = [];
+        for (const line of lines) {
+          const mm = String(line).trim().match(/^(\d{4}-\d{2}-\d{2})(?:[ T](\d{1,2}:\d{2}))?$/);
+          if (!mm) return json(400, { error: "Could not read: " + line });
+          parsed.push({ iso: mm[1], time: mm[2] ? mm[2].padStart(5, "0") : "" });
+        }
+        await withMeetings(m => {
+          // Keep ids stable for dates that survive an edit, so nobody's seat moves.
+          const byKey = new Map(m.dates.map(d => [d.iso + " " + (d.time || ""), d]));
+          const next = parsed.map((d, i) => {
+            const hit = byKey.get(d.iso + " " + d.time);
+            return hit ? { ...hit, iso: d.iso, time: d.time } : { id: "m" + Date.now().toString(36) + i, iso: d.iso, time: d.time };
+          });
+          const liveIds = new Set(next.map(d => d.id));
+          for (const [agent, dateId] of Object.entries(m.signups)) if (!liveIds.has(dateId)) delete m.signups[agent];
+          m.dates = next;
+          m.cap = cap;
+        });
+        return json(200, { ok: true });
+      }
+    }
+    res.writeHead(404); return res.end("Not found");
   }
 
   res.writeHead(404);
