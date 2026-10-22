@@ -6,6 +6,7 @@ import crypto from "crypto";
 import pg from "pg";
 import { isBotPath, handleBots, setBotPool } from "./bots.js";
 import { isMeetingPath, meetingsHTML, normalize as normMeetings, rosterNames } from "./meetings.js";
+import { isOnboardPath, handleOnboarding, setOnboardPool } from "./onboarding.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -18,6 +19,7 @@ const { Pool } = pg;
 const pool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } });
 const PORT = process.env.PORT || 3002;
 setBotPool(pool);
+setOnboardPool(pool);
 
 async function initDB() {
   await pool.query(`CREATE TABLE IF NOT EXISTS store (key TEXT PRIMARY KEY, value JSONB NOT NULL)`);
@@ -1981,7 +1983,7 @@ const HUB_PAGE = `<!DOCTYPE html>
       <div class="tx"><h3>Transaction Hub</h3><p>Buyers, listings &amp; tasks</p></div>
       <div class="go">&rarr;</div>
     </a>
-    <a class="tile" href="https://kumler-agent-hub.onrender.com">
+    <a class="tile" href="/onboarding?user=DOO">
       <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg></div>
       <div class="tx"><h3>Agent On-boarding &amp; Off-boarding</h3><p>Bringing agents on and winding them down</p></div>
       <div class="go">&rarr;</div>
@@ -2733,6 +2735,11 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+
+  // ── Agent On-boarding & Off-boarding ────────────────────
+  if (isOnboardPath(pathname)) {
+    return handleOnboarding(req, res, url, () => readJsonBody(req));
+  }
 
   // ── Monthly Group Meetings ──────────────────────────────
   if (isMeetingPath(pathname)) {
